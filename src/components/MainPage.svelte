@@ -1,95 +1,43 @@
 <script lang="ts">
-  import { Utils } from "@mmote/niimbluelib";
-  import BrowserWarning from "$/components/basic/BrowserWarning.svelte";
-  import LabelDesigner from "$/components/LabelDesigner.svelte";
-  import PrinterConnector from "$/components/PrinterConnector.svelte";
-  import { locale, locales, tr } from "$/utils/i18n";
-  import DebugStuff from "$/components/DebugStuff.svelte";
-  import MdIcon from "$/components/basic/MdIcon.svelte";
+  // PIKT: App shell (Chantier 0). Store-based navigation between top-level pages with a persistent
+  // top app bar + bottom navigation. The editor is a focused full-screen page.
+  import { currentPage } from "$/stores/navigation";
+  import { tr } from "$/utils/i18n";
+  import TopAppBar from "$/components/navigation/TopAppBar.svelte";
+  import BottomNavigation from "$/components/navigation/BottomNavigation.svelte";
+  import HomePage from "$/components/pages/HomePage.svelte";
+  import EditorPage from "$/components/pages/EditorPage.svelte";
+  import BatchesListPage from "$/components/pages/BatchesListPage.svelte";
+  import LibraryPage from "$/components/pages/LibraryPage.svelte";
+  import SettingsPage from "$/components/pages/SettingsPage.svelte";
 
-  // eslint-disable-next-line no-undef
-  const appCommit = __APP_COMMIT__;
-  // eslint-disable-next-line no-undef
-  const buildDate = __BUILD_DATE__;
-
-  let isStandalone = Utils.getAvailableTransports().capacitorBle || "__TAURI__" in window;
-
-  let debugStuffShow = $state<boolean>(false);
+  const titles = {
+    home: "nav.home",
+    editor: "nav.editor",
+    batches: "nav.batches",
+    library: "nav.library",
+    settings: "nav.settings",
+  } as const;
 </script>
 
-<div class="container my-2">
-  <div class="row align-items-center mb-3">
-    <div class="col">
-      <h1 class="title">
-        <span class="niim">Niim</span><span class="blue">Blue{isStandalone ? "s" : ""}</span>
-      </h1>
-    </div>
-    <div class="col-md-3">
-      <PrinterConnector />
-    </div>
-  </div>
-  <div class="row">
-    <div class="col">
-      <BrowserWarning />
-    </div>
-  </div>
+{#if $currentPage === "editor"}
+  <EditorPage />
+{:else}
+  <div class="flex h-dvh flex-col bg-surface-50-950 text-surface-950-50">
+    <TopAppBar title={$tr(titles[$currentPage])} />
 
-  <div class="row">
-    <div class="col">
-      <LabelDesigner />
-    </div>
-  </div>
-</div>
+    <main class="relative flex-1 overflow-y-auto">
+      {#if $currentPage === "home"}
+        <HomePage />
+      {:else if $currentPage === "batches"}
+        <BatchesListPage />
+      {:else if $currentPage === "library"}
+        <LibraryPage />
+      {:else if $currentPage === "settings"}
+        <SettingsPage />
+      {/if}
+    </main>
 
-<div class="footer text-end text-secondary p-3">
-  <div>
-    <select class="form-select form-select-sm text-secondary d-inline-block w-auto" bind:value={$locale}>
-      {#each Object.entries(locales) as [key, name] (key)}
-        <option value={key}>{name}</option>
-      {/each}
-    </select>
+    <BottomNavigation />
   </div>
-  <div>
-    {#if appCommit}
-      <a class="text-secondary" href="https://github.com/MultiMote/niimblue/commit/{appCommit}">
-        {appCommit.slice(0, 6)}
-      </a>
-    {/if}
-    {$tr("main.built")}
-    {buildDate}
-  </div>
-  <div>
-    <a class="text-secondary" href="https://github.com/MultiMote/niimblue">{$tr("main.code")}</a>
-    <button class="text-secondary btn btn-link p-0" onclick={() => debugStuffShow = true}>
-      <MdIcon icon="bug_report" />
-    </button>
-  </div>
-</div>
-
-{#if debugStuffShow}
-  <DebugStuff bind:show={debugStuffShow} />
 {/if}
-
-<style>
-  .niim {
-    color: #ff5349;
-  }
-
-  .blue {
-    color: #0b7eff;
-  }
-
-  .footer {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    z-index: -1;
-  }
-
-  @media only screen and (max-device-width: 540px) {
-    .footer {
-      position: relative !important;
-      z-index: 0 !important;
-    }
-  }
-</style>
