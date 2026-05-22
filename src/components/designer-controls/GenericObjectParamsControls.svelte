@@ -14,6 +14,25 @@
 
   let { selectedObject, editRevision, valueUpdated }: Props = $props();
 
+  // PIKT: keep-ratio toggle (Chantier 2). Hiding the side handles leaves only the corner handles,
+  // which scale uniformly — i.e. resizing preserves the object's proportions.
+  let keepRatio = $state<boolean>(false);
+
+  $effect(() => {
+    editRevision;
+    keepRatio = (selectedObject as unknown as { pikKeepRatio?: boolean }).pikKeepRatio ?? false;
+  });
+
+  const toggleKeepRatio = () => {
+    keepRatio = !keepRatio;
+    (selectedObject as unknown as { pikKeepRatio?: boolean }).pikKeepRatio = keepRatio;
+    // Hide the mid-edge handles so only the corner handles remain — those scale uniformly
+    // (canvas.uniformScaling defaults to true), i.e. resizing preserves proportions.
+    selectedObject.setControlsVisibility({ mt: !keepRatio, mb: !keepRatio, ml: !keepRatio, mr: !keepRatio });
+    selectedObject.setCoords();
+    selectedObject.canvas?.renderAll();
+  };
+
   const putToCenterV = () => {
     selectedObject.canvas!.centerObjectV(selectedObject);
     valueUpdated();
@@ -74,6 +93,14 @@
 </button>
 <button class="btn btn-sm btn-secondary" onclick={putToCenterH} title={$tr("params.generic.center.horizontal")}>
   <MdIcon icon="horizontal_distribute" />
+</button>
+
+<button
+  type="button"
+  class="tool-action {keepRatio ? 'tool-action-active' : ''}"
+  onclick={toggleKeepRatio}
+  title={$tr("params.generic.keep_ratio")}>
+  <MdIcon icon="aspect_ratio" /><span>{$tr("params.generic.keep_ratio")}</span>
 </button>
 
 <ObjectPositionControls {selectedObject} />

@@ -16,8 +16,8 @@ const STYLE = "";
 
 // material-icons names (underscore) used as UI chrome (MdIcon). sv-check enforces this stays complete.
 const CHROME = [
-  // PIKT navigation/shell icons (Chantier 0)
-  "home", "dashboard", "photo_library", "bolt", "add_photo_alternate", "style", "inventory_2",
+  // PIKT navigation/shell + editor icons (Chantier 0/2)
+  "home", "dashboard", "photo_library", "bolt", "add_photo_alternate", "style", "inventory_2", "aspect_ratio",
   "123", "abc", "add", "arrow_downward", "auto_fix_high",
   "battery_0_bar", "battery_2_bar", "battery_3_bar", "battery_5_bar", "battery_full",
   "bluetooth", "bug_report", "calendar_today", "cancel_presentation", "chevron_left",
