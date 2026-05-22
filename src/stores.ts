@@ -29,6 +29,7 @@ import {
 import { Toasts } from "$/utils/toasts";
 import { tr } from "$/utils/i18n";
 import { LocalStoragePersistence, writablePersisted } from "$/utils/persistence";
+import { lookupLabelSize, type DetectedLabel } from "$/services/labelSizeLookup"; // PIKT: RFID barcode -> size (Chantier 2)
 import { APP_CONFIG_DEFAULTS, CSV_DEFAULT, OBJECT_DEFAULTS_TEXT } from "$/defaults";
 import z from "zod";
 import { FileUtils } from "$/utils/file_utils";
@@ -45,6 +46,7 @@ export const printerClient = writable<NiimbotAbstractClient>();
 export const heartbeatData = writable<HeartbeatData>();
 export const printerInfo = writable<PrinterInfo>();
 export const rfidInfo = writable<RfidInfo | undefined>();
+export const detectedLabel = writable<DetectedLabel | undefined>(); // PIKT: size resolved from the RFID barcode
 export const ribbonRfidInfo = writable<RfidInfo | undefined>();
 export const printerMeta = writable<PrinterModelMeta | undefined>();
 export const heartbeatFails = writable<number>(0);
@@ -70,7 +72,18 @@ export const refreshRfidInfo = () => {
     return;
   }
 
-  client.abstraction.rfidInfo().then(rfidInfo.set).catch(console.error);
+  client.abstraction
+    .rfidInfo()
+    .then((info) => {
+      rfidInfo.set(info);
+      // PIKT: resolve physical size from the barcode — online API, cached, offline fallback (Chantier 2)
+      if (info?.barCode) {
+        lookupLabelSize(info.barCode)
+          .then((label) => label && detectedLabel.set(label))
+          .catch(() => {});
+      }
+    })
+    .catch(console.error);
 
   client.abstraction
     .rfidInfo2()
