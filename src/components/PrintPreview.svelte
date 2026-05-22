@@ -458,14 +458,37 @@
         onClick={toggleSavedProp} />
     </div>
 
-    <div class="input-group flex-nowrap input-group-sm">
-      <span class="input-group-text">{$tr("preview.copies")}</span>
-      <input
-        class="form-control"
-        type="number"
-        min="1"
-        bind:value={quantity}
-        onchange={() => updateSavedProp("quantity", quantity)} />
+    <!-- PIKT: copies stepper (Chantier 0.5) -->
+    <div class="flex items-center gap-2">
+      <span class="w-24 shrink-0 text-sm font-medium">{$tr("preview.copies")}</span>
+      <div class="flex items-center gap-1">
+        <button
+          type="button"
+          class="tool-action"
+          aria-label="-"
+          onclick={() => {
+            quantity = Math.max(1, quantity - 1);
+            updateSavedProp("quantity", quantity);
+          }}>
+          <MdIcon icon="remove" />
+        </button>
+        <input
+          class="w-16 rounded-lg bg-surface-200-800 px-2 py-2 text-center tabular-nums"
+          type="number"
+          min="1"
+          bind:value={quantity}
+          onchange={() => updateSavedProp("quantity", quantity)} />
+        <button
+          type="button"
+          class="tool-action"
+          aria-label="+"
+          onclick={() => {
+            quantity = quantity + 1;
+            updateSavedProp("quantity", quantity);
+          }}>
+          <MdIcon icon="add" />
+        </button>
+      </div>
       <ParamLockButton
         propName="quantity"
         value={quantity}
@@ -473,15 +496,18 @@
         onClick={toggleSavedProp} />
     </div>
 
-    <div class="input-group flex-nowrap input-group-sm">
-      <span class="input-group-text">{$tr("preview.density")}</span>
+    <!-- PIKT: density slider 1–5 (Chantier 0.5) -->
+    <div class="flex items-center gap-3">
+      <span class="w-24 shrink-0 text-sm font-medium">{$tr("preview.density")}</span>
       <input
-        class="form-control"
-        type="number"
+        type="range"
+        class="flex-1 accent-primary-500"
         min={$printerMeta?.densityMin ?? 1}
-        max={$printerMeta?.densityMax ?? 20}
+        max={$printerMeta?.densityMax ?? 5}
+        step="1"
         bind:value={density}
         onchange={() => updateSavedProp("density", density)} />
+      <span class="w-6 text-center text-sm font-semibold tabular-nums">{density}</span>
       <ParamLockButton propName="density" value={density} savedValue={savedProps.density} onClick={toggleSavedProp} />
     </div>
 
@@ -497,46 +523,45 @@
       </div>
     {/if}
 
-    <div class="input-group input-group-sm">
-      <span class="input-group-text">{$tr("preview.label_type")}</span>
-      <select class="form-select" bind:value={labelType} onchange={() => updateSavedProp("labelType", labelType)}>
-        {#each Object.values(LabelType) as lt (lt)}
-          {#if typeof lt !== "string"}
-            <option value={lt}>
-              {#if $printerMeta?.paperTypes.includes(lt)}✔{/if}
-              {$tr(labelTypeTranslationKey(LabelType[lt]))}
-            </option>
-          {/if}
-        {/each}
-      </select>
+    <!-- PIKT: label type + print task are auto-detected; tucked into Advanced (Chantier 0.5) -->
+    <details class="rounded-lg bg-surface-100-900 px-3 py-2">
+      <summary class="cursor-pointer text-sm font-medium text-surface-600-400">{$tr("preview.advanced")}</summary>
+      <div class="mt-3 space-y-3">
+        <div class="flex items-center gap-2">
+          <span class="w-28 shrink-0 text-sm">{$tr("preview.label_type")}</span>
+          <select
+            class="flex-1 rounded-lg bg-surface-200-800 px-2 py-2 text-sm"
+            bind:value={labelType}
+            onchange={() => updateSavedProp("labelType", labelType)}>
+            {#each Object.values(LabelType) as lt (lt)}
+              {#if typeof lt !== "string"}
+                <option value={lt}>
+                  {#if $printerMeta?.paperTypes.includes(lt)}✔{/if}
+                  {$tr(labelTypeTranslationKey(LabelType[lt]))}
+                </option>
+              {/if}
+            {/each}
+          </select>
+          <ParamLockButton propName="labelType" value={labelType} savedValue={savedProps.labelType} onClick={toggleSavedProp} />
+        </div>
 
-      <ParamLockButton
-        propName="labelType"
-        value={labelType}
-        savedValue={savedProps.labelType}
-        onClick={toggleSavedProp} />
-    </div>
-
-    <div class="input-group input-group-sm">
-      <span class="input-group-text">{$tr("preview.print_task")}</span>
-      <select
-        class="form-select"
-        bind:value={printTaskName}
-        onchange={() => updateSavedProp("printTaskName", printTaskName)}>
-        {#each printTaskNames as name (name)}
-          <option value={name}>
-            {#if detectedPrintTaskName === name}✔{/if}
-            {name}
-          </option>
-        {/each}
-      </select>
-
-      <ParamLockButton
-        propName="printTaskName"
-        value={printTaskName}
-        savedValue={savedProps.printTaskName}
-        onClick={toggleSavedProp} />
-    </div>
+        <div class="flex items-center gap-2">
+          <span class="w-28 shrink-0 text-sm">{$tr("preview.print_task")}</span>
+          <select
+            class="flex-1 rounded-lg bg-surface-200-800 px-2 py-2 text-sm"
+            bind:value={printTaskName}
+            onchange={() => updateSavedProp("printTaskName", printTaskName)}>
+            {#each printTaskNames as name (name)}
+              <option value={name}>
+                {#if detectedPrintTaskName === name}✔{/if}
+                {name}
+              </option>
+            {/each}
+          </select>
+          <ParamLockButton propName="printTaskName" value={printTaskName} savedValue={savedProps.printTaskName} onClick={toggleSavedProp} />
+        </div>
+      </div>
+    </details>
 
     <div class="input-group input-group-sm">
       <span class="input-group-text">{$tr("preview.offset")}</span>
