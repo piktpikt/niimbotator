@@ -6,3 +6,36 @@
 
 /* Dark mode via .dark class on <html> (selector strategy); the theme store toggles it in Phase 0.2. */
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* PIKT: editor toolbar buttons — clear, labeled, Niimbot-inspired (Chantier 0.5). */
+@layer components {
+  .tool-cell {
+    @apply flex min-w-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-center text-xs font-medium text-surface-700-300 transition-colors hover:bg-surface-200-800/60 disabled:opacity-40;
+  }
+  .tool-action {
+    @apply inline-flex h-10 cursor-pointer items-center gap-1.5 rounded-lg px-3 text-sm font-medium text-surface-700-300 transition-colors hover:bg-surface-200-800/60 disabled:opacity-40;
+  }
+  .tool-action-active {
+    @apply bg-primary-500/15 text-primary-500 hover:bg-primary-500/20;
+  }
+  .tool-primary {
+    @apply inline-flex h-11 cursor-pointer items-center gap-1.5 rounded-xl bg-primary-500 px-4 text-sm font-semibold text-primary-contrast-500 shadow-sm transition active:scale-95 disabled:opacity-40 disabled:active:scale-100;
+  }
+}
+
+/* PIKT (Chantier 0.5, transitional): the editor's remaining Bootstrap dropdowns are clipped/pushed
+   off-screen by the editor scroll container on mobile. Render any open dropdown as a bottom-centered
+   viewport panel until they're converted to proper bottom sheets. */
+.dropdown-menu.show {
+  position: fixed !important;
+  inset: auto !important;
+  left: 50% !important;
+  bottom: 1rem !important;
+  transform: translateX(-50%) !important;
+  width: calc(100vw - 1rem) !important;
+  max-width: 480px !important;
+  max-height: 75dvh !important;
+  overflow-y: auto !important;
+  margin: 0 !important;
+  z-index: 60 !important;
+}

@@ -69,9 +69,8 @@
 </script>
 
 <div class="dropdown" bind:this={dropdown}>
-  <button class="btn btn-sm btn-secondary" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-    <MdIcon icon="emoji_emotions" />
-    <MdIcon icon="add" />
+  <button class="tool-cell" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+    <MdIcon icon="emoji_emotions" /><span>{$tr("editor.toolbar.sticker")}</span>
   </button>
 
   <div class="dropdown-menu">

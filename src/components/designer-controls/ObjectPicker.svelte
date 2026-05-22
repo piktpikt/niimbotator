@@ -16,9 +16,8 @@
 </script>
 
 <div class="dropdown">
-  <button class="btn btn-sm btn-secondary" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-    <MdIcon icon="format_shapes" />
-    <MdIcon icon="add" />
+  <button class="tool-cell" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+    <MdIcon icon="add" /><span>{$tr("editor.toolbar.more")}</span>
   </button>
 
   <div class="dropdown-menu">

@@ -268,8 +268,8 @@
 </script>
 
 <div class="dropdown">
-  <button class="btn btn-sm btn-secondary" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-    <MdIcon icon="settings" />
+  <button class="tool-action" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+    <MdIcon icon="settings" /><span>{$tr("editor.toolbar.size")}</span>
   </button>
   <div class="dropdown-menu">
     <h6 class="dropdown-header">{$tr("params.label.menu_title")}</h6>

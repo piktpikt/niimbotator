@@ -202,8 +202,8 @@
 </script>
 
 <div class="dropdown">
-  <button class="btn btn-sm btn-secondary" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-    <MdIcon icon="sd_storage" />
+  <button class="tool-action" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+    <MdIcon icon="sd_storage" /><span>{$tr("editor.toolbar.save")}</span>
   </button>
   <div class="saved-labels dropdown-menu" bind:this={dropdownRef}>
     <h6 class="dropdown-header text-wrap">

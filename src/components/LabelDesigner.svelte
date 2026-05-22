@@ -481,67 +481,65 @@
     </div>
   </div>
 
-  <div class="row mb-1">
-    <div class="col d-flex justify-content-center">
-      <div class="toolbar d-flex flex-wrap gap-1 justify-content-center align-items-center">
-        <LabelPropsEditor {labelProps} onChange={onUpdateLabelProps} />
+  <!-- PIKT: redesigned editor toolbar — clear labeled buttons, Niimbot-inspired (Chantier 0.5) -->
+  <div class="mx-auto mb-2 w-full max-w-3xl space-y-2">
+    <!-- Add element -->
+    <div class="flex flex-wrap items-stretch justify-center gap-1 rounded-2xl bg-surface-100-900 p-2">
+      <button class="tool-cell" onclick={() => onObjectPicked("text")}>
+        <MdIcon icon="title" /><span>{$tr("editor.objectpicker.text")}</span>
+      </button>
+      <button class="tool-cell" onclick={() => onObjectPicked("image")}>
+        <MdIcon icon="image" /><span>{$tr("editor.objectpicker.image")}</span>
+      </button>
+      <button class="tool-cell" onclick={() => onObjectPicked("rectangle")}>
+        <MdIcon icon="crop_square" /><span>{$tr("editor.objectpicker.rectangle")}</span>
+      </button>
+      <button class="tool-cell" onclick={() => onObjectPicked("qrcode")}>
+        <MdIcon icon="qr_code_2" /><span>{$tr("editor.objectpicker.qrcode")}</span>
+      </button>
+      <button class="tool-cell" onclick={() => onObjectPicked("barcode")}>
+        <MdIcon icon="view_week" /><span>{$tr("editor.objectpicker.barcode")}</span>
+      </button>
+      <IconPicker onSubmit={onIconPicked} onSubmitSvg={onSvgIconPicked} />
+      <ObjectPicker onSubmit={onObjectPicked} {labelProps} {zplImageReady} {pdfImageReady} />
+    </div>
 
-        <button class="btn btn-sm btn-secondary" onclick={clearCanvas} title={$tr("editor.clear")}>
-          <MdIcon icon="cancel_presentation" />
-        </button>
+    <!-- Actions -->
+    <div class="flex flex-wrap items-center justify-center gap-1">
+      <LabelPropsEditor {labelProps} onChange={onUpdateLabelProps} />
+      <SavedLabelsMenu
+        canvas={fabricCanvas!}
+        onRequestLabelTemplate={exportCurrentLabel}
+        {onLoadRequested}
+        {csvEnabled} />
+      <CsvControl bind:enabled={csvEnabled} onPlaceholderPicked={onCsvPlaceholderPicked} />
 
-        <SavedLabelsMenu
-          canvas={fabricCanvas!}
-          onRequestLabelTemplate={exportCurrentLabel}
-          {onLoadRequested}
-          {csvEnabled} />
+      <button class="tool-action" onclick={clearCanvas}>
+        <MdIcon icon="cancel_presentation" /><span>{$tr("editor.clear")}</span>
+      </button>
+      <button class="tool-action" disabled={undoState.undoDisabled} onclick={() => undo.undo()}>
+        <MdIcon icon="undo" /><span>{$tr("editor.undo")}</span>
+      </button>
+      <button class="tool-action" disabled={undoState.redoDisabled} onclick={() => undo.redo()}>
+        <MdIcon icon="redo" /><span>{$tr("editor.redo")}</span>
+      </button>
+      <button class="tool-action {$appConfig.gridEnabled ? 'tool-action-active' : ''}" onclick={toggleGrid}>
+        <MdIcon icon="grid_on" /><span>{$tr("editor.grid")}</span>
+      </button>
+      <button class="tool-action" onclick={() => fabricCanvas?.resetVirtualZoom()} title="Reset zoom">
+        {zoomText}
+      </button>
 
-        <button
-          class="btn btn-sm btn-secondary"
-          disabled={undoState.undoDisabled}
-          onclick={() => undo.undo()}
-          title={$tr("editor.undo")}>
-          <MdIcon icon="undo" />
-        </button>
-
-        <button
-          class="btn btn-sm btn-secondary"
-          disabled={undoState.redoDisabled}
-          onclick={() => undo.redo()}
-          title={$tr("editor.redo")}>
-          <MdIcon icon="redo" />
-        </button>
-
-        <button
-          class="btn btn-sm {$appConfig.gridEnabled ? 'btn-primary' : 'btn-secondary'}"
-          onclick={toggleGrid}
-          title={$tr("editor.grid")}>
-          <MdIcon icon="grid_on" />
-        </button>
-
-        <button
-          class="btn btn-sm btn-secondary"
-          onclick={() => fabricCanvas?.resetVirtualZoom()}
-          title="Reset zoom">
-          {zoomText}
-        </button>
-
-        <CsvControl bind:enabled={csvEnabled} onPlaceholderPicked={onCsvPlaceholderPicked} />
-
-        <IconPicker onSubmit={onIconPicked} onSubmitSvg={onSvgIconPicked} />
-
-        <ObjectPicker onSubmit={onObjectPicked} {labelProps} {zplImageReady} {pdfImageReady}  />
-
-        <button class="btn btn-sm btn-primary ms-1" onclick={openPreview}>
-          <MdIcon icon="visibility" />
-          {$tr("editor.preview")}
-        </button>
-        <button
-          title="Print with default or saved parameters"
-          class="btn btn-sm btn-primary ms-1"
-          onclick={openPreviewAndPrint}
-          disabled={$connectionState !== "connected"}><MdIcon icon="print" /> {$tr("editor.print")}</button>
-      </div>
+      <button class="tool-action text-primary-500" onclick={openPreview}>
+        <MdIcon icon="visibility" /><span>{$tr("editor.preview")}</span>
+      </button>
+      <button
+        class="tool-primary"
+        onclick={openPreviewAndPrint}
+        disabled={$connectionState !== "connected"}
+        title={$tr("editor.print")}>
+        <MdIcon icon="print" /><span>{$tr("editor.print")}</span>
+      </button>
     </div>
   </div>
 
