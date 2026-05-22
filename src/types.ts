@@ -107,6 +107,8 @@ export const AppConfigSchema = z.object({
   iconListMode: z.enum(["user", "pack", "both"]),
   packetIntervalMs: z.number().gte(0).optional(),
   gridEnabled: z.boolean().optional(),
+  // PIKT: UI theme mode (Chantier 0). Optional for back-compat with existing stored configs.
+  theme: z.enum(["light", "dark", "auto"]).optional(),
 });
 
 export const UserIconSchema = z.object({

@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
+import tailwindcss from "@tailwindcss/vite"; // PIKT: Tailwind v4 + Skeleton UI design system (Chantier 0)
 import { resolve } from "node:path";
 
 const getDate = (): string => {
@@ -10,7 +11,7 @@ const getDate = (): string => {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [svelte()],
+  plugins: [tailwindcss(), svelte()], // PIKT: tailwindcss() must precede svelte()
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
     __APP_COMMIT__: JSON.stringify(process.env.COMMIT_HASH),
