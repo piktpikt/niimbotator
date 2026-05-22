@@ -3,3 +3,9 @@
 /node_modules
 .idea
 CLAUDE.md
+
+# Local-only: planning docs, tooling config, and backups (not versioned)
+.claude/
+/docs
+/files
+/files.zip
