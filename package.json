@@ -29,6 +29,7 @@
 		"bootstrap": "5.3.8",
 		"d3-dsv": "^3.0.1",
 		"dayjs": "^1.11.19",
+		"dexie": "^4.4.2",
 		"fabric": "^7.1.0",
 		"material-icons": "^1.13.14",
 		"pdfjs-dist": "^5.4.624",

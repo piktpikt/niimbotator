@@ -17,6 +17,8 @@
     "home.empty.templates": "No templates",
     "batches.empty.title": "No batches yet",
     "batches.empty.subtitle": "Create your first batch, or share images from Google Photos.",
+    "batches.items": "items",
+    "batches.delete.confirm": "Delete batch \"{name}\"?",
     "library.tab.images": "Images",
     "library.tab.stickers": "Stickers",
     "library.tab.templates": "Templates",
