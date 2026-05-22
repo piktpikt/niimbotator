@@ -20,7 +20,7 @@
   import { Toasts } from "$/utils/toasts";
   import { onMount } from "svelte";
   import { LocalStoragePersistence } from "$/utils/persistence";
-  import type { MaterialIcon } from "material-icons";
+  import type { IconName } from "$/styles/icon_data"; // PIKT: chrome icon union (Iconify), Chantier 0
   import FirmwareUpdater from "$/components/basic/FirmwareUpdater.svelte";
 
   let connectionType = $state<ConnectionType>("bluetooth");
@@ -77,7 +77,7 @@
     connectionType = c;
   };
 
-  const batteryIcon = (value: number): MaterialIcon => {
+  const batteryIcon = (value: number): IconName => {
     if (value > 4) {
       value = Math.min(4, Math.max(1, Math.ceil(value / 25)));
     }

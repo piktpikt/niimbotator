@@ -3,6 +3,8 @@
   import { tr } from "$/utils/i18n";
   import { iconCodepoints, type MaterialIcon } from "$/styles/mdi_icons";
   import MdIcon from "$/components/basic/MdIcon.svelte";
+  // PIKT: legacy font-glyph renderer for the insertable material-icons library (Chantier 0).
+  import MaterialIconGlyph from "$/components/basic/MaterialIconGlyph.svelte";
   import { appConfig, userIcons } from "$/stores";
   import { FileUtils } from "$/utils/file_utils";
   import { Toasts } from "$/utils/toasts";
@@ -106,7 +108,7 @@
           {#each iconNames as name (name)}
             {#if !search || name.includes(search.toLowerCase())}
               <button class="btn me-1" title={name} onclick={() => iconClicked(name)}>
-                <MdIcon icon={name} />
+                <MaterialIconGlyph icon={name} />
               </button>
             {/if}
           {/each}

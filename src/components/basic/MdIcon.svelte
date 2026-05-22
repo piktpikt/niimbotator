@@ -1,7 +1,12 @@
 <script lang="ts">
-  import { iconCodepoints, type MaterialIcon } from "$/styles/mdi_icons";
+  // PIKT: rewrapped over offline Iconify Material Symbols (Chantier 0). Icon data is bundled in
+  // icon_data.ts (no Iconify API at runtime — the app is fully offline). Public API kept stable:
+  // { icon, class } plus the `.r-90` rotation helper, so existing call sites are unchanged.
+  import Icon from "@iconify/svelte";
+  import { ICON_DATA, type IconName } from "$/styles/icon_data";
+
   interface Props {
-    icon: MaterialIcon;
+    icon: IconName;
     class?: string;
   }
 
@@ -9,30 +14,17 @@
 </script>
 
 <span class="mdi {className}">
-  {String.fromCodePoint(iconCodepoints[icon])}
+  <Icon icon={ICON_DATA[icon]} width="1.5em" height="1.5em" />
 </span>
 
 <style>
   .mdi {
-    font-family: "Material Icons";
-    font-weight: normal;
-    font-style: normal;
-    line-height: 1;
-    font-size: 1.5em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     vertical-align: -0.24em;
-    /*vertical-align: middle;*/
-    letter-spacing: normal;
-    text-transform: none;
-    display: inline-block;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    font-feature-settings: "liga";
+    line-height: 1;
   }
-
   .mdi.r-90 {
     transform: rotate(90deg);
   }
