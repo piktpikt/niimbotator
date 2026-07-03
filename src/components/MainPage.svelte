@@ -8,6 +8,7 @@
   import HomePage from "$/components/pages/HomePage.svelte";
   import EditorPage from "$/components/pages/EditorPage.svelte";
   import BatchesListPage from "$/components/pages/BatchesListPage.svelte";
+  import BatchManager from "$/components/pages/BatchManager.svelte";
   import LibraryPage from "$/components/pages/LibraryPage.svelte";
   import SettingsPage from "$/components/pages/SettingsPage.svelte";
 
@@ -15,6 +16,7 @@
     home: "nav.home",
     editor: "nav.editor",
     batches: "nav.batches",
+    "batch-manager": "nav.batches",
     library: "nav.library",
     settings: "nav.settings",
   } as const;
@@ -22,6 +24,8 @@
 
 {#if $currentPage === "editor"}
   <EditorPage />
+{:else if $currentPage === "batch-manager"}
+  <BatchManager />
 {:else}
   <div class="flex h-dvh flex-col bg-surface-50-950 text-surface-950-50">
     <TopAppBar title={$tr(titles[$currentPage])} />
