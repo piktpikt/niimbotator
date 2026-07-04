@@ -7,6 +7,8 @@
   import Slider from "$/components/ui/Slider.svelte";
   import TextField from "$/components/ui/TextField.svelte";
   import Select from "$/components/ui/Select.svelte";
+  import BottomSheet, { anySheetOpen, closeAllSheets } from "$/components/ui/BottomSheet.svelte";
+  import Dialog from "$/components/ui/Dialog.svelte";
 
   const variants = ["filled", "tonal", "outlined", "text", "elevated"] as const;
 
@@ -17,6 +19,8 @@
   let qrVersion = $state<string | number>(0);
   let radius = $state(4);
   let multi = $state("Ligne 1\nLigne 2");
+  let sheetOpen = $state(false);
+  let dialogShow = $state(false);
 </script>
 
 <div class="min-h-dvh space-y-6 bg-surface-50-950 p-4 text-surface-950-50">
@@ -110,4 +114,46 @@
       <TextField label="Contenu long · TextField multiline" multiline rows={3} value={multi} onChange={(v) => (multi = v)} />
     </Card>
   </section>
+
+  <section class="space-y-3">
+    <h2 class="text-title-large text-surface-600-400">Conteneurs — BottomSheet / Dialog</h2>
+    <Card variant="filled" class="space-y-4">
+      <div class="flex flex-wrap items-center gap-3">
+        <Button variant="tonal" icon="vertical_align_bottom" onclick={() => (sheetOpen = true)}>Ouvrir la sheet</Button>
+        <Button variant="tonal" color="secondary" icon="settings" onclick={() => (dialogShow = true)}>
+          Ouvrir le dialog
+        </Button>
+        <Button variant="outlined" onclick={() => closeAllSheets()}>closeAllSheets()</Button>
+        <span id="sheet-state" class="text-body-medium text-surface-600-400">
+          anySheetOpen = {$anySheetOpen ? "true" : "false"}
+        </span>
+      </div>
+    </Card>
+  </section>
 </div>
+
+<BottomSheet bind:open={sheetOpen} title="Réglages de l'objet">
+  <div class="space-y-4">
+    <div>
+      <div class="mb-2 text-label-medium text-surface-600-400">Alignement</div>
+      <SegmentedButton
+        value={align}
+        onChange={(v) => (align = v)}
+        options={[
+          { value: "left", icon: "format_align_left", ariaLabel: "Gauche" },
+          { value: "center", icon: "format_align_center", ariaLabel: "Centre" },
+          { value: "right", icon: "format_align_right", ariaLabel: "Droite" },
+        ]} />
+    </div>
+    <Slider value={size} min={8} max={72} onChange={(v) => (size = v)} ariaLabel="Taille" />
+    <TextField label="Contenu" value={content} onChange={(v) => (content = v)} />
+  </div>
+</BottomSheet>
+
+<Dialog bind:show={dialogShow} title="Confirmer">
+  <p class="text-body-large">Ceci est un Dialog M3 — scrim, surface centrée, Échap pour fermer.</p>
+  {#snippet footer()}
+    <Button variant="text" onclick={() => (dialogShow = false)}>Annuler</Button>
+    <Button onclick={() => (dialogShow = false)}>OK</Button>
+  {/snippet}
+</Dialog>
