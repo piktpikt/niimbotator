@@ -1,0 +1,64 @@
+/* PIKT: Material Design 3 token layer (deep restyle). Hand-authored companion to the
+   generated brand theme (themes/niimbotator.css) — kept SEPARATE so `gen-theme.mjs` regen
+   never clobbers it. Registers M3 elevation, type scale, and shape as first-class Tailwind v4
+   utilities (shadow-e*, text-{role}, rounded-m3-*); state-layer opacities are plain vars. */
+
+@theme {
+  /* Elevation — M3 levels 1-5, tuned for the app's dark-first surfaces. `shadow-e{n}` utilities. */
+  --shadow-e1: 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 1px 3px 1px rgb(0 0 0 / 0.15);
+  --shadow-e2: 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 2px 6px 2px rgb(0 0 0 / 0.15);
+  --shadow-e3: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 4px 8px 3px rgb(0 0 0 / 0.15);
+  --shadow-e4: 0 2px 3px 0 rgb(0 0 0 / 0.3), 0 6px 10px 4px rgb(0 0 0 / 0.15);
+  --shadow-e5: 0 4px 4px 0 rgb(0 0 0 / 0.3), 0 8px 12px 6px rgb(0 0 0 / 0.15);
+
+  /* Shape — M3 corner scale. `rounded-m3-{size}` utilities (distinct from Skeleton's radius-*). */
+  --radius-m3-xs: 4px;
+  --radius-m3-sm: 8px;
+  --radius-m3-md: 12px;
+  --radius-m3-lg: 16px;
+  --radius-m3-xl: 28px;
+
+  /* Type scale — M3 roles. `text-{role}` utilities carry size + line-height + weight. */
+  --text-display-large: 2.25rem;
+  --text-display-large--line-height: 2.75rem;
+  --text-display-large--font-weight: 400;
+
+  --text-headline-large: 1.75rem;
+  --text-headline-large--line-height: 2.25rem;
+  --text-headline-large--font-weight: 600;
+
+  --text-headline-medium: 1.375rem;
+  --text-headline-medium--line-height: 1.875rem;
+  --text-headline-medium--font-weight: 600;
+
+  --text-title-large: 1.125rem;
+  --text-title-large--line-height: 1.625rem;
+  --text-title-large--font-weight: 600;
+
+  --text-title-medium: 1rem;
+  --text-title-medium--line-height: 1.5rem;
+  --text-title-medium--font-weight: 600;
+
+  --text-body-large: 1rem;
+  --text-body-large--line-height: 1.5rem;
+  --text-body-large--font-weight: 400;
+
+  --text-body-medium: 0.875rem;
+  --text-body-medium--line-height: 1.25rem;
+  --text-body-medium--font-weight: 400;
+
+  --text-label-large: 0.875rem;
+  --text-label-large--line-height: 1.25rem;
+  --text-label-large--font-weight: 600;
+
+  --text-label-medium: 0.75rem;
+  --text-label-medium--line-height: 1rem;
+  --text-label-medium--font-weight: 600;
+}
+
+/* State-layer opacities (M3): translucent on-color overlays for hover/focus/pressed feedback. */
+:root {
+  --m3-state-hover: 0.08;
+  --m3-state-focus: 0.12;
+  --m3-state-pressed: 0.12;
+}
