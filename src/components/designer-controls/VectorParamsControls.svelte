@@ -3,7 +3,7 @@
   // Upstream PR candidate: no
   import { tr } from "$/utils/i18n";
   import TextField from "$/components/ui/TextField.svelte";
-  import Select from "$/components/ui/Select.svelte";
+  import ThermalFill from "$/components/ui/ThermalFill.svelte";
   import * as fabric from "fabric";
 
   interface Props {
@@ -60,14 +60,16 @@
 {/if}
 
 {#if selectedObject instanceof fabric.Rect || selectedObject instanceof fabric.Circle}
-  <Select
-    leadingIcon="format_color_fill"
-    value={typeof selectedObject.fill === "string" ? selectedObject.fill : "transparent"}
-    ariaLabel={$tr("params.vector.fill")}
-    options={[
-      { value: "transparent", label: $tr("params.color.transparent") },
-      { value: "white", label: $tr("params.color.white") },
-      { value: "black", label: $tr("params.color.black") },
-    ]}
-    onChange={(v) => fillChanged(v)} />
+  <div class="flex flex-col gap-2">
+    <span class="text-label-medium text-surface-600-400">{$tr("params.vector.fill")}</span>
+    <ThermalFill
+      value={typeof selectedObject.fill === "string" ? selectedObject.fill : "transparent"}
+      ariaLabel={$tr("params.vector.fill")}
+      options={[
+        { value: "transparent", label: $tr("params.color.transparent") },
+        { value: "white", label: $tr("params.color.white") },
+        { value: "black", label: $tr("params.color.black") },
+      ]}
+      onChange={(v) => fillChanged(v)} />
+  </div>
 {/if}

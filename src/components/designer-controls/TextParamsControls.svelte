@@ -5,7 +5,7 @@
   import { TextboxExt } from "$/fabric-object/textbox-ext";
   import Button from "$/components/ui/Button.svelte";
   import TextField from "$/components/ui/TextField.svelte";
-  import Select from "$/components/ui/Select.svelte";
+  import ThermalFill from "$/components/ui/ThermalFill.svelte";
   import SegmentedButton from "$/components/ui/SegmentedButton.svelte";
   import Switch from "$/components/ui/Switch.svelte";
   import BottomSheet from "$/components/ui/BottomSheet.svelte";
@@ -162,32 +162,36 @@
 <Button
   variant="tonal"
   icon="format_color_fill"
-  ariaLabel={$tr("params.color")}
+  ariaLabel={$tr("params.vector.fill")}
   onclick={() => (colorOpen = true)}>
-  {$tr("params.color")}
+  {$tr("params.vector.fill")}
 </Button>
 
-<BottomSheet bind:open={colorOpen} title={$tr("params.color")}>
-  <div class="flex flex-col gap-4">
-    <Select
-      leadingIcon="format_color_text"
-      ariaLabel={$tr("params.color")}
-      value={typeof selectedText.fill === "string" ? selectedText.fill : "black"}
-      options={[
-        { value: "white", label: $tr("params.color.white") },
-        { value: "black", label: $tr("params.color.black") },
-      ]}
-      onChange={(v) => fillChanged(v)} />
-    <Select
-      leadingIcon="format_color_fill"
-      ariaLabel={$tr("params.color")}
-      value={selectedText.backgroundColor || "transparent"}
-      options={[
-        { value: "white", label: $tr("params.color.white") },
-        { value: "black", label: $tr("params.color.black") },
-        { value: "transparent", label: $tr("params.color.transparent") },
-      ]}
-      onChange={(v) => backgroundColorChanged(v)} />
+<BottomSheet bind:open={colorOpen} title={$tr("params.vector.fill")}>
+  <div class="flex flex-col gap-5">
+    <div class="flex flex-col gap-2">
+      <span class="text-label-medium text-surface-600-400">{$tr("params.fill.text")}</span>
+      <ThermalFill
+        value={typeof selectedText.fill === "string" ? selectedText.fill : "black"}
+        ariaLabel={$tr("params.fill.text")}
+        options={[
+          { value: "black", label: $tr("params.color.black") },
+          { value: "white", label: $tr("params.color.white") },
+        ]}
+        onChange={(v) => fillChanged(v)} />
+    </div>
+    <div class="flex flex-col gap-2">
+      <span class="text-label-medium text-surface-600-400">{$tr("params.fill.background")}</span>
+      <ThermalFill
+        value={selectedText.backgroundColor || "transparent"}
+        ariaLabel={$tr("params.fill.background")}
+        options={[
+          { value: "transparent", label: $tr("params.color.transparent") },
+          { value: "white", label: $tr("params.color.white") },
+          { value: "black", label: $tr("params.color.black") },
+        ]}
+        onChange={(v) => backgroundColorChanged(v)} />
+    </div>
   </div>
 </BottomSheet>
 
