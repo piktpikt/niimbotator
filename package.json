@@ -11,6 +11,8 @@
 		"build-rel": "vite build --base=./",
 		"preview": "vite preview",
 		"sv-check": "svelte-check --tsconfig ./tsconfig.json",
+		"test": "vitest run",
+		"test-watch": "vitest",
 		"gen-mdi-list": "node gen-mdi-list.mjs > src/styles/mdi_icons.ts",
 		"lint": "eslint .",
 		"format-all": "prettier --write \"src/**/*.{ts,svelte}\" \"!src/styles/mdi_icons.ts\""
@@ -53,6 +55,7 @@
 		"@types/toastify-js": "^1.12.4",
 		"emojibase-data": "^17.0.0",
 		"eslint-plugin-svelte": "^3.13.0",
+		"fake-indexeddb": "^6.2.5",
 		"globals": "^16.5.0",
 		"openmoji": "^17.0.0",
 		"prettier": "^3.6.2",
@@ -64,7 +67,8 @@
 		"tslib": "^2.8.1",
 		"typescript": "^5.9.3",
 		"typescript-eslint": "^8.46.3",
-		"vite": "^7.3.2"
+		"vite": "^7.3.2",
+		"vitest": "^3.2.6"
 	},
 	"overrides": {
 		"fabric": {

@@ -112,8 +112,7 @@ export async function updateBatchItem(id: string, patch: Partial<BatchItem>): Pr
   // PIKT: Dexie's UpdateSpec triggers a circular type on FabricJson; a runtime-safe cast avoids it.
   const update = { ...patch, modifiedAt: now } as Record<string, unknown>;
   await db.transaction("rw", db.batches, db.items, async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (db.items as any).update(id, update);
+    await (db.items as unknown as { update: (k: string, c: object) => Promise<number> }).update(id, update);
     await db.batches.update(item.batchId, { modifiedAt: now });
   });
 }
@@ -243,8 +242,7 @@ export async function resumePoint(batchId: string): Promise<PrintCursor | undefi
 /** Mark a single item printed as its final unit completes (no modifiedAt bump). */
 export async function markItemPrinted(itemId: string): Promise<void> {
   // Dexie's UpdateSpec triggers a circular type on FabricJson; runtime-safe cast (as updateBatchItem).
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (db.items as any).update(itemId, { status: "printed" });
+  await (db.items as unknown as { update: (k: string, c: object) => Promise<number> }).update(itemId, { status: "printed" });
 }
 
 /**
