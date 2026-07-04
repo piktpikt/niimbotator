@@ -1,33 +1,20 @@
-@import "bootstrap/scss/bootstrap-utilities";
-@import "bootstrap/scss/reboot";
-@import "bootstrap/scss/type";
-@import "bootstrap/scss/containers";
-@import "bootstrap/scss/grid";
-@import "bootstrap/scss/buttons";
-@import "bootstrap/scss/button-group";
-@import "bootstrap/scss/forms";
-@import "bootstrap/scss/dropdown";
-@import "bootstrap/scss/modal";
-@import "bootstrap/scss/close";
-@import "bootstrap/scss/progress";
-@import "bootstrap/scss/alert";
-@import "bootstrap/scss/transitions";
 @import "font";
 
 body {
   font-family: "Noto Sans Variable", sans-serif;
 }
 
+// PIKT: toasts recoloured on M3 tokens (was Bootstrap --bs-* subtle vars, removed phase 5).
 .toastify.toast-danger {
-  background: var(--bs-danger-bg-subtle);
-  border: 1px solid var(--bs-danger-border-subtle);
-  color: var(--bs-danger-text-emphasis);
+  background: var(--color-error-800);
+  border: 1px solid var(--color-error-600);
+  color: var(--color-error-100);
 }
 
 .toastify.toast-info {
-  background: var(--bs-success-bg-subtle);
-  border: 1px solid var(--bs-success-border-subtle);
-  color: var(--bs-success-text-emphasis);
+  background: var(--color-success-800);
+  border: 1px solid var(--color-success-600);
+  color: var(--color-success-100);
 }
 
 .cursor-help {

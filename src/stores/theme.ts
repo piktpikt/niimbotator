@@ -25,8 +25,6 @@ function applyTheme(mode: ThemeMode): void {
   const dark = isDark(mode);
   root.setAttribute("data-theme", THEME_NAME);
   root.classList.toggle("dark", dark);
-  // PIKT: keep Bootstrap dark/light in sync while both frameworks coexist (removed in Phase 0.7).
-  root.setAttribute("data-bs-theme", dark ? "dark" : "light");
 }
 
 /** Current theme mode, derived from persisted appConfig (defaults to "auto"). */
