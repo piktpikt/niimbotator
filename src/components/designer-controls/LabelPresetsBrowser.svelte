@@ -1,7 +1,8 @@
 <script lang="ts">
+  // PIKT: deep restyle — Bootstrap btn → M3 ui/Button (editor phase 5 finalize). Upstream PR candidate: no
   import type { LabelPreset } from "$/types";
   import { tr } from "$/utils/i18n";
-  import MdIcon from "$/components/basic/MdIcon.svelte";
+  import Button from "$/components/ui/Button.svelte";
 
   interface Props {
     onItemSelected: (index: number) => void;
@@ -38,30 +39,24 @@
   };
 </script>
 
-<div class="preset-browser overflow-y-auto border d-flex p-2 gap-1 flex-wrap {className}">
+<div class="preset-browser overflow-y-auto flex flex-wrap gap-1 p-2 border border-surface-400-600 {className}">
   <!-- fixme: key -->
   {#each presets as item, idx (item)}
     <div
       role="button"
-      class="btn p-0 card-wrapper d-flex justify-content-center align-items-center"
+      class="card-wrapper flex items-center justify-center p-0"
       tabindex="0"
       onkeydown={() => onItemSelected(idx)}
       onclick={() => onItemSelected(idx)}>
       <div
-        class="card print-start-{item.printDirection} d-flex justify-content-center align-items-center"
+        class="card print-start-{item.printDirection} flex items-center justify-center"
         style="width: {scaleDimensions(item).width}%; height: {scaleDimensions(item).height}%;">
-        <div class="remove d-flex">
+        <div class="remove flex">
           {#if deleteIndex === idx}
-            <button class="remove btn text-danger-emphasis" onclick={(e) => deleteConfirmed(e, idx)}>
-              <MdIcon icon="delete" />
-            </button>
-            <button class="remove btn text-success" onclick={(e) => deleteRejected(e)}>
-              <MdIcon icon="close" />
-            </button>
+            <Button variant="text" color="error" icon="delete" onclick={(e) => deleteConfirmed(e, idx)} />
+            <Button variant="text" color="secondary" icon="close" onclick={(e) => deleteRejected(e)} />
           {:else}
-            <button class="remove btn text-danger-emphasis" onclick={(e) => deleteRequested(e, idx)}>
-              <MdIcon icon="delete" />
-            </button>
+            <Button variant="text" color="error" icon="delete" onclick={(e) => deleteRequested(e, idx)} />
           {/if}
         </div>
 

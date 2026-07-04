@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Dropdown from "bootstrap/js/dist/dropdown";
   import * as fabric from "fabric";
   import { onDestroy, onMount, tick } from "svelte";
   import { ArUcoMarker } from "$/fabric-object/aruco";
@@ -270,10 +269,9 @@
       return;
     }
 
-    // PIKT: deep restyle — also bail while an M3 BottomSheet is open (phase 4; keeps the legacy
-    // .dropdown-menu.show probe until the dropdown panels become sheets in phase 5).
-    const openedDropdowns = document.querySelectorAll(".dropdown-menu.show");
-    if (openedDropdowns.length > 0 || $anySheetOpen) {
+    // PIKT: deep restyle — bail while any M3 BottomSheet is open (phase 5 complete — all editor dropdown
+    // panels are now sheets; the legacy .dropdown-menu.show probe was removed).
+    if ($anySheetOpen) {
       return;
     }
 
@@ -383,12 +381,10 @@
     undo.push(fabricCanvas, labelProps);
 
     // force close dropdowns / sheets on touch devices
-    // PIKT: deep restyle — also dismiss any open M3 BottomSheet on canvas tap (phase 4; the
-    // Bootstrap Dropdown.hide() path stays until the dropdown panels become sheets in phase 5).
+    // PIKT: deep restyle — dismiss any open M3 BottomSheet on canvas tap (phase 5 complete — the Bootstrap
+    // Dropdown.hide() path was removed now that all dropdown panels are sheets).
     fabricCanvas.on("mouse:down", (): void => {
       closeAllSheets();
-      const dropdowns = document.querySelectorAll("[data-bs-toggle='dropdown']");
-      dropdowns.forEach((el) => new Dropdown(el).hide());
     });
 
     fabricCanvas.on("object:moving", (e): void => {

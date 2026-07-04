@@ -1,7 +1,8 @@
 <script lang="ts">
+  // PIKT: deep restyle — Bootstrap btn/flex utils → M3 ui/Button + Tailwind (editor phase 5 finalize). Upstream PR candidate: no
   import type { ExportedLabelTemplate, LabelProps } from "$/types";
   import { tr } from "$/utils/i18n";
-  import MdIcon from "$/components/basic/MdIcon.svelte";
+  import Button from "$/components/ui/Button.svelte";
 
   interface Props {
     onItemClicked: (index: number) => void;
@@ -46,38 +47,33 @@
   };
 </script>
 
-<div class="labels-browser overflow-y-auto border d-flex p-2 gap-1 flex-wrap {className}">
+<div
+  class="labels-browser overflow-y-auto border border-surface-300-700 rounded-lg flex p-2 gap-1 flex-wrap {className}">
   {#each labels as item, idx (item.id ?? item.timestamp)}
     <div
       tabindex="0"
-      class="btn p-0 card-wrapper d-flex justify-content-center align-items-center {selectedIndex === idx
-        ? 'border-primary'
+      class="p-0 card-wrapper flex justify-center items-center rounded-lg {selectedIndex === idx
+        ? 'ring-2 ring-primary-500'
         : ''}"
       onkeydown={() => onItemClicked(idx)}
       onclick={() => onItemClicked(idx)}
       role="button">
       <div
-        class="card print-start-{item.label.printDirection} d-flex justify-content-center align-items-center"
+        class="card print-start-{item.label.printDirection} flex justify-center items-center"
         style="width: {scaleDimensions(item.label).width}%; height: {scaleDimensions(item.label).height}%;">
-        <div class="buttons d-flex">
-          <button
-            class="btn text-primary-emphasis"
-            onclick={(e) => exportRequested(e, idx)}
-            title={$tr("params.saved_labels.save.json")}>
-            <MdIcon icon="download" />
-          </button>
+        <div class="buttons flex">
+          <Button
+            variant="text"
+            color="primary"
+            icon="download"
+            ariaLabel={$tr("params.saved_labels.save.json")}
+            onclick={(e) => exportRequested(e, idx)} />
 
           {#if deleteIndex === idx}
-            <button class="remove btn text-danger-emphasis" onclick={(e) => deleteConfirmed(e, idx)}>
-              <MdIcon icon="delete" />
-            </button>
-            <button class="remove btn text-success" onclick={(e) => deleteRejected(e)}>
-              <MdIcon icon="close" />
-            </button>
+            <Button variant="text" color="error" icon="delete" onclick={(e) => deleteConfirmed(e, idx)} />
+            <Button variant="text" color="secondary" icon="close" onclick={(e) => deleteRejected(e)} />
           {:else}
-            <button class="remove btn text-danger-emphasis" onclick={(e) => deleteRequested(e, idx)}>
-              <MdIcon icon="delete" />
-            </button>
+            <Button variant="text" color="error" icon="delete" onclick={(e) => deleteRequested(e, idx)} />
           {/if}
         </div>
 

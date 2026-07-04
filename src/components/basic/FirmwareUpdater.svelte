@@ -1,8 +1,11 @@
 <script lang="ts">
+  // PIKT: deep restyle — Bootstrap btn/form-control/input-group → M3 primitives (editor phase 5 finalize). Upstream PR candidate: no
   import type { FirmwareProgressEvent } from "@mmote/niimbluelib";
   import { printerClient } from "$/stores";
   import { Toasts } from "$/utils/toasts";
   import { FileUtils } from "$/utils/file_utils";
+  import Button from "$/components/ui/Button.svelte";
+  import TextField from "$/components/ui/TextField.svelte";
 
   let fwVersion = $state<string>("");
   let fwVersionValid: boolean = $derived(/^\d+\.\d+$/.test(fwVersion));
@@ -67,21 +70,29 @@
 
 <div class="firmware-updater">
   Firmware flashing
-  <div class="input-group input-group-sm mt-1">
+  <div class="mt-1 flex flex-wrap items-center gap-2">
     {#if fwProgress}
-      <span class="input-group-text">Uploading {fwProgress}</span>
+      <span class="text-label-medium text-surface-600-400">Uploading {fwProgress}</span>
     {:else}
-      <span class="input-group-text">To</span>
-      <button class="btn btn-sm btn-secondary" title={fwName} onclick={browseFw} disabled={!!fwProgress}>
+      <span class="text-label-medium text-surface-600-400">To</span>
+      <Button variant="tonal" ariaLabel={fwName} onclick={browseFw} disabled={!!fwProgress}>
         {fwName.length > 0 ? fwName.slice(0, 8) + "..." : "Browse..."}
-      </button>
-      <span class="input-group-text">ver.</span>
-      <input class="form-control" placeholder="x.x" type="text" size="6" bind:value={fwVersion} />
+      </Button>
+      <span class="text-label-medium text-surface-600-400">ver.</span>
+      <TextField
+        value={fwVersion}
+        type="text"
+        placeholder="x.x"
+        ariaLabel="Firmware version"
+        onChange={(v) => {
+          fwVersion = v;
+        }} />
 
-      <button
-        class="btn btn-sm btn-danger"
+      <Button
+        variant="filled"
+        color="error"
         onclick={upgradeFw}
-        disabled={!!fwProgress || !fwVersionValid || fwData === undefined}>Burn</button>
+        disabled={!!fwProgress || !fwVersionValid || fwData === undefined}>Burn</Button>
     {/if}
   </div>
 </div>
