@@ -53,6 +53,23 @@
   let undoState = $state<UndoState>({ undoDisabled: false, redoDisabled: false });
   let zoomText = $state<string>("100%");
 
+  // PIKT: batch-item mode (Chantier 2). When `initialItem` is set, the editor loads it on mount and
+  // fires `onDirty` on canvas changes so the host page can debounce + persist a thumbnail.
+  interface Props {
+    initialItem?: { labelProps: LabelProps; canvasState: FabricJson };
+    onDirty?: () => void;
+  }
+  let { initialItem, onDirty }: Props = $props();
+
+  export function getSnapshot(): { labelProps: LabelProps; canvasState: FabricJson; thumbnail?: string } {
+    if (!fabricCanvas) return { labelProps, canvasState: {} as FabricJson };
+    const canvasState = fabricCanvas.toObject() as unknown as FabricJson;
+    const w = labelProps.size.width;
+    const h = labelProps.size.height;
+    const thumbnail = fabricCanvas.toDataURL({ format: "png", multiplier: 64 / Math.max(w, h, 1), quality: 0.85 });
+    return { labelProps, canvasState, thumbnail };
+  }
+
   const undo = new UndoRedo();
 
   const discardSelection = () => {
@@ -345,7 +362,16 @@
     };
     fabricCanvas.setGridEnabled(!!$appConfig.gridEnabled);
 
-    await loadDefaultLabel();
+    if (initialItem && initialItem.canvasState && Object.keys(initialItem.canvasState as object).length > 0) {
+      // PIKT: batch-item mode — load the persisted state instead of the default label.
+      await loadLabelData({ label: initialItem.labelProps, canvas: initialItem.canvasState });
+    } else if (initialItem) {
+      // PIKT: fresh batch item — apply its labelProps but keep the default text.
+      onUpdateLabelProps(initialItem.labelProps);
+      LabelDesignerObjectHelper.addText(fabricCanvas!, $tr("editor.default_text"));
+    } else {
+      await loadDefaultLabel();
+    }
 
     window.addEventListener("hashchange", loadLabelFromUrl);
 
@@ -368,14 +394,21 @@
 
     fabricCanvas.on("object:modified", (): void => {
       undo.push(fabricCanvas!, labelProps);
+      onDirty?.();
     });
 
     fabricCanvas.on("text:changed", () => {
       editRevision++;
+      onDirty?.();
+    });
+
+    fabricCanvas.on("object:added", (): void => {
+      onDirty?.();
     });
 
     fabricCanvas.on("object:removed", (): void => {
       undo.push(fabricCanvas!, labelProps);
+      onDirty?.();
     });
 
     fabricCanvas.on("selection:created", (e): void => {

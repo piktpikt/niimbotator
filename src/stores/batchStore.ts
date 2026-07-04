@@ -132,3 +132,53 @@ export async function setBatchPassages(id: string, passages: number): Promise<vo
   const p = Math.max(1, Math.min(10, Math.round(passages)));
   await db.batches.update(id, { passages: p, modifiedAt: Date.now() });
 }
+
+/** Store an image blob and return its id (used by the mosaic image picker). */
+export async function addImage(blob: Blob, filename?: string): Promise<string> {
+  const id = crypto.randomUUID();
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result ?? ""));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(blob);
+  });
+  const dims = await new Promise<{ width: number; height: number }>((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+    img.onerror = () => reject(new Error("cannot load image"));
+    img.src = dataUrl;
+  });
+  await db.images.add({
+    id,
+    blob,
+    thumbnailDataUrl: dataUrl,
+    mimeType: blob.type || "image/png",
+    width: dims.width,
+    height: dims.height,
+    filename,
+    importedAt: Date.now(),
+  });
+  return id;
+}
+
+export async function getImage(id: string): Promise<import("$/db/schema").StoredImage | undefined> {
+  return db.images.get(id);
+}
+
+/** Position of an item in its batch (0-indexed). Returns -1 if not found. */
+export async function itemPosition(itemId: string): Promise<{ position: number; total: number; batchId?: string }> {
+  const item = await db.items.get(itemId);
+  if (!item) return { position: -1, total: 0 };
+  const siblings = await db.items.where("batchId").equals(item.batchId).sortBy("position");
+  const index = siblings.findIndex((it) => it.id === itemId);
+  return { position: index, total: siblings.length, batchId: item.batchId };
+}
+
+/** Neighbour item ids (prev/next) in the batch. Undefined if none. */
+export async function itemNeighbours(itemId: string): Promise<{ prev?: string; next?: string }> {
+  const item = await db.items.get(itemId);
+  if (!item) return {};
+  const siblings = await db.items.where("batchId").equals(item.batchId).sortBy("position");
+  const i = siblings.findIndex((it) => it.id === itemId);
+  return { prev: siblings[i - 1]?.id, next: siblings[i + 1]?.id };
+}

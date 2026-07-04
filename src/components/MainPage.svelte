@@ -9,6 +9,7 @@
   import EditorPage from "$/components/pages/EditorPage.svelte";
   import BatchesListPage from "$/components/pages/BatchesListPage.svelte";
   import BatchManager from "$/components/pages/BatchManager.svelte";
+  import MosaicConfiguratorPage from "$/components/pages/MosaicConfiguratorPage.svelte";
   import LibraryPage from "$/components/pages/LibraryPage.svelte";
   import SettingsPage from "$/components/pages/SettingsPage.svelte";
 
@@ -17,6 +18,7 @@
     editor: "nav.editor",
     batches: "nav.batches",
     "batch-manager": "nav.batches",
+    "mosaic-configurator": "nav.batches",
     library: "nav.library",
     settings: "nav.settings",
   } as const;
@@ -26,6 +28,8 @@
   <EditorPage />
 {:else if $currentPage === "batch-manager"}
   <BatchManager />
+{:else if $currentPage === "mosaic-configurator"}
+  <MosaicConfiguratorPage />
 {:else}
   <div class="flex h-dvh flex-col bg-surface-50-950 text-surface-950-50">
     <TopAppBar title={$tr(titles[$currentPage])} />
