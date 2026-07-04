@@ -46,7 +46,7 @@ vi.mock("@mmote/niimbluelib", () => {
 import { PrintError, PrinterErrorCode } from "@mmote/niimbluelib";
 import { connectionState, printerClient } from "$/stores";
 import { finishPrintRun, markItemPrinted, setPrintCursor, startPrintRun } from "$/stores/batchStore";
-import { BatchPrintJob, countLabels, type PrintProgress } from "$/services/batchPrinting";
+import { BatchPrintJob, countLabels, shouldWarnLowBattery, type PrintProgress } from "$/services/batchPrinting";
 import type { Batch, BatchItem, PrintCursor } from "$/db/schema";
 
 // --- Fake printer that records the exact call sequence ---
@@ -328,5 +328,15 @@ describe("countLabels", () => {
     ];
     expect(countLabels(items, 1)).toBe(3 + 9); // 3 copies of a + 9 tiles of b
     expect(countLabels(items, 2)).toBe((3 + 9) * 2);
+  });
+});
+
+describe("shouldWarnLowBattery", () => {
+  it("warns only on a low battery bucket AND a long run", () => {
+    expect(shouldWarnLowBattery(0, 11)).toBe(true); // empty + >10 labels
+    expect(shouldWarnLowBattery(1, 11)).toBe(true); // Charge25 bucket + >10
+    expect(shouldWarnLowBattery(2, 11)).toBe(false); // Charge50 is fine
+    expect(shouldWarnLowBattery(0, 10)).toBe(false); // short run, no warning
+    expect(shouldWarnLowBattery(undefined, 50)).toBe(false); // unknown battery, no warning
   });
 });

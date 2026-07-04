@@ -7,6 +7,7 @@
   import type { PrintOptions } from "$/db/schema";
 
   let screen = $state<PrintScreen>("confirm");
+  let battery = $state(false);
 
   const options: PrintOptions = { pauseBetweenLabels: false, pauseBetweenItems: true, numberMosaicTiles: true, interLabelDelayMs: 0 };
 
@@ -43,6 +44,9 @@
       class="rounded px-2 py-1 text-xs font-semibold {screen === s ? 'bg-primary-500 text-white' : 'bg-surface-700 text-white'}"
       onclick={() => (screen = s)}>{s}</button>
   {/each}
+  <button
+    class="rounded px-2 py-1 text-xs font-semibold {battery ? 'bg-warning-500 text-white' : 'bg-surface-700 text-white'}"
+    onclick={() => (battery = !battery)}>battery-dialog</button>
 </div>
 
 <div class="pt-10">
@@ -56,6 +60,7 @@
     connected={true}
     progress={screen === "errored" ? errored : progress}
     labelsPrinted={screen === "completed" ? 23 : 7}
+    batteryWarning={battery}
     onConfirm={noop}
     onBack={noop}
     onPause={noop}
@@ -64,5 +69,7 @@
     onReprintFresh={noop}
     onResumeRun={noop}
     onDone={noop}
-    onOptionChange={noop} />
+    onOptionChange={noop}
+    onBatteryProceed={() => (battery = false)}
+    onBatteryCancel={() => (battery = false)} />
 </div>

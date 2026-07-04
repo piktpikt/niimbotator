@@ -20,6 +20,8 @@
     resumeMode?: boolean;
     progress?: PrintProgress;
     labelsPrinted?: number;
+    /** Show the low-battery confirmation dialog (§12.6). */
+    batteryWarning?: boolean;
     onConfirm: () => void;
     onBack: () => void;
     onPause: () => void;
@@ -29,6 +31,8 @@
     onResumeRun: () => void;
     onDone: () => void;
     onOptionChange: (patch: Partial<PrintOptions>) => void;
+    onBatteryProceed: () => void;
+    onBatteryCancel: () => void;
   }
 
   let {
@@ -42,6 +46,7 @@
     resumeMode = false,
     progress,
     labelsPrinted = 0,
+    batteryWarning = false,
     onConfirm,
     onBack,
     onPause,
@@ -51,6 +56,8 @@
     onResumeRun,
     onDone,
     onOptionChange,
+    onBatteryProceed,
+    onBatteryCancel,
   }: Props = $props();
 
   const t = (key: string, vars: Record<string, string | number> = {}): string => {
@@ -185,4 +192,20 @@
       <button type="button" class="h-12 flex-[2] rounded-full bg-primary-500 font-semibold text-primary-contrast-500" onclick={onResumeRun}>{t("print.resume")}</button>
     {/if}
   </div>
+
+  {#if batteryWarning}
+    <div class="fixed inset-0 z-40 grid place-items-center bg-black/50 p-6">
+      <div class="card w-full max-w-sm space-y-4 bg-surface-100-900 p-5">
+        <div class="flex items-center gap-2 text-warning-500">
+          <MdIcon icon="battery_2_bar" />
+          <span class="text-base font-semibold">{t("print.battery.warning.title")}</span>
+        </div>
+        <p class="text-sm text-surface-600-400">{t("print.battery.warning.body", { n: labelsTotal })}</p>
+        <div class="flex justify-end gap-2">
+          <button type="button" class="h-11 rounded-full bg-surface-200-800 px-4 text-sm font-semibold" onclick={onBatteryCancel}>{t("print.cancel")}</button>
+          <button type="button" class="h-11 rounded-full bg-warning-500/20 px-4 text-sm font-semibold text-warning-500" onclick={onBatteryProceed}>{t("print.battery.warning.proceed")}</button>
+        </div>
+      </div>
+    </div>
+  {/if}
 </div>

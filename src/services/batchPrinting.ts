@@ -534,3 +534,11 @@ export function countLabels(items: BatchItem[], passages: number): number {
   const perPass = items.reduce((sum, it) => sum + Math.max(1, it.copies) * tilesForItem(it), 0);
   return perPass * Math.max(1, Math.round(passages));
 }
+
+/**
+ * §12.6: warn before a long run on a low battery. chargeLevel is a BatteryChargeLevel bucket
+ * (0 = empty … 4 = full); "low" = the Charge25 bucket or below (≲25%), and only for >10 labels.
+ */
+export function shouldWarnLowBattery(chargeLevel: number | undefined, labelCount: number): boolean {
+  return chargeLevel !== undefined && chargeLevel <= 1 && labelCount > 10;
+}
