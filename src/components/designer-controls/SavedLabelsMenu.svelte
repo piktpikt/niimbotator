@@ -1,4 +1,7 @@
 <script lang="ts">
+  // PIKT: deep restyle — Bootstrap dropdown → M3 ui/BottomSheet + Button/TextField (editor phase 5).
+  // Dropped `import Dropdown`; `new Dropdown().hide()` → sheetOpen = false. confirm() kept (debt).
+  // Upstream PR candidate: no
   import { tr } from "$/utils/i18n";
   import { onMount } from "svelte";
   import MdIcon from "$/components/basic/MdIcon.svelte";
@@ -6,10 +9,12 @@
   import { ExportedLabelTemplateSchema, type ExportedLabelTemplate } from "$/types";
   import { LocalStoragePersistence } from "$/utils/persistence";
   import { Toasts } from "$/utils/toasts";
-  import Dropdown from "bootstrap/js/dist/dropdown";
   import { FileUtils } from "$/utils/file_utils";
   import * as fabric from "fabric";
   import { Utils } from "@mmote/niimbluelib";
+  import BottomSheet from "$/components/ui/BottomSheet.svelte";
+  import Button from "$/components/ui/Button.svelte";
+  import TextField from "$/components/ui/TextField.svelte";
 
   interface Props {
     onRequestLabelTemplate: () => ExportedLabelTemplate;
@@ -20,7 +25,7 @@
 
   let { onRequestLabelTemplate, onLoadRequested, canvas, csvEnabled }: Props = $props();
 
-  let dropdownRef: HTMLDivElement;
+  let sheetOpen = $state(false);
   let savedLabels = $state<ExportedLabelTemplate[]>([]);
   let selectedIndex = $state<number>(-1);
   let title = $state<string>("");
@@ -126,7 +131,7 @@
     }
 
     onLoadRequested(label);
-    new Dropdown(dropdownRef).hide();
+    sheetOpen = false;
   };
 
   const onImportClicked = async () => {
@@ -153,7 +158,7 @@
         title = label.title;
       }
 
-      new Dropdown(dropdownRef).hide();
+      sheetOpen = false;
     } catch (e) {
       Toasts.zodErrors(e, "Canvas load error:");
     }
@@ -201,110 +206,79 @@
   });
 </script>
 
-<div class="dropdown">
-  <button class="tool-action" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-    <MdIcon icon="sd_storage" /><span>{$tr("editor.toolbar.save")}</span>
-  </button>
-  <div class="saved-labels dropdown-menu" bind:this={dropdownRef}>
-    <h6 class="dropdown-header text-wrap">
-      {$tr("params.saved_labels.menu_title")} - {usedSpace}
+<button class="tool-action" onclick={() => (sheetOpen = true)}>
+  <MdIcon icon="sd_storage" /><span>{$tr("editor.toolbar.save")}</span>
+</button>
+
+<BottomSheet bind:open={sheetOpen} title={$tr("params.saved_labels.menu_title")}>
+  <div class="flex flex-col gap-4">
+    <p class="text-body-small text-surface-600-400">
+      {usedSpace}
       {$tr("params.saved_labels.kb_used")}
+    </p>
 
-      {#if csvEnabled}
-        <div class="pt-3 text-warning">
-            {$tr("params.saved_labels.save.withcsv")}
-        </div>
+    {#if csvEnabled}
+      <p class="text-body-small text-warning-500">
+        {$tr("params.saved_labels.save.withcsv")}
+      </p>
+    {/if}
+
+    <div class="flex flex-wrap gap-2">
+      <Button variant="outlined" icon="data_object" onclick={onImportClicked}>
+        {$tr("params.saved_labels.load.json")}
+      </Button>
+      <Button variant="outlined" icon="data_object" onclick={onExportClicked}>
+        {$tr("params.saved_labels.save.json")}
+      </Button>
+      <Button variant="outlined" onclick={onExportPngClicked}>PNG</Button>
+      {#if !isStandalone}
+        <Button variant="outlined" onclick={onExportUrlClicked}>
+          {$tr("params.saved_labels.save.url")}
+        </Button>
       {/if}
-    </h6>
+    </div>
 
+    <SavedLabelsBrowser
+      {selectedIndex}
+      labels={savedLabels}
+      onItemClicked={onLabelSelected}
+      onItemDelete={onLabelDelete}
+      onItemExport={onLabelExport} />
 
-    <div class="px-3">
-      <div class="p-1">
-        <button class="btn btn-sm btn-outline-secondary" onclick={onImportClicked}>
-          <MdIcon icon="data_object" />
-          {$tr("params.saved_labels.load.json")}
-        </button>
-        <div class="btn-group btn-group-sm">
-          <button class="btn btn-outline-secondary" onclick={onExportClicked}>
-            <MdIcon icon="data_object" />
-            {$tr("params.saved_labels.save.json")}
-          </button>
-          <button
-            type="button"
-            aria-label="dropdown"
-            class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split"
-            data-bs-toggle="dropdown">
-          </button>
-          <ul class="dropdown-menu">
-            <li>
-              <button class="dropdown-item" onclick={onExportPngClicked}>PNG</button>
-            </li>
-            {#if !isStandalone}
-              <li>
-                <button class="dropdown-item" onclick={onExportUrlClicked}
-                  >{$tr("params.saved_labels.save.url")}</button>
-              </li>
-            {/if}
-          </ul>
-        </div>
-      </div>
+    <TextField
+      value={title}
+      label={$tr("params.saved_labels.label_title")}
+      placeholder={$tr("params.saved_labels.label_title.placeholder")}
+      onChange={(v) => (title = v)} />
 
-      <SavedLabelsBrowser
-        class="mb-1"
-        {selectedIndex}
-        labels={savedLabels}
-        onItemClicked={onLabelSelected}
-        onItemDelete={onLabelDelete}
-        onItemExport={onLabelExport} />
-
-      <div class="input-group flex-nowrap input-group-sm mb-3">
-        <span class="input-group-text">{$tr("params.saved_labels.label_title")}</span>
-        <input
-          class="form-control"
-          type="text"
-          placeholder={$tr("params.saved_labels.label_title.placeholder")}
-          bind:value={title} />
-      </div>
-
-      <div class="d-flex gap-1 flex-wrap justify-content-end">
-        <div class="btn-group btn-group-sm make-default">
-          <button class="btn text-secondary" onclick={onMakeDefaultClicked}>
-            {$tr("params.saved_labels.make_default")}
-          </button>
-          {#if customDefaultTemplate}
-            <button class="btn text-secondary" onclick={onRemoveDefaultClicked}>
-              <MdIcon icon="close" />
-            </button>
-          {/if}
-        </div>
-
-        <button class="btn btn-sm btn-secondary" onclick={onSaveClicked}>
-          <MdIcon icon="save" />
-          {$tr("params.saved_labels.save.browser")}
-        </button>
-
-        {#if selectedIndex !== -1}
-          <button class="btn btn-sm btn-secondary" onclick={onSaveReplaceClicked}>
-            <MdIcon icon="edit_note" />
-            {$tr("params.saved_labels.save.browser.replace")}
-          </button>
-
-          <button class="btn btn-sm btn-primary" onclick={onLoadClicked}>
-            <MdIcon icon="folder" />
-            {$tr("params.saved_labels.load.browser")}
-          </button>
+    <div class="flex flex-wrap items-center justify-end gap-2">
+      <div class="mr-auto flex items-center gap-1">
+        <Button variant="text" color="secondary" onclick={onMakeDefaultClicked}>
+          {$tr("params.saved_labels.make_default")}
+        </Button>
+        {#if customDefaultTemplate}
+          <Button
+            variant="text"
+            color="secondary"
+            icon="close"
+            ariaLabel={$tr("params.saved_labels.make_default")}
+            onclick={onRemoveDefaultClicked} />
         {/if}
       </div>
+
+      <Button variant="tonal" color="secondary" icon="save" onclick={onSaveClicked}>
+        {$tr("params.saved_labels.save.browser")}
+      </Button>
+
+      {#if selectedIndex !== -1}
+        <Button variant="tonal" color="secondary" icon="edit_note" onclick={onSaveReplaceClicked}>
+          {$tr("params.saved_labels.save.browser.replace")}
+        </Button>
+
+        <Button variant="filled" color="primary" icon="folder" onclick={onLoadClicked}>
+          {$tr("params.saved_labels.load.browser")}
+        </Button>
+      {/if}
     </div>
   </div>
-</div>
-
-<style>
-  .saved-labels.dropdown-menu {
-    width: 100vw;
-    max-width: 450px;
-  }
-  .make-default {
-    margin-right: auto;
-  }
-</style>
+</BottomSheet>

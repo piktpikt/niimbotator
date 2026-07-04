@@ -21,6 +21,15 @@
   import { FileUtils } from "$/utils/file_utils";
   import { z } from "zod";
   import DpiSelector from "$/components/designer-controls/DpiSelector.svelte";
+  // PIKT: deep restyle — Bootstrap dropdown/form → M3 ui/* primitives + BottomSheet (editor phase 5).
+  // Upstream PR candidate: no
+  import Button from "$/components/ui/Button.svelte";
+  import TextField from "$/components/ui/TextField.svelte";
+  import Select from "$/components/ui/Select.svelte";
+  import SegmentedButton from "$/components/ui/SegmentedButton.svelte";
+  import BottomSheet from "$/components/ui/BottomSheet.svelte";
+
+  let openLabelEditor = $state(false);
 
   interface Props {
     labelProps: LabelProps;
@@ -267,25 +276,19 @@
   });
 </script>
 
-<div class="dropdown">
-  <button class="tool-action" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-    <MdIcon icon="settings" /><span>{$tr("editor.toolbar.size")}</span>
-  </button>
-  <div class="dropdown-menu">
-    <h6 class="dropdown-header">{$tr("params.label.menu_title")}</h6>
+<button class="tool-action" onclick={() => (openLabelEditor = true)}>
+  <MdIcon icon="settings" /><span>{$tr("editor.toolbar.size")}</span>
+</button>
 
-    <div class="px-3">
-      <div class="p-1">
-        <button class="btn btn-sm btn-outline-secondary" onclick={onImportClicked}>
-          <MdIcon icon="data_object" />
-          {$tr("params.label.import")}
-        </button>
-        <button class="btn btn-sm btn-outline-secondary" onclick={onExportClicked}>
-          <MdIcon icon="data_object" />
-          {$tr("params.label.export")}
-        </button>
-      </div>
-      <div class="mb-3 {error ? 'cursor-help text-warning' : 'text-secondary'}" title={error}>
+<BottomSheet bind:open={openLabelEditor} title={$tr("params.label.menu_title")}>
+  <div class="flex flex-col gap-4">
+    <div class="flex gap-2">
+      <Button variant="outlined" icon="data_object" onclick={onImportClicked}>{$tr("params.label.import")}</Button>
+      <Button variant="outlined" icon="data_object" onclick={onExportClicked}>{$tr("params.label.export")}</Button>
+    </div>
+
+    <div class="flex items-center gap-2 {error ? 'cursor-help text-warning-500' : 'text-surface-600-400'}" title={error}>
+      <span class="text-body-medium">
         {$tr("params.label.current")}
         {labelProps.size.width}x{labelProps.size.height}
         {$tr("params.label.px")}
@@ -294,216 +297,158 @@
         {:else if labelProps.printDirection === "left"}
           ({$tr("params.label.direction")} {$tr("params.label.direction.left")})
         {/if}
-        <button class="btn btn-sm" onclick={fillWithCurrentParams}><MdIcon icon="arrow_downward" /></button>
+      </span>
+      <Button
+        variant="text"
+        icon="arrow_downward"
+        ariaLabel={$tr("params.label.current")}
+        onclick={fillWithCurrentParams} />
+    </div>
+
+    <LabelPresetsBrowser
+      presets={labelPresets}
+      onItemSelected={onLabelPresetSelected}
+      onItemDelete={onLabelPresetDelete} />
+
+    <div class="flex items-end gap-2">
+      <div class="flex-1">
+        <TextField
+          type="number"
+          label={$tr("params.label.size")}
+          min={1}
+          value={width}
+          onChange={(v) => (width = Number(v))} />
       </div>
-
-      <LabelPresetsBrowser
-        class="mb-1"
-        presets={labelPresets}
-        onItemSelected={onLabelPresetSelected}
-        onItemDelete={onLabelPresetDelete} />
-
-      <div class="input-group flex-nowrap input-group-sm mb-2">
-        <span class="input-group-text">{$tr("params.label.size")}</span>
-        <input class="form-control" type="number" min="1" step={unit === "px" ? 8 : 1} bind:value={width} />
-        <button class="btn btn-sm btn-secondary" onclick={onFlip}><MdIcon icon="swap_horiz" /></button>
-        <input class="form-control" type="number" min="1" step={unit === "px" ? 8 : 1} bind:value={height} />
-        <select class="form-select" bind:value={unit} onchange={onUnitChange}>
-          <option value="mm"> {$tr("params.label.mm")}</option>
-          <option value="px"> {$tr("params.label.px")}</option>
-        </select>
+      <Button variant="tonal" icon="swap_horiz" ariaLabel={$tr("params.label.size")} onclick={onFlip} />
+      <div class="flex-1">
+        <TextField type="number" min={1} value={height} onChange={(v) => (height = Number(v))} />
       </div>
-
-      {#if unit !== "px"}
-        <DpiSelector bind:value={dpmm} />
-      {/if}
-
-      <div class="input-group flex-nowrap input-group-sm print-dir-switch mb-2" role="group">
-        <span class="input-group-text w-100">{$tr("params.label.direction")}</span>
-        {#each printDirections as v (v)}
-          <input
-            type="radio"
-            class="btn-check"
-            name="print-dir"
-            id="print-dir-{v}"
-            autocomplete="off"
-            bind:group={printDirection}
-            value={v} />
-          <label class="btn btn-outline-secondary px-3" for="print-dir-{v}">
-            <div class="svg-icon"></div>
-          </label>
-        {/each}
-      </div>
-
-      <div class="input-group flex-nowrap input-group-sm label-shape-switch mb-2" role="group">
-        <span class="input-group-text w-100">{$tr("params.label.shape")}</span>
-        {#each labelShapes as v (v)}
-          <input
-            type="radio"
-            class="btn-check"
-            name="label-shape"
-            id="label-shape-{v}"
-            autocomplete="off"
-            bind:group={shape}
-            value={v} />
-          <label class="btn btn-outline-secondary px-3" for="label-shape-{v}">
-            <div class="svg-icon"></div>
-          </label>
-        {/each}
-      </div>
-
-      {#if shape !== "circle"}
-        <div class="input-group flex-nowrap input-group-sm label-split-switch mb-2" role="group">
-          <span class="input-group-text w-100">{$tr("params.label.split")}</span>
-          {#each labelSplits as v (v)}
-            <input
-              type="radio"
-              class="btn-check"
-              name="label-split"
-              id="label-split-{v}"
-              autocomplete="off"
-              bind:group={split}
-              value={v} />
-            <label class="btn btn-outline-secondary px-3" for="label-split-{v}">
-              <div class="svg-icon"></div>
-            </label>
-          {/each}
-        </div>
-
-        {#if split !== "none"}
-          <div class="input-group flex-nowrap input-group-sm mb-2">
-            <span class="input-group-text">{$tr("params.label.split.count")}</span>
-            <input class="form-control" type="number" min="1" bind:value={splitParts} />
-          </div>
-        {/if}
-      {/if}
-
-      {#if split !== "none"}
-        <div class="input-group flex-nowrap input-group-sm mirror-switch mb-2" role="group">
-          <span class="input-group-text w-100">{$tr("params.label.mirror")}</span>
-          {#each mirrorTypes as v (v)}
-            <input
-              type="radio"
-              class="btn-check"
-              name="mirror"
-              id="mirror-{v}"
-              autocomplete="off"
-              bind:group={mirror}
-              value={v} />
-            <label class="btn btn-outline-secondary px-3" for="mirror-{v}">
-              <div class="svg-icon"></div>
-            </label>
-          {/each}
-        </div>
-
-        <div class="input-group flex-nowrap input-group-sm tail-pos-switch mb-2" role="group">
-          <span class="input-group-text w-100">{$tr("params.label.tail.position")}</span>
-          {#each tailPositions as v (v)}
-            <input
-              type="radio"
-              class="btn-check"
-              name="tail-pos"
-              id="tail-{v}"
-              autocomplete="off"
-              bind:group={tailPos}
-              value={v} />
-            <label class="btn btn-outline-secondary px-3" for="tail-{v}">
-              <div class="svg-icon"></div>
-            </label>
-          {/each}
-        </div>
-
-        <div class="input-group flex-nowrap input-group-sm mb-2">
-          <span class="input-group-text">{$tr("params.label.tail.length")}</span>
-          <input class="form-control" type="number" min="1" bind:value={tailLength} />
-          <span class="input-group-text">
-            {#if unit === "mm"}{$tr("params.label.mm")}{/if}
-            {#if unit === "px"}{$tr("params.label.px")}{/if}
-          </span>
-        </div>
-      {/if}
-
-      <div class="input-group flex-nowrap input-group-sm mb-2">
-        <span class="input-group-text">{$tr("params.label.label_title")}</span>
-        <input class="form-control" type="text" bind:value={title} />
-      </div>
-
-      <div class="text-end">
-        <button class="btn btn-sm btn-secondary" onclick={onLabelPresetAdd}>
-          {$tr("params.label.save_template")}
-        </button>
-        <button class="btn btn-sm btn-primary" onclick={onApply}>{$tr("params.label.apply")}</button>
+      <div class="flex-1">
+        <Select
+          value={unit}
+          options={[
+            { value: "mm", label: $tr("params.label.mm") },
+            { value: "px", label: $tr("params.label.px") },
+          ]}
+          onChange={(v) => {
+            unit = v as LabelUnit;
+            onUnitChange();
+          }} />
       </div>
     </div>
+
+    {#if unit !== "px"}
+      <DpiSelector bind:value={dpmm} />
+    {/if}
+
+    <div class="flex flex-col gap-1.5">
+      <span class="text-label-medium text-surface-600-400">{$tr("params.label.direction")}</span>
+      <SegmentedButton
+        ariaLabel={$tr("params.label.direction")}
+        value={printDirection}
+        options={[
+          { value: "left", label: $tr("params.label.direction.left") },
+          { value: "top", label: $tr("params.label.direction.top") },
+        ]}
+        onChange={(v) => (printDirection = v)} />
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <span class="text-label-medium text-surface-600-400">{$tr("params.label.shape")}</span>
+      <SegmentedButton
+        ariaLabel={$tr("params.label.shape")}
+        value={shape}
+        options={[
+          { value: "rect", icon: "crop_square", ariaLabel: "rect" },
+          { value: "rounded_rect", icon: "rounded_corner", ariaLabel: "rounded_rect" },
+          { value: "circle", icon: "radio_button_unchecked", ariaLabel: "circle" },
+        ]}
+        onChange={(v) => (shape = v)} />
+    </div>
+
+    {#if shape !== "circle"}
+      <div class="flex flex-col gap-1.5">
+        <span class="text-label-medium text-surface-600-400">{$tr("params.label.split")}</span>
+        <SegmentedButton
+          ariaLabel={$tr("params.label.split")}
+          value={split}
+          options={[
+            { value: "none", icon: "crop_square", ariaLabel: "none" },
+            { value: "vertical", icon: "view_week", ariaLabel: "vertical" },
+            { value: "horizontal", icon: "segment", ariaLabel: "horizontal" },
+          ]}
+          onChange={(v) => (split = v)} />
+      </div>
+
+      {#if split !== "none"}
+        <TextField
+          type="number"
+          label={$tr("params.label.split.count")}
+          min={1}
+          value={splitParts}
+          onChange={(v) => (splitParts = Number(v))} />
+      {/if}
+    {/if}
+
+    {#if split !== "none"}
+      <div class="flex flex-col gap-1.5">
+        <span class="text-label-medium text-surface-600-400">{$tr("params.label.mirror")}</span>
+        <SegmentedButton
+          ariaLabel={$tr("params.label.mirror")}
+          value={mirror}
+          options={[
+            { value: "none", icon: "radio_button_unchecked", ariaLabel: "none" },
+            { value: "copy", icon: "content_copy", ariaLabel: "copy" },
+            { value: "flip", icon: "swap_horiz", ariaLabel: "flip" },
+          ]}
+          onChange={(v) => (mirror = v)} />
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <span class="text-label-medium text-surface-600-400">{$tr("params.label.tail.position")}</span>
+        <SegmentedButton
+          ariaLabel={$tr("params.label.tail.position")}
+          value={tailPos}
+          options={[
+            { value: "right", icon: "chevron_right", ariaLabel: "right" },
+            { value: "bottom", icon: "arrow_downward", ariaLabel: "bottom" },
+            { value: "left", icon: "chevron_left", ariaLabel: "left" },
+            { value: "top", icon: "vertical_align_top", ariaLabel: "top" },
+          ]}
+          onChange={(v) => (tailPos = v)} />
+      </div>
+
+      <div class="flex items-end gap-2">
+        <div class="flex-1">
+          <TextField
+            type="number"
+            label={$tr("params.label.tail.length")}
+            min={1}
+            value={tailLength}
+            onChange={(v) => (tailLength = Number(v))} />
+        </div>
+        <span class="pb-3 text-label-medium text-surface-600-400">
+          {#if unit === "mm"}{$tr("params.label.mm")}{/if}
+          {#if unit === "px"}{$tr("params.label.px")}{/if}
+        </span>
+      </div>
+    {/if}
+
+    <TextField
+      type="text"
+      label={$tr("params.label.label_title")}
+      value={title ?? ""}
+      onChange={(v) => (title = v)} />
+
+    <div class="flex justify-end gap-2">
+      <Button variant="tonal" onclick={onLabelPresetAdd}>{$tr("params.label.save_template")}</Button>
+      <Button variant="filled" onclick={onApply}>{$tr("params.label.apply")}</Button>
+    </div>
   </div>
-</div>
+</BottomSheet>
 
 <style>
-  .dropdown-menu {
-    width: 100vw;
-    max-width: 450px;
-  }
-
   .cursor-help {
     cursor: help;
-  }
-
-  .svg-icon {
-    height: 1.5em;
-    width: 1.5em;
-    background-size: cover;
-  }
-
-  .tail-pos-switch .svg-icon {
-    background-image: url("../assets/tail-pos.svg");
-  }
-  .tail-pos-switch label[for="tail-bottom"] .svg-icon {
-    transform: rotate(90deg);
-  }
-  .tail-pos-switch label[for="tail-bottom"] .svg-icon {
-    transform: rotate(90deg);
-  }
-  .tail-pos-switch label[for="tail-left"] .svg-icon {
-    transform: rotate(180deg);
-  }
-  .tail-pos-switch label[for="tail-top"] .svg-icon {
-    transform: rotate(270deg);
-  }
-  .print-dir-switch .svg-icon {
-    background-image: url("../assets/print-dir.svg");
-  }
-  .print-dir-switch label[for="print-dir-top"] .svg-icon {
-    transform: rotate(90deg);
-  }
-
-  .label-shape-switch label[for="label-shape-rect"] .svg-icon {
-    background-image: url("../assets/shape-rect.svg");
-  }
-  .label-shape-switch label[for="label-shape-rounded_rect"] .svg-icon {
-    background-image: url("../assets/shape-rrect.svg");
-  }
-  .label-shape-switch label[for="label-shape-circle"] .svg-icon {
-    background-image: url("../assets/shape-circle.svg");
-  }
-
-  .label-split-switch label[for="label-split-none"] .svg-icon {
-    background-image: url("../assets/shape-rrect.svg");
-  }
-  .label-split-switch label[for="label-split-vertical"] .svg-icon {
-    background-image: url("../assets/split-vertical.svg");
-    transform: rotate(90deg);
-  }
-  .label-split-switch label[for="label-split-horizontal"] .svg-icon {
-    background-image: url("../assets/split-vertical.svg");
-  }
-
-  .mirror-switch label[for="mirror-none"] .svg-icon {
-    background-image: url("../assets/mirror-none.svg");
-  }
-  .mirror-switch label[for="mirror-copy"] .svg-icon {
-    background-image: url("../assets/mirror-copy.svg");
-  }
-  .mirror-switch label[for="mirror-flip"] .svg-icon {
-    background-image: url("../assets/mirror-flip.svg");
   }
 </style>
