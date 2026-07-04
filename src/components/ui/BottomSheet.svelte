@@ -29,20 +29,24 @@
     title?: string;
     onClose?: () => void;
     children: Snippet;
-    /** Optional inline trigger; usually the sheet is opened by binding `open`. */
-    trigger?: Snippet;
   }
 
-  let { open = $bindable(), title, onClose, children, trigger }: Props = $props();
+  let { open = $bindable(), title, onClose, children }: Props = $props();
 
   const token = Symbol();
+  // Visibility is driven by {#if open} below, so closing is a guaranteed unmount — we do NOT rely
+  // on pushing isSheetOpen=false into the library (a chained bindable to a $bindable prop does not
+  // reliably propagate parent->child). The library's onclose (drag / Escape) syncs back to `open`.
   const close = () => (open = false);
   closers.add(close);
 
+  let wasOpen = false;
   $effect(() => {
     if (open) openTokens.add(token);
     else openTokens.delete(token);
     sync();
+    if (wasOpen && !open) onClose?.();
+    wasOpen = open;
   });
 
   onDestroy(() => {
@@ -52,39 +56,38 @@
   });
 </script>
 
-<Sheet bind:isSheetOpen={open} onclose={() => onClose?.()} settings={{ position: "bottom", maxHeight: 0.9 }}>
-  {#if trigger}
-    <Sheet.Trigger>{@render trigger()}</Sheet.Trigger>
-  {/if}
-  <Sheet.Overlay>
-    <Sheet.Sheet>
-      <div
-        class="mx-auto flex w-full max-w-xl flex-col rounded-t-m3-xl bg-surface-100-900 text-surface-950-50 shadow-e3">
-        <Sheet.Handle>
-          <div class="flex cursor-grab justify-center py-3 active:cursor-grabbing">
-            <span class="h-1 w-9 rounded-full bg-surface-400-600"></span>
+{#if open}
+  <Sheet isSheetOpen onclose={close} settings={{ position: "bottom", maxHeight: 0.9 }}>
+    <Sheet.Overlay>
+      <Sheet.Sheet>
+        <div
+          class="mx-auto flex w-full max-w-xl flex-col rounded-t-m3-xl bg-surface-100-900 text-surface-950-50 shadow-e3">
+          <Sheet.Handle>
+            <div class="flex cursor-grab justify-center py-3 active:cursor-grabbing">
+              <span class="h-1 w-9 rounded-full bg-surface-400-600"></span>
+            </div>
+          </Sheet.Handle>
+
+          {#if title}
+            <header class="flex items-center justify-between gap-2 px-4 pb-2">
+              <h2 class="text-title-large">{title}</h2>
+              <button
+                type="button"
+                aria-label="Fermer"
+                onclick={close}
+                class="relative isolate flex size-11 items-center justify-center overflow-hidden rounded-full text-surface-600-400
+                  before:absolute before:inset-0 before:bg-current before:opacity-0 before:transition-opacity
+                  hover:before:opacity-[0.08] active:before:opacity-[0.12]">
+                <MdIcon icon="close" />
+              </button>
+            </header>
+          {/if}
+
+          <div class="max-h-[80dvh] overflow-y-auto px-4 pb-6">
+            {@render children()}
           </div>
-        </Sheet.Handle>
-
-        {#if title}
-          <header class="flex items-center justify-between gap-2 px-4 pb-2">
-            <h2 class="text-title-large">{title}</h2>
-            <button
-              type="button"
-              aria-label="Fermer"
-              onclick={close}
-              class="relative isolate flex size-11 items-center justify-center overflow-hidden rounded-full text-surface-600-400
-                before:absolute before:inset-0 before:bg-current before:opacity-0 before:transition-opacity
-                hover:before:opacity-[0.08] active:before:opacity-[0.12]">
-              <MdIcon icon="close" />
-            </button>
-          </header>
-        {/if}
-
-        <div class="max-h-[80dvh] overflow-y-auto px-4 pb-6">
-          {@render children()}
         </div>
-      </div>
-    </Sheet.Sheet>
-  </Sheet.Overlay>
-</Sheet>
+      </Sheet.Sheet>
+    </Sheet.Overlay>
+  </Sheet>
+{/if}
