@@ -2,7 +2,9 @@
   import { onMount } from "svelte";
   import { derived } from "svelte/store";
   import { appConfig, connectionState, printerClient, printerMeta, refreshRfidInfo } from "$/stores";
-  import { copyImageData, threshold, atkinson, invert, bayer } from "$/utils/post_process";
+  // PIKT: render pipeline extracted to $/utils/labelRender for headless reuse (batch print)
+  // Upstream PR candidate: no
+  import { rasterizeLabel, compositeLabel } from "$/utils/labelRender";
   import {
     type EncodedImage,
     ImageEncoder,
@@ -16,12 +18,10 @@
   import type { LabelProps, PostProcessType, FabricJson, PreviewProps, PreviewPropsOffset } from "$/types";
   import ParamLockButton from "$/components/basic/ParamLockButton.svelte";
   import { tr, type TranslationKey } from "$/utils/i18n";
-  import { canvasPreprocess } from "$/utils/canvas_preprocess";
   import { type DSVRowArray, csvParse } from "d3-dsv";
   import { LocalStoragePersistence } from "$/utils/persistence";
   import MdIcon from "$/components/basic/MdIcon.svelte";
   import { Toasts } from "$/utils/toasts";
-  import { CustomCanvas } from "$/fabric-object/custom_canvas";
   import { FileUtils } from "$/utils/file_utils";
   import AppModal from "$/components/basic/AppModal.svelte";
 
@@ -171,35 +171,21 @@
   };
 
   const updatePreview = () => {
-    let iData: ImageData = copyImageData(originalImage);
+    // PIKT: post-process + offset compositing delegated to $/utils/labelRender.
+    // The offset-warning below stays here (reads $printerMeta / $tr). Upstream PR candidate: no
+    const composited = compositeLabel(originalImage, {
+      postProcess: postProcessType,
+      postProcessInvert,
+      threshold: thresholdValue,
+      offset,
+    });
 
-    if (postProcessType === "threshold") {
-      iData = threshold(iData, thresholdValue);
-    } else if (postProcessType === "dither") {
-      iData = atkinson(iData, thresholdValue);
-    } else if (postProcessType === "bayer") {
-      iData = bayer(iData, thresholdValue);
-    }
-
-    if (postProcessInvert) {
-      iData = invert(iData);
-    }
+    previewCanvas.width = composited.width;
+    previewCanvas.height = composited.height;
+    previewContext = previewCanvas.getContext("2d")!;
+    previewContext.drawImage(composited, 0, 0);
 
     offsetWarning = "";
-
-    if (offset.offsetType === "inner") {
-      previewCanvas.width = originalImage.width;
-      previewCanvas.height = originalImage.height;
-      previewContext.fillStyle = "white";
-      previewContext.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
-      previewContext.putImageData(iData, offset.x, offset.y);
-    } else {
-      previewCanvas.width = originalImage.width + Math.abs(offset.x);
-      previewCanvas.height = originalImage.height + Math.abs(offset.y);
-      previewContext.fillStyle = "white";
-      previewContext.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
-      previewContext.putImageData(iData, Math.max(offset.x, 0), Math.max(offset.y, 0));
-    }
 
     if ($printerMeta !== undefined) {
       const headSize = labelProps.printDirection == "left" ? previewCanvas.height : previewCanvas.width;
@@ -278,18 +264,7 @@
   };
 
   const generatePreviewData = async (page: number): Promise<void> => {
-    const fabricTempCanvas = new CustomCanvas(undefined, {
-      width: labelProps.size.width,
-      height: labelProps.size.height,
-    });
-
-    fabricTempCanvas.setCustomBackground(false);
-    fabricTempCanvas.setHighlightMirror(false);
-
-    fabricTempCanvas.setLabelProps(labelProps);
-
-    await fabricTempCanvas.loadFromJSON(canvasCallback());
-
+    // PIKT: Fabric build + rasterize delegated to $/utils/labelRender. Upstream PR candidate: no
     let variables = {};
 
     if (csvEnabled) {
@@ -300,24 +275,9 @@
       }
     }
 
-    console.log("Page variables:", variables);
-
-    canvasPreprocess(fabricTempCanvas, variables);
-
-    await fabricTempCanvas.createMirroredObjects();
-
-    fabricTempCanvas.requestRenderAll();
-
-    const preRenderedCanvas = fabricTempCanvas.toCanvasElement();
-    const ctx = preRenderedCanvas.getContext("2d")!;
-    previewCanvas.width = preRenderedCanvas.width;
-    previewCanvas.height = preRenderedCanvas.height;
-    previewContext = previewCanvas.getContext("2d")!;
-    originalImage = ctx.getImageData(0, 0, preRenderedCanvas.width, preRenderedCanvas.height);
+    originalImage = await rasterizeLabel(labelProps, canvasCallback(), variables);
 
     updatePreview();
-
-    fabricTempCanvas.dispose();
   };
 
   const onModalClose = () => {
