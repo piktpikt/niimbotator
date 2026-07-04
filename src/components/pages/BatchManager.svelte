@@ -156,7 +156,7 @@
   </TopAppBar>
 
   <main class="flex-1 overflow-y-auto">
-    <div class="mx-auto w-full max-w-2xl space-y-4 p-4 pb-40">
+    <div class="mx-auto w-full max-w-2xl space-y-4 p-4 pb-52">
       <!-- Resume banner: an interrupted print left a cursor (Chantier 3) -->
       {#if batch?.printCursor}
         <section class="card flex items-center gap-3 border border-warning-500/30 bg-warning-500/10 p-3">
@@ -336,9 +336,9 @@
     onchange={onFilePicked} />
 
   {#if !isEmpty}
-    <!-- Docked "Ajouter" bar above the FAB -->
+    <!-- Docked "Ajouter" bar stacked ABOVE the FAB (was bottom-24, collided with the FAB) -->
     <div
-      class="pointer-events-none fixed inset-x-0 bottom-24 z-30 flex justify-center px-4">
+      class="pointer-events-none fixed inset-x-0 bottom-40 z-30 flex justify-center px-4">
       <button
         type="button"
         class="pointer-events-auto inline-flex h-11 items-center justify-center gap-2 rounded-full bg-primary-500/12 px-5 text-sm font-semibold text-primary-500 shadow-md backdrop-blur transition-colors hover:bg-primary-500/20"

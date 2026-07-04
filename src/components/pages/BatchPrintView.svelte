@@ -2,9 +2,12 @@
   // Presentational view for the batch print flow (Chantier 3). Pure: it renders one of the
   // five screens from a `screen` + `progress` snapshot and calls back on actions. No printer,
   // no job, no store beyond i18n — so every screen is provable by feeding props.
+  // Styling: Material Design 3 via the ui/ primitives + m3 tokens (deep restyle).
   import { tr, type TranslationKey } from "$/utils/i18n";
   import MdIcon from "$/components/basic/MdIcon.svelte";
   import TopAppBar from "$/components/navigation/TopAppBar.svelte";
+  import Button from "$/components/ui/Button.svelte";
+  import Card from "$/components/ui/Card.svelte";
   import type { PrintOptions } from "$/db/schema";
   import type { PrintProgress, PrintScreen } from "$/services/batchPrinting";
 
@@ -16,11 +19,9 @@
     passages: number;
     options: PrintOptions;
     connected: boolean;
-    /** The batch has an interrupted-run cursor, so "confirm" resumes instead of reprinting. */
     resumeMode?: boolean;
     progress?: PrintProgress;
     labelsPrinted?: number;
-    /** Show the low-battery confirmation dialog (§12.6). */
     batteryWarning?: boolean;
     onConfirm: () => void;
     onBack: () => void;
@@ -68,7 +69,6 @@
 
   const currentLabel = $derived((progress?.unitIndex ?? 0) + 1);
 
-  // The one-line detail under the big counter (item name + mosaic tile / copy).
   const detail = $derived.by(() => {
     if (!progress) return "";
     const lines: string[] = [];
@@ -92,6 +92,12 @@
       default: return t("print.printing.title");
     }
   });
+
+  const optionRows: { key: keyof PrintOptions; label: string }[] = [
+    { key: "pauseBetweenLabels", label: "print.option.pause_labels" },
+    { key: "pauseBetweenItems", label: "print.option.pause_items" },
+    { key: "numberMosaicTiles", label: "print.option.number_tiles" },
+  ];
 </script>
 
 <div class="flex h-dvh flex-col bg-surface-50-950 text-surface-950-50">
@@ -100,61 +106,63 @@
   <main class="flex-1 overflow-y-auto">
     <div class="mx-auto flex w-full max-w-2xl flex-col gap-4 p-4">
       {#if screen === "confirm"}
-        <section class="card space-y-2 bg-surface-100-900 p-4">
-          <div class="text-base font-semibold">{batchName}</div>
-          <div class="text-sm text-surface-600-400">{t("print.confirm.recap", { items: itemsTotal, labels: labelsTotal })}</div>
+        <Card variant="elevated" class="space-y-1 p-5">
+          <div class="text-title-large">{batchName}</div>
+          <div class="text-body-medium text-surface-600-400">{t("print.confirm.recap", { items: itemsTotal, labels: labelsTotal })}</div>
           {#if passages > 1}
-            <div class="text-sm text-surface-600-400">{t("print.confirm.passages", { n: passages })}</div>
+            <div class="text-body-medium text-surface-600-400">{t("print.confirm.passages", { n: passages })}</div>
           {/if}
-          <div class="text-lg font-bold text-primary-500">{t("print.confirm.total", { n: labelsTotal })}</div>
-        </section>
+          <div class="pt-1 text-headline-medium text-primary-500">{t("print.confirm.total", { n: labelsTotal })}</div>
+        </Card>
 
-        <section class="card space-y-1 bg-surface-100-900 p-2">
-          {#each [["pauseBetweenLabels", "print.option.pause_labels"], ["pauseBetweenItems", "print.option.pause_items"], ["numberMosaicTiles", "print.option.number_tiles"]] as [key, label] (key)}
+        <Card variant="filled" class="p-2">
+          {#each optionRows as row (row.key)}
             <button
               type="button"
-              class="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-3 text-left text-sm hover:bg-surface-200-800"
-              onclick={() => onOptionChange({ [key]: !options[key as keyof PrintOptions] })}>
-              <span>{t(label)}</span>
-              <span
-                class="grid size-6 place-items-center rounded-md border-2 {options[key as keyof PrintOptions] ? 'border-primary-500 bg-primary-500 text-primary-contrast-500' : 'border-surface-400-600'}">
-                {#if options[key as keyof PrintOptions]}<MdIcon icon="check" />{/if}
+              class="flex w-full items-center justify-between gap-3 rounded-m3-sm px-3 py-3 text-left text-body-large transition hover:bg-surface-300-700/40"
+              onclick={() => onOptionChange({ [row.key]: !options[row.key] })}>
+              <span>{t(row.label)}</span>
+              <span class="grid size-6 place-items-center rounded-m3-xs border-2 transition-colors
+                {options[row.key] ? 'border-primary-500 bg-primary-500 text-primary-contrast-500' : 'border-surface-400-600'}">
+                {#if options[row.key]}<MdIcon icon="check" />{/if}
               </span>
             </button>
           {/each}
-        </section>
+        </Card>
       {:else if screen === "printing" || screen === "paused"}
-        <section class="card flex flex-col items-center gap-4 bg-surface-100-900 p-6 text-center">
-          <MdIcon icon={screen === "paused" ? "pause_circle" : "print"} class="text-5xl text-primary-500" />
-          <div class="text-3xl font-bold tabular-nums">{currentLabel} / {progress?.unitsTotal ?? 0}</div>
-          {#if screen === "paused"}<div class="text-sm font-medium text-primary-500">{t("print.paused.title")}</div>{/if}
-          <p class="whitespace-pre-line text-sm text-surface-600-400">{detail}</p>
+        <Card variant="elevated" class="flex flex-col items-center gap-4 p-6 text-center">
+          <div class="grid size-16 place-items-center rounded-full bg-primary-500/15 text-primary-500">
+            <MdIcon icon={screen === "paused" ? "pause_circle" : "print"} class="text-4xl" />
+          </div>
+          <div class="text-display-large tabular-nums">{currentLabel} <span class="text-surface-500">/ {progress?.unitsTotal ?? 0}</span></div>
+          {#if screen === "paused"}<div class="text-label-large text-primary-500">{t("print.paused.title")}</div>{/if}
+          <p class="whitespace-pre-line text-body-medium text-surface-600-400">{detail}</p>
 
           <div class="h-2 w-full overflow-hidden rounded-full bg-surface-300-700">
             <div class="h-full rounded-full bg-primary-500 transition-all" style="width: {progress?.percent ?? 0}%"></div>
           </div>
-          <div class="text-xs font-semibold text-surface-600-400">{progress?.percent ?? 0}%</div>
+          <div class="text-label-medium text-surface-600-400">{progress?.percent ?? 0}%</div>
 
           {#if screen === "printing"}
             <div class="h-1 w-2/3 overflow-hidden rounded-full bg-surface-200-800">
               <div class="h-full rounded-full bg-tertiary-500 transition-all" style="width: {progress?.labelProgress ?? 0}%"></div>
             </div>
           {/if}
-        </section>
+        </Card>
       {:else if screen === "completed" || screen === "cancelled"}
-        <section class="card flex flex-col items-center gap-3 bg-surface-100-900 p-8 text-center">
+        <Card variant="elevated" class="flex flex-col items-center gap-3 p-8 text-center">
           <MdIcon icon={screen === "completed" ? "check_circle" : "cancel"} class="text-6xl {screen === 'completed' ? 'text-success-500' : 'text-surface-500'}" />
-          <div class="text-xl font-bold">{title}</div>
-          <div class="text-sm text-surface-600-400">{t("print.completed.summary", { n: labelsPrinted })}</div>
-        </section>
+          <div class="text-headline-medium">{title}</div>
+          <div class="text-body-medium text-surface-600-400">{t("print.completed.summary", { n: labelsPrinted })}</div>
+        </Card>
       {:else if screen === "errored"}
-        <section class="card flex flex-col items-center gap-3 bg-surface-100-900 p-6 text-center">
+        <Card variant="elevated" class="flex flex-col items-center gap-3 p-6 text-center">
           <MdIcon icon="error" class="text-6xl text-warning-500" />
-          <div class="text-xl font-bold">{title}</div>
-          <div class="rounded-full bg-warning-500/15 px-3 py-1 text-sm font-semibold text-warning-500">{errorMessage}</div>
-          <div class="text-sm text-surface-600-400">{t("print.errored.progress", { done: labelsPrinted, total: labelsTotal })}</div>
-          <div class="text-sm text-surface-600-400">{t("print.errored.resume_hint", { n: labelsPrinted + 1, total: labelsTotal })}</div>
-        </section>
+          <div class="text-headline-medium">{title}</div>
+          <div class="rounded-full bg-warning-500/15 px-3 py-1 text-label-large text-warning-500">{errorMessage}</div>
+          <div class="text-body-medium text-surface-600-400">{t("print.errored.progress", { done: labelsPrinted, total: labelsTotal })}</div>
+          <div class="text-body-medium text-surface-600-400">{t("print.errored.resume_hint", { n: labelsPrinted + 1, total: labelsTotal })}</div>
+        </Card>
       {/if}
     </div>
   </main>
@@ -162,50 +170,38 @@
   <!-- Sticky action bar -->
   <div class="sticky bottom-0 flex gap-3 border-t border-surface-200-800 bg-surface-50-950 p-4">
     {#if screen === "confirm"}
-      <button type="button" class="h-12 flex-1 rounded-full bg-surface-200-800 font-semibold" onclick={onBack}>{t("print.cancel")}</button>
-      <button
-        type="button"
-        class="h-12 flex-[2] rounded-full bg-primary-500 font-semibold text-primary-contrast-500 disabled:opacity-40"
-        disabled={!connected}
-        onclick={onConfirm}>
+      <Button variant="text" onclick={onBack}>{t("print.cancel")}</Button>
+      <div class="flex-1"><Button variant="filled" full disabled={!connected} icon="print" onclick={onConfirm}>
         {connected ? (resumeMode ? t("print.resume_banner.resume") : t("print.confirm.action")) : t("print.confirm.not_connected")}
-      </button>
+      </Button></div>
     {:else if screen === "printing"}
-      <button type="button" class="h-12 flex-1 rounded-full bg-surface-200-800 font-semibold" onclick={onPause}>
-        <MdIcon icon="pause" /> {t("print.pause")}
-      </button>
-      <button type="button" class="h-12 flex-1 rounded-full bg-error-500/15 font-semibold text-error-500" onclick={onStop}>
-        <MdIcon icon="stop" /> {t("print.stop")}
-      </button>
+      <div class="flex-1"><Button variant="tonal" full icon="pause" onclick={onPause}>{t("print.pause")}</Button></div>
+      <div class="flex-1"><Button variant="tonal" color="error" full icon="stop" onclick={onStop}>{t("print.stop")}</Button></div>
     {:else if screen === "paused"}
-      <button type="button" class="h-12 flex-[2] rounded-full bg-primary-500 font-semibold text-primary-contrast-500" onclick={onResume}>
-        <MdIcon icon="play_arrow" /> {t("print.resume")}
-      </button>
-      <button type="button" class="h-12 flex-1 rounded-full bg-error-500/15 font-semibold text-error-500" onclick={onStop}>
-        <MdIcon icon="stop" /> {t("print.stop")}
-      </button>
+      <div class="flex-[2]"><Button variant="filled" full icon="play_arrow" onclick={onResume}>{t("print.resume")}</Button></div>
+      <div class="flex-1"><Button variant="tonal" color="error" full icon="stop" onclick={onStop}>{t("print.stop")}</Button></div>
     {:else if screen === "completed"}
-      <button type="button" class="h-12 flex-1 rounded-full bg-surface-200-800 font-semibold" onclick={onReprintFresh}>{t("print.completed.reprint")}</button>
-      <button type="button" class="h-12 flex-[2] rounded-full bg-primary-500 font-semibold text-primary-contrast-500" onclick={onDone}>{t("print.completed.done")}</button>
+      <div class="flex-1"><Button variant="tonal" full onclick={onReprintFresh}>{t("print.completed.reprint")}</Button></div>
+      <div class="flex-[2]"><Button variant="filled" full onclick={onDone}>{t("print.completed.done")}</Button></div>
     {:else if screen === "cancelled" || screen === "errored"}
-      <button type="button" class="h-12 flex-1 rounded-full bg-surface-200-800 font-semibold" onclick={onDone}>{t("print.view_batch")}</button>
-      <button type="button" class="h-12 flex-[2] rounded-full bg-primary-500 font-semibold text-primary-contrast-500" onclick={onResumeRun}>{t("print.resume")}</button>
+      <div class="flex-1"><Button variant="outlined" full onclick={onDone}>{t("print.view_batch")}</Button></div>
+      <div class="flex-[2]"><Button variant="filled" full icon="play_arrow" onclick={onResumeRun}>{t("print.resume")}</Button></div>
     {/if}
   </div>
 
   {#if batteryWarning}
     <div class="fixed inset-0 z-40 grid place-items-center bg-black/50 p-6">
-      <div class="card w-full max-w-sm space-y-4 bg-surface-100-900 p-5">
+      <Card variant="elevated" class="w-full max-w-sm space-y-4 p-5 shadow-e4">
         <div class="flex items-center gap-2 text-warning-500">
           <MdIcon icon="battery_2_bar" />
-          <span class="text-base font-semibold">{t("print.battery.warning.title")}</span>
+          <span class="text-title-large">{t("print.battery.warning.title")}</span>
         </div>
-        <p class="text-sm text-surface-600-400">{t("print.battery.warning.body", { n: labelsTotal })}</p>
+        <p class="text-body-medium text-surface-600-400">{t("print.battery.warning.body", { n: labelsTotal })}</p>
         <div class="flex justify-end gap-2">
-          <button type="button" class="h-11 rounded-full bg-surface-200-800 px-4 text-sm font-semibold" onclick={onBatteryCancel}>{t("print.cancel")}</button>
-          <button type="button" class="h-11 rounded-full bg-warning-500/20 px-4 text-sm font-semibold text-warning-500" onclick={onBatteryProceed}>{t("print.battery.warning.proceed")}</button>
+          <Button variant="text" onclick={onBatteryCancel}>{t("print.cancel")}</Button>
+          <Button variant="tonal" color="warning" onclick={onBatteryProceed}>{t("print.battery.warning.proceed")}</Button>
         </div>
-      </div>
+      </Card>
     </div>
   {/if}
 </div>
