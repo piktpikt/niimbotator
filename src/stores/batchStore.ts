@@ -1,6 +1,17 @@
 // PIKT: Batch system store + operations (Chantier 2). See docs/ARCHITECTURE.md §6.5.
 import { liveQuery, type Observable } from "dexie";
-import { db, type Batch, type BatchItem, type ItemMode, type MosaicConfig } from "$/db/schema";
+import {
+  db,
+  type Batch,
+  type BatchItem,
+  type ItemMode,
+  type MosaicConfig,
+  type PrintCursor,
+  type PrintErrorKey,
+  type PrintHistoryEntry,
+  type PrintOptions,
+  type PrintSettings,
+} from "$/db/schema";
 import { DEFAULT_LABEL_PROPS } from "$/defaults";
 
 /** Live list of batches, most recently modified first (Svelte-store compatible via $). */
@@ -181,4 +192,114 @@ export async function itemNeighbours(itemId: string): Promise<{ prev?: string; n
   const siblings = await db.items.where("batchId").equals(item.batchId).sortBy("position");
   const i = siblings.findIndex((it) => it.id === itemId);
   return { prev: siblings[i - 1]?.id, next: siblings[i + 1]?.id };
+}
+
+// --- Batch printing flow (v2). See docs/FEATURES-DELTA.md §11–§12. ---
+
+export const DEFAULT_PRINT_OPTIONS: PrintOptions = {
+  pauseBetweenLabels: false,
+  pauseBetweenItems: false,
+  numberMosaicTiles: false,
+  interLabelDelayMs: 0,
+};
+
+/**
+ * Mark a batch as printing and record the run options/settings. Print-progress writes
+ * deliberately do NOT bump modifiedAt — a running print must not reorder the batches list.
+ * Fresh runs clear any stale cursor; pass resume=true to keep the existing one.
+ */
+export async function startPrintRun(
+  batchId: string,
+  options: PrintOptions,
+  globalSettings?: PrintSettings,
+  resume = false,
+): Promise<void> {
+  const patch: Partial<Batch> = {
+    status: "printing",
+    printOptions: options,
+    globalPrintSettings: globalSettings,
+    printStartedAt: Date.now(),
+  };
+  if (!resume) patch.printCursor = undefined;
+  await db.batches.update(batchId, patch);
+}
+
+/** Persist the resume position after a unit prints (no modifiedAt bump). */
+export async function setPrintCursor(batchId: string, cursor: PrintCursor): Promise<void> {
+  await db.batches.update(batchId, { printCursor: cursor, lastPrintedAt: cursor.updatedAt });
+}
+
+/** Drop the resume position (e.g. user dismisses the resume banner). */
+export async function clearPrintCursor(batchId: string): Promise<void> {
+  await db.batches.update(batchId, { printCursor: undefined });
+}
+
+/** One-shot read of the resume position, if a run was interrupted. */
+export async function resumePoint(batchId: string): Promise<PrintCursor | undefined> {
+  const batch = await db.batches.get(batchId);
+  return batch?.printCursor;
+}
+
+/** Mark a single item printed as its final unit completes (no modifiedAt bump). */
+export async function markItemPrinted(itemId: string): Promise<void> {
+  // Dexie's UpdateSpec triggers a circular type on FabricJson; runtime-safe cast (as updateBatchItem).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (db.items as any).update(itemId, { status: "printed" });
+}
+
+/**
+ * Finalize a print run: append a history entry, update batch status, and — on success —
+ * clear the cursor and mark every item printed. Interrupted/cancelled runs keep the cursor
+ * so the resume banner can offer to continue.
+ */
+export async function finishPrintRun(
+  batchId: string,
+  summary: {
+    outcome: PrintHistoryEntry["outcome"];
+    startedAt: number;
+    labelsPrinted: number;
+    labelsTotal: number;
+    errorKey?: PrintErrorKey;
+  },
+): Promise<void> {
+  const now = Date.now();
+  await db.transaction("rw", db.batches, db.items, db.printHistory, async () => {
+    const batch = await db.batches.get(batchId);
+    if (!batch) return;
+
+    await db.printHistory.add({
+      id: crypto.randomUUID(),
+      batchId,
+      batchName: batch.name,
+      startedAt: summary.startedAt,
+      finishedAt: now,
+      outcome: summary.outcome,
+      labelsPrinted: summary.labelsPrinted,
+      labelsTotal: summary.labelsTotal,
+      passages: batch.passages,
+      errorKey: summary.errorKey,
+    });
+
+    const batchPatch: Partial<Batch> = { lastPrintedAt: now };
+    if (summary.outcome === "completed") {
+      batchPatch.status = "printed";
+      batchPatch.printCursor = undefined;
+      // Callback form avoids Dexie's UpdateSpec circular type on FabricJson.
+      await db.items.where("batchId").equals(batchId).modify((it) => {
+        it.status = "printed";
+      });
+    } else {
+      // Keep the cursor for resume; drop back to draft so the batch is editable again.
+      batchPatch.status = "draft";
+    }
+    await db.batches.update(batchId, batchPatch);
+  });
+}
+
+/** Print history, most recent first (one-shot). Feeds the future history gallery (§17.1). */
+export async function getPrintHistory(batchId?: string): Promise<PrintHistoryEntry[]> {
+  const rows = batchId
+    ? await db.printHistory.where("batchId").equals(batchId).toArray()
+    : await db.printHistory.toArray();
+  return rows.sort((a, b) => b.finishedAt - a.finishedAt);
 }
