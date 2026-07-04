@@ -1,10 +1,15 @@
 <script lang="ts">
-  import MdIcon from "$/components/basic/MdIcon.svelte";
+  // PIKT: deep restyle — Bootstrap dropdown → M3 ui/BottomSheet + TextField/Switch (editor phase 5).
+  // Upstream PR candidate: no
   import { tr } from "$/utils/i18n";
   import * as fabric from "fabric";
   import { onDestroy } from "svelte";
   import QRCode from "$/fabric-object/qrcode";
   import Barcode from "$/fabric-object/barcode";
+  import Button from "$/components/ui/Button.svelte";
+  import BottomSheet from "$/components/ui/BottomSheet.svelte";
+  import TextField from "$/components/ui/TextField.svelte";
+  import Switch from "$/components/ui/Switch.svelte";
 
   interface Props {
     selectedObject: fabric.FabricObject;
@@ -12,6 +17,8 @@
 
   let { selectedObject }: Props = $props();
   let prevObject: fabric.FabricObject | undefined;
+
+  let open = $state(false);
 
   let x = $state<number>();
   let y = $state<number>();
@@ -95,57 +102,82 @@
   });
 </script>
 
-<div class="dropdown">
-  <button
-    class="btn btn-sm btn-secondary dropdown-toggle"
-    type="button"
-    data-bs-toggle="dropdown"
-    title={$tr("params.generic.position")}>
-    <MdIcon icon="control_camera" />
-  </button>
-  <div class="dropdown-menu arrangement p-2">
-    <div class="input-group flex-nowrap input-group-sm mb-2">
-      <span class="input-group-text">x</span>
-      <input class="form-control" type="number" bind:value={x} onchange={updateObject} />
-    </div>
-    <div class="input-group flex-nowrap input-group-sm mb-2">
-      <span class="input-group-text">y</span>
-      <input class="form-control" type="number" bind:value={y} onchange={updateObject} />
-    </div>
+<Button
+  variant="tonal"
+  color="secondary"
+  icon="control_camera"
+  ariaLabel={$tr("params.generic.position")}
+  onclick={() => (open = true)} />
+
+<BottomSheet bind:open title={$tr("params.generic.position")}>
+  <div class="flex flex-col gap-3">
+    <TextField
+      type="number"
+      label="x"
+      value={x ?? ""}
+      onChange={(v) => {
+        x = Number(v);
+        updateObject(undefined as unknown as Event);
+      }} />
+    <TextField
+      type="number"
+      label="y"
+      value={y ?? ""}
+      onChange={(v) => {
+        y = Number(v);
+        updateObject(undefined as unknown as Event);
+      }} />
     {#if !(selectedObject instanceof fabric.FabricText || selectedObject instanceof fabric.FabricImage || selectedObject instanceof QRCode || selectedObject instanceof Barcode)}
-      <div class="input-group flex-nowrap input-group-sm mb-2">
-        <input class="form-control" type="number" min="1" bind:value={width} onchange={updateObject} />
-        <span class="input-group-text">x</span>
-        <input class="form-control" type="number" min="1" bind:value={height} onchange={updateObject} />
+      <div class="flex items-end gap-2">
+        <TextField
+          type="number"
+          min={1}
+          value={width ?? ""}
+          onChange={(v) => {
+            width = Number(v);
+            updateObject(undefined as unknown as Event);
+          }} />
+        <span class="pb-3 text-body-large text-surface-600-400">x</span>
+        <TextField
+          type="number"
+          min={1}
+          value={height ?? ""}
+          onChange={(v) => {
+            height = Number(v);
+            updateObject(undefined as unknown as Event);
+          }} />
       </div>
     {/if}
     {#if selectedObject instanceof fabric.FabricImage}
-      <div class="input-group flex-nowrap input-group-sm mb-2">
-        <input
-          class="form-control"
+      <div class="flex items-end gap-2">
+        <TextField
           type="number"
-          min="1"
-          bind:value={widthScaled}
-          onchange={(e) => updateObject(e, "width")} />
-        <span class="input-group-text">x</span>
-        <input
-          class="form-control"
+          min={1}
+          value={widthScaled ?? ""}
+          onChange={(v) => {
+            widthScaled = Number(v);
+            updateObject(undefined as unknown as Event, "width");
+          }} />
+        <span class="pb-3 text-body-large text-surface-600-400">x</span>
+        <TextField
           type="number"
-          min="1"
-          bind:value={heightScaled}
-          onchange={(e) => updateObject(e, "height")} />
+          min={1}
+          value={heightScaled ?? ""}
+          onChange={(v) => {
+            heightScaled = Number(v);
+            updateObject(undefined as unknown as Event, "height");
+          }} />
       </div>
-      <div class="form-check form-switch">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          role="switch"
-          id="keepImageAspectRatio"
-          bind:checked={keepAspectRatio}
-          onchange={toggleAspectRatio} />
-        <label class="form-check-label" for="keepImageAspectRatio" style="text-wrap: nowrap">
-          {$tr("params.generic.keepAspectRatio")}</label>
-      </div>
+      <label class="flex items-center gap-3">
+        <Switch
+          checked={keepAspectRatio}
+          ariaLabel={$tr("params.generic.keepAspectRatio")}
+          onChange={(b) => {
+            keepAspectRatio = b;
+            toggleAspectRatio(undefined as unknown as Event);
+          }} />
+        <span class="text-body-large">{$tr("params.generic.keepAspectRatio")}</span>
+      </label>
     {/if}
   </div>
-</div>
+</BottomSheet>

@@ -1,4 +1,6 @@
 <script lang="ts">
+  // PIKT: deep restyle — Bootstrap dropdown → M3 ui/BottomSheet + TextField/Button (editor phase 5).
+  // Upstream PR candidate: no
   import { onMount } from "svelte";
   import { OBJECT_DEFAULTS_TEXT } from "$/defaults";
   import { tr } from "$/utils/i18n";
@@ -7,6 +9,9 @@
   import { LocalStoragePersistence } from "$/utils/persistence";
   import { fontCache, userFonts } from "$/stores";
   import FontsMenu from "$/components/designer-controls/FontsMenu.svelte";
+  import Button from "$/components/ui/Button.svelte";
+  import TextField from "$/components/ui/TextField.svelte";
+  import BottomSheet from "$/components/ui/BottomSheet.svelte";
 
   interface Props {
     editRevision?: number;
@@ -15,6 +20,8 @@
   }
 
   let { value, valueUpdated, editRevision }: Props = $props();
+
+  let open = $state(false);
 
   let fontQuerySupported = typeof queryLocalFonts !== "undefined";
   let searchString = $state<string>("");
@@ -41,6 +48,7 @@
   const fontClick = (family: string) => {
     searchString = "";
     valueUpdated(family);
+    open = false;
   };
 
   onMount(() => {
@@ -56,75 +64,58 @@
   });
 </script>
 
-<div class="input-group flex-nowrap input-group-sm font-family-picker">
-  <span class="input-group-text" title={$tr("params.text.font_family")}>
-    <MdIcon icon="text_format" />
-  </span>
+<div class="flex flex-nowrap items-center gap-2 font-family-picker">
+  <input type="hidden" data-ver={editRevision} />
 
-  <input
-    type="text"
-    class="form-control font-family-input"
-    data-ver={editRevision}
+  <TextField
+    ariaLabel={$tr("params.text.font_family")}
+    leadingIcon="text_format"
     {value}
-    oninput={(e) => valueUpdated(e.currentTarget.value)} />
+    onChange={(v) => valueUpdated(v)} />
 
-  <!-- svelte-ignore a11y_consider_explicit_label -->
-  <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"></button>
-
-  <div class="dropdown-menu">
-    <div class="px-3 py-1">
-      <input
-        type="text"
-        class="form-control form-control-sm"
-        placeholder={$tr("params.text.font_family.search")}
-        bind:value={searchString} />
-    </div>
-
-    {#if userFontsFiltered.length > 0}
-      <h6 class="dropdown-header">{$tr("params.text.user_fonts")}</h6>
-      {#each userFontsFiltered as family (family)}
-        <button class="dropdown-item" style="font-family: {family}" type="button" onclick={() => fontClick(family)}>
-          {family}
-        </button>
-      {/each}
-    {/if}
-
-    {#if systemFontsFiltered.length > 0}
-      <h6 class="dropdown-header">{$tr("params.text.system_fonts")}</h6>
-      {#each systemFontsFiltered as family (family)}
-        <button class="dropdown-item" style="font-family: {family}" type="button" onclick={() => fontClick(family)}>
-          {family}
-        </button>
-      {/each}
-    {/if}
-
-    {#if fontQuerySupported}
-      <div class="dropdown-divider"></div>
-      <button class="dropdown-item load-system-fonts" type="button" onclick={getSystemFonts}>
-        <MdIcon icon="refresh" />
-        {$tr("params.text.fetch_fonts")}
-      </button>
-    {/if}
-  </div>
+  <Button variant="outlined" ariaLabel={$tr("params.text.font_family")} onclick={() => (open = true)}>
+    <span style="font-family: {value}">{value}</span>
+  </Button>
 
   <FontsMenu />
 </div>
 
+<BottomSheet bind:open title={$tr("params.text.font_family")}>
+  <div class="flex flex-col gap-2">
+    <TextField
+      placeholder={$tr("params.text.font_family.search")}
+      value={searchString}
+      onChange={(v) => (searchString = v)} />
+
+    {#if userFontsFiltered.length > 0}
+      <h6 class="px-2 pt-2 text-label-large text-surface-600-400">{$tr("params.text.user_fonts")}</h6>
+      {#each userFontsFiltered as family (family)}
+        <Button variant="text" full onclick={() => fontClick(family)}>
+          <span class="w-full text-left" style="font-family: {family}">{family}</span>
+        </Button>
+      {/each}
+    {/if}
+
+    {#if systemFontsFiltered.length > 0}
+      <h6 class="px-2 pt-2 text-label-large text-surface-600-400">{$tr("params.text.system_fonts")}</h6>
+      {#each systemFontsFiltered as family (family)}
+        <Button variant="text" full onclick={() => fontClick(family)}>
+          <span class="w-full text-left" style="font-family: {family}">{family}</span>
+        </Button>
+      {/each}
+    {/if}
+
+    {#if fontQuerySupported}
+      <div class="my-1 border-t border-surface-300-700"></div>
+      <Button variant="text" full icon="refresh" onclick={getSystemFonts}>
+        {$tr("params.text.fetch_fonts")}
+      </Button>
+    {/if}
+  </div>
+</BottomSheet>
+
 <style>
   .font-family-picker {
     width: unset;
-  }
-
-  .font-family-input {
-    width: 14em;
-  }
-
-  .dropdown-menu {
-    max-height: 240px;
-    overflow-y: auto;
-  }
-
-  .load-system-fonts {
-    color: var(--bs-primary);
   }
 </style>

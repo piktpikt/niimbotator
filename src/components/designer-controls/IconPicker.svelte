@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onDestroy, onMount } from "svelte";
   import { tr } from "$/utils/i18n";
   import { iconCodepoints, type MaterialIcon } from "$/styles/mdi_icons";
   import MdIcon from "$/components/basic/MdIcon.svelte";
@@ -8,6 +7,11 @@
   import { appConfig, userIcons } from "$/stores";
   import { FileUtils } from "$/utils/file_utils";
   import { Toasts } from "$/utils/toasts";
+  // PIKT: M3 restyle (editor phase 5) — Bootstrap dropdown -> BottomSheet + ui primitives.
+  import BottomSheet from "$/components/ui/BottomSheet.svelte";
+  import TextField from "$/components/ui/TextField.svelte";
+  import Select from "$/components/ui/Select.svelte";
+  import Button from "$/components/ui/Button.svelte";
 
   interface Props {
     onSubmit: (i: MaterialIcon) => void;
@@ -16,16 +20,21 @@
 
   let { onSubmit, onSubmitSvg }: Props = $props();
 
+  let open = $state(false);
   let iconNames = $state<MaterialIcon[]>([]);
   let search = $state<string>("");
   let deleteMode = $state<boolean>(false);
-  let dropdown: HTMLDivElement;
 
+  // PIKT: lazy-init the icon list when the sheet opens (was tied to `show.bs.dropdown`).
   const onShow = () => {
     if (iconNames.length === 0) {
       iconNames = Object.keys(iconCodepoints) as MaterialIcon[];
     }
   };
+
+  $effect(() => {
+    if (open) onShow();
+  });
 
   const addOwn = async () => {
     try {
@@ -58,94 +67,84 @@
 
     onSubmit(i);
   };
-
-  onMount(() => {
-    dropdown?.addEventListener("show.bs.dropdown", onShow);
-  });
-
-  onDestroy(() => {
-    dropdown?.removeEventListener("show.bs.dropdown", onShow);
-  });
 </script>
 
-<div class="dropdown" bind:this={dropdown}>
-  <button class="tool-cell" data-bs-toggle="dropdown" data-bs-auto-close="outside">
-    <MdIcon icon="emoji_emotions" /><span>{$tr("editor.toolbar.sticker")}</span>
-  </button>
+<button class="tool-cell" onclick={() => (open = true)}>
+  <MdIcon icon="emoji_emotions" /><span>{$tr("editor.toolbar.sticker")}</span>
+</button>
 
-  <div class="dropdown-menu">
-    <h6 class="dropdown-header">{$tr("editor.iconpicker.title")}</h6>
-    <div class="p-3">
-      <input
-        disabled={$appConfig.iconListMode === "user"}
-        type="text"
-        class="form-control mb-1"
-        placeholder={$tr("editor.iconpicker.search")}
-        bind:value={search} />
+<BottomSheet bind:open title={$tr("editor.iconpicker.title")}>
+  <div class="flex flex-col gap-3">
+    <TextField
+      value={search}
+      type="text"
+      placeholder={$tr("editor.iconpicker.search")}
+      disabled={$appConfig.iconListMode === "user"}
+      onChange={(v) => (search = v)} />
 
-      <div class="input-group input-group-sm mb-1">
-        <span class="input-group-text">{$tr("editor.iconpicker.show")}</span>
-        <select class="form-select form-select-sm" bind:value={$appConfig.iconListMode}>
-          <option value="both">{$tr("editor.iconpicker.show.both")}</option>
-          <option value="user">{$tr("editor.iconpicker.show.user")}</option>
-          <option value="pack">{$tr("editor.iconpicker.show.pack")}</option>
-        </select>
-      </div>
+    <Select
+      value={$appConfig.iconListMode}
+      label={$tr("editor.iconpicker.show")}
+      options={[
+        { value: "both", label: $tr("editor.iconpicker.show.both") },
+        { value: "user", label: $tr("editor.iconpicker.show.user") },
+        { value: "pack", label: $tr("editor.iconpicker.show.pack") },
+      ]}
+      onChange={(v) => ($appConfig.iconListMode = v as "both" | "user" | "pack")} />
 
-      <div class="icons mb-1">
-        {#if $appConfig.iconListMode === "both" || $appConfig.iconListMode === "user"}
-          {#each $userIcons as { name, data } (name)}
+    <div class="icons flex flex-wrap gap-1">
+      {#if $appConfig.iconListMode === "both" || $appConfig.iconListMode === "user"}
+        {#each $userIcons as { name, data } (name)}
+          <button
+            class="user-icon flex size-11 items-center justify-center rounded-m3-sm {deleteMode
+              ? 'bg-error-500/15 text-error-500'
+              : 'bg-surface-200-800'}"
+            onclick={() => svgClicked(name, data)}>
+            <img src="data:image/svg+xml;base64,{FileUtils.base64str(data)}" alt="user-svg" />
+          </button>
+        {/each}
+      {/if}
+
+      {#if $appConfig.iconListMode === "both" || $appConfig.iconListMode === "pack"}
+        {#each iconNames as name (name)}
+          {#if !search || name.includes(search.toLowerCase())}
             <button
-              class="btn {deleteMode ? 'btn-danger' : 'btn-light'} me-1 mb-1 user-icon"
-              onclick={() => svgClicked(name, data)}>
-              <img src="data:image/svg+xml;base64,{FileUtils.base64str(data)}" alt="user-svg" />
+              class="flex size-11 items-center justify-center rounded-m3-sm text-surface-950-50 hover:bg-surface-200-800"
+              title={name}
+              onclick={() => iconClicked(name)}>
+              <MaterialIconGlyph icon={name} />
             </button>
-          {/each}
-        {/if}
-
-        {#if $appConfig.iconListMode === "both" || $appConfig.iconListMode === "pack"}
-          {#each iconNames as name (name)}
-            {#if !search || name.includes(search.toLowerCase())}
-              <button class="btn me-1" title={name} onclick={() => iconClicked(name)}>
-                <MaterialIconGlyph icon={name} />
-              </button>
-            {/if}
-          {/each}
-        {/if}
-      </div>
-
-      <div class="input-group input-group-sm mb-1">
-        <button class="btn btn-outline-secondary" onclick={addOwn}>
-          <MdIcon icon="add" />
-
-          {$tr("editor.iconpicker.add")}
-        </button>
-        <button
-          class="btn {deleteMode ? 'btn-danger' : 'btn-outline-secondary'}"
-          onclick={() => (deleteMode = !deleteMode)}>
-          <MdIcon icon="delete" />
-          {$tr("editor.iconpicker.delete_mode")}
-        </button>
-      </div>
-
-      <a
-        href="https://fonts.google.com/icons?icon.set=Material+Icons&icon.style=Filled"
-        target="_blank"
-        class="text-secondary">
-        {$tr("editor.iconpicker.mdi_link_title")}
-      </a>
+          {/if}
+        {/each}
+      {/if}
     </div>
+
+    <div class="flex gap-2">
+      <Button variant="outlined" icon="add" onclick={addOwn}>
+        {$tr("editor.iconpicker.add")}
+      </Button>
+      <Button
+        variant={deleteMode ? "tonal" : "outlined"}
+        color="error"
+        icon="delete"
+        onclick={() => (deleteMode = !deleteMode)}>
+        {$tr("editor.iconpicker.delete_mode")}
+      </Button>
+    </div>
+
+    <a
+      href="https://fonts.google.com/icons?icon.set=Material+Icons&icon.style=Filled"
+      target="_blank"
+      class="text-body-medium text-primary-500">
+      {$tr("editor.iconpicker.mdi_link_title")}
+    </a>
   </div>
-</div>
+</BottomSheet>
 
 <style>
-  .dropdown-menu {
-    width: 100vw;
-    max-width: 450px;
-  }
   .icons {
     max-height: 400px;
-    overflow-y: scroll;
+    overflow-y: auto;
   }
   .user-icon img {
     width: 24px;
