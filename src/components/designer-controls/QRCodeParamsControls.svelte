@@ -1,7 +1,12 @@
 <script lang="ts">
+  // PIKT: deep restyle — Bootstrap form-select/form-control → M3 ui/* primitives (editor phase 2).
+  // Upstream PR candidate: no
   import { QRCode } from "$/fabric-object/qrcode";
   import { tr } from "$/utils/i18n";
   import MdIcon from "$/components/basic/MdIcon.svelte";
+  import SegmentedButton from "$/components/ui/SegmentedButton.svelte";
+  import Select from "$/components/ui/Select.svelte";
+  import TextField from "$/components/ui/TextField.svelte";
 
   interface Props {
     selectedQRCode: QRCode;
@@ -10,78 +15,66 @@
   }
 
   let { selectedQRCode, editRevision, valueUpdated }: Props = $props();
+
+  const eclOptions = [
+    { value: "L", label: "L" },
+    { value: "M", label: "M" },
+    { value: "Q", label: "Q" },
+    { value: "H", label: "H" },
+  ];
+
+  const modeOptions = [
+    { value: "Byte", label: "Byte" },
+    { value: "Numeric", label: "Numeric" },
+    { value: "Alphanumeric", label: "Alphanumeric" },
+    { value: "Kanji", label: "Kanji" },
+  ];
+
+  const versionOptions = [
+    { value: 0, label: "Auto" },
+    ...Array.from({ length: 40 }, (_, i) => ({ value: i + 1, label: String(i + 1) })),
+  ];
 </script>
 
 <input type="hidden" value={editRevision}>
 
-<div class="input-group input-group-sm flex-nowrap">
-  <span class="input-group-text" title={$tr("params.qrcode.ecl")}>
-    <MdIcon icon="auto_fix_high" />
-  </span>
-  <select
-    class="form-select"
+<div class="flex w-full items-center gap-2">
+  <MdIcon icon="auto_fix_high" />
+  <SegmentedButton
+    options={eclOptions}
     value={selectedQRCode.ecl}
-    onchange={(e) => {
-      selectedQRCode?.set("ecl", e.currentTarget.value);
+    ariaLabel={$tr("params.qrcode.ecl")}
+    onChange={(v) => {
+      selectedQRCode?.set("ecl", v);
       valueUpdated();
-    }}>
-    <option value="L">Level L</option>
-    <option value="M">Level M</option>
-    <option value="Q">Level Q</option>
-    <option value="H">Level H</option>
-  </select>
+    }} />
 </div>
 
-<div class="input-group input-group-sm flex-nowrap">
-  <span class="input-group-text" title={$tr("params.qrcode.mode")}>
-    <MdIcon icon="abc" />
-  </span>
-  <select
-    class="form-select"
-    value={selectedQRCode.mode}
-    onchange={(e) => {
-      selectedQRCode?.set("mode", e.currentTarget.value);
-      valueUpdated();
-    }}>
-    <option value="Byte">Byte</option>
-    <option value="Numeric">Numeric</option>
-    <option value="Alphanumeric">Alphanumeric</option>
-    <option value="Kanji">Kanji</option>
-  </select>
-</div>
-
-<div class="input-group input-group-sm flex-nowrap">
-  <span class="input-group-text" title={$tr("params.qrcode.version")}>
-    <MdIcon icon="123" />
-  </span>
-  <select
-    class="form-select"
-    value={selectedQRCode.qrVersion}
-    onchange={(e) => {
-      selectedQRCode?.set("qrVersion", parseInt(e.currentTarget.value));
-      valueUpdated();
-    }}>
-    <option value={0}>Auto</option>
-    {#each { length: 40 }, i (i)}
-      <option value={i + 1}>{i + 1}</option>
-    {/each}
-  </select>
-</div>
-
-<textarea
-  class="qrcode-content form-control"
-  value={selectedQRCode.text}
-  oninput={(e) => {
-    selectedQRCode?.set("text", e.currentTarget.value);
+<Select
+  options={modeOptions}
+  value={selectedQRCode.mode}
+  leadingIcon="abc"
+  ariaLabel={$tr("params.qrcode.mode")}
+  onChange={(v) => {
+    selectedQRCode?.set("mode", v);
     valueUpdated();
-  }}></textarea>
+  }} />
 
-<style>
-  .input-group {
-    width: fit-content;
-  }
+<Select
+  options={versionOptions}
+  value={selectedQRCode.qrVersion}
+  leadingIcon="123"
+  ariaLabel={$tr("params.qrcode.version")}
+  onChange={(v) => {
+    selectedQRCode?.set("qrVersion", parseInt(v));
+    valueUpdated();
+  }} />
 
-  .qrcode-content {
-    height: 100px;
-  }
-</style>
+<TextField
+  multiline
+  rows={4}
+  value={selectedQRCode.text}
+  onChange={(v) => {
+    selectedQRCode?.set("text", v);
+    valueUpdated();
+  }} />

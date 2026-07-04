@@ -1,6 +1,9 @@
 <script lang="ts">
+  // PIKT: deep restyle — Bootstrap form-select/form-control → M3 ui/* primitives (editor phase 2).
+  // Upstream PR candidate: no
   import { tr } from "$/utils/i18n";
-  import MdIcon from "$/components/basic/MdIcon.svelte";
+  import TextField from "$/components/ui/TextField.svelte";
+  import Select from "$/components/ui/Select.svelte";
   import * as fabric from "fabric";
 
   interface Props {
@@ -31,58 +34,40 @@
   };
 </script>
 
-<input type="hidden" value={editRevision}>
+<input type="hidden" value={editRevision} />
 
 {#if selectedObject instanceof fabric.Rect}
-  <div class="input-group flex-nowrap input-group-sm">
-    <span class="input-group-text" title={$tr("params.vector.round_radius")}>
-      <MdIcon icon="rounded_corner" />
-    </span>
-    <input
-      type="number"
-      min="0"
-      max={Math.min(selectedObject.width, selectedObject.height) / 2}
-      class="form-control"
-      value={selectedObject.rx}
-      oninput={(e) => roundRadiusChanged(e.currentTarget.valueAsNumber)} />
-  </div>
+  <TextField
+    type="number"
+    inputmode="numeric"
+    leadingIcon="rounded_corner"
+    value={selectedObject.rx}
+    min={0}
+    max={Math.min(selectedObject.width, selectedObject.height) / 2}
+    ariaLabel={$tr("params.vector.round_radius")}
+    onChange={(v) => roundRadiusChanged(Number(v))} />
 {/if}
 
 {#if selectedObject instanceof fabric.Rect || selectedObject instanceof fabric.Circle || selectedObject instanceof fabric.Line || selectedObject instanceof fabric.Polyline}
-  <div class="input-group flex-nowrap input-group-sm">
-    <span class="input-group-text" title={$tr("params.vector.stroke_width")}>
-      <MdIcon icon="line_weight" />
-    </span>
-    <input
-      type="number"
-      min="1"
-      class="form-control"
-      value={selectedObject.strokeWidth}
-      oninput={(e) => strokeWidthChanged(e.currentTarget.valueAsNumber)} />
-  </div>
+  <TextField
+    type="number"
+    inputmode="numeric"
+    leadingIcon="line_weight"
+    value={selectedObject.strokeWidth}
+    min={1}
+    ariaLabel={$tr("params.vector.stroke_width")}
+    onChange={(v) => strokeWidthChanged(Number(v))} />
 {/if}
 
 {#if selectedObject instanceof fabric.Rect || selectedObject instanceof fabric.Circle}
-  <div class="input-group input-group-sm flex-nowrap fill">
-    <span class="input-group-text" title={$tr("params.vector.fill")}>
-      <MdIcon icon="format_color_fill" />
-    </span>
-    <select
-      class="form-select"
-      value={selectedObject.fill}
-      onchange={(e) => fillChanged(e.currentTarget.value)}>
-      <option value="transparent">{$tr("params.color.transparent")}</option>
-      <option value="white">{$tr("params.color.white")}</option>
-      <option value="black">{$tr("params.color.black")}</option>
-    </select>
-  </div>
+  <Select
+    leadingIcon="format_color_fill"
+    value={typeof selectedObject.fill === "string" ? selectedObject.fill : "transparent"}
+    ariaLabel={$tr("params.vector.fill")}
+    options={[
+      { value: "transparent", label: $tr("params.color.transparent") },
+      { value: "white", label: $tr("params.color.white") },
+      { value: "black", label: $tr("params.color.black") },
+    ]}
+    onChange={(v) => fillChanged(v)} />
 {/if}
-
-<style>
-  .input-group {
-    width: 7em;
-  }
-  .input-group.fill {
-    width: 12em;
-  }
-</style>

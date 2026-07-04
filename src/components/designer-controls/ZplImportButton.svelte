@@ -1,7 +1,10 @@
 <script lang="ts">
+  // PIKT: deep restyle — Bootstrap btn → M3 ui/Button (editor phase 2).
+  // Upstream PR candidate: no
   import type { LabelProps } from "$/types";
   import { FileUtils } from "$/utils/file_utils";
   import MdIcon from "$/components/basic/MdIcon.svelte";
+  import Button from "$/components/ui/Button.svelte";
   import { tr } from "$/utils/i18n";
   import { Toasts } from "$/utils/toasts";
 
@@ -50,7 +53,7 @@
   };
 </script>
 
-<button class="btn btn-sm" onclick={onImportClicked}>
+<Button variant="tonal" onclick={onImportClicked} disabled={importState !== "idle"}>
   <MdIcon icon="picture_as_pdf" />
 
   {$tr("editor.import.zpl")}
@@ -58,6 +61,6 @@
   {#if importState === "processing"}
     <MdIcon icon="hourglass_top" />
   {:else if importState === "error"}
-    <MdIcon icon="warning" class="text-warning" />
+    <MdIcon icon="warning" class="text-warning-500" />
   {/if}
-</button>
+</Button>

@@ -1,6 +1,10 @@
 <script lang="ts">
+  // PIKT: designer-control migrated from Bootstrap to M3 primitives (deep restyle).
+  // Upstream PR candidate: no
   import { ArUcoMarker, type ArUcoDictionary } from "$/fabric-object/aruco";
   import MdIcon from "$/components/basic/MdIcon.svelte";
+  import SegmentedButton from "$/components/ui/SegmentedButton.svelte";
+  import TextField from "$/components/ui/TextField.svelte";
   import { tr } from "$/utils/i18n";
 
   interface Props {
@@ -20,50 +24,36 @@
   let maxId = $derived(dictOptions.find((d) => d.value === selectedArUco.dictionary)?.max ?? 49);
 </script>
 
-<input type="hidden" value={editRevision}>
+<input type="hidden" value={editRevision} />
 
-<div class="input-group input-group-sm flex-nowrap">
-  <span class="input-group-text" title={$tr("params.aruco.dict")}>
-    <MdIcon icon="grid_on" />
-  </span>
-  <select
-    class="form-select"
+<div class="flex items-center gap-1">
+  <MdIcon icon="grid_on" />
+  <SegmentedButton
+    options={dictOptions.map((d) => ({ value: d.value, label: d.label }))}
     value={selectedArUco.dictionary}
-    onchange={(e) => {
-      selectedArUco?.set("dictionary", e.currentTarget.value);
-      const newMax = dictOptions.find((d) => d.value === e.currentTarget.value)?.max ?? 49;
+    ariaLabel={$tr("params.aruco.dict")}
+    onChange={(v) => {
+      selectedArUco?.set("dictionary", v);
+      const newMax = dictOptions.find((d) => d.value === v)?.max ?? 49;
       if (selectedArUco.markerId > newMax) {
         selectedArUco?.set("markerId", 0);
       }
       valueUpdated();
-    }}>
-    {#each dictOptions as opt (opt.value)}
-      <option value={opt.value}>{opt.label}</option>
-    {/each}
-  </select>
-</div>
-
-<div class="input-group input-group-sm flex-nowrap">
-  <span class="input-group-text" title={$tr("params.aruco.marker_id")}>
-    <MdIcon icon="tag" />
-  </span>
-  <input
-    type="number"
-    class="form-control"
-    min="0"
-    max={maxId}
-    value={selectedArUco.markerId}
-    oninput={(e) => {
-      const val = parseInt(e.currentTarget.value);
-      if (!isNaN(val) && val >= 0 && val <= maxId) {
-        selectedArUco?.set("markerId", val);
-        valueUpdated();
-      }
     }} />
 </div>
 
-<style>
-  .input-group {
-    width: fit-content;
-  }
-</style>
+<TextField
+  type="number"
+  inputmode="numeric"
+  leadingIcon="tag"
+  min={0}
+  max={maxId}
+  value={selectedArUco.markerId}
+  ariaLabel={$tr("params.aruco.marker_id")}
+  onChange={(v) => {
+    const val = parseInt(v);
+    if (!isNaN(val) && val >= 0 && val <= maxId) {
+      selectedArUco?.set("markerId", val);
+      valueUpdated();
+    }
+  }} />

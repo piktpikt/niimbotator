@@ -1,7 +1,12 @@
 <script lang="ts">
+  // PIKT: deep restyle — Bootstrap form controls → M3 ui/* primitives; printText toggle → Switch (editor phase 2).
+  // Upstream PR candidate: no
   import { Barcode } from "$/fabric-object/barcode";
   import { tr } from "$/utils/i18n";
   import MdIcon from "$/components/basic/MdIcon.svelte";
+  import SegmentedButton from "$/components/ui/SegmentedButton.svelte";
+  import TextField from "$/components/ui/TextField.svelte";
+  import Switch from "$/components/ui/Switch.svelte";
 
   interface Props {
     selectedBarcode: Barcode;
@@ -14,79 +19,67 @@
 
 <input type="hidden" value={editRevision}>
 
-<div class="input-group input-group-sm flex-nowrap">
-  <span class="input-group-text" title={$tr("params.barcode.encoding")}><MdIcon icon="code" /></span>
-  <select
-    class="form-select"
+<div class="flex items-center gap-1" title={$tr("params.barcode.encoding")}>
+  <MdIcon icon="code" />
+  <SegmentedButton
+    ariaLabel={$tr("params.barcode.encoding")}
     value={selectedBarcode.encoding}
-    onchange={(e) => {
-      selectedBarcode?.set("encoding", e.currentTarget.value ?? "EAN13");
+    options={[
+      { value: "EAN13", label: "EAN13" },
+      { value: "CODE128B", label: "Code128 B" },
+    ]}
+    onChange={(v) => {
+      selectedBarcode?.set("encoding", v ?? "EAN13");
       valueUpdated();
-    }}>
-    <option value="EAN13">EAN13</option>
-    <option value="CODE128B">Code128 B</option>
-  </select>
+    }} />
 </div>
 
-<div class="input-group input-group-sm flex-nowrap">
-  <span class="input-group-text" title={$tr("params.barcode.scale")}>
-    <MdIcon icon="settings_ethernet" />
-  </span>
-  <input
-    class="barcode-width form-control"
+<div class="w-24" title={$tr("params.barcode.scale")}>
+  <TextField
     type="number"
-    min="1"
+    min={1}
+    inputmode="numeric"
+    leadingIcon="settings_ethernet"
+    ariaLabel={$tr("params.barcode.scale")}
     value={selectedBarcode.scaleFactor}
-    oninput={(e) => {
-      selectedBarcode?.set("scaleFactor", e.currentTarget.valueAsNumber ?? 1);
+    onChange={(v) => {
+      const n = Number(v);
+      selectedBarcode?.set("scaleFactor", Number.isFinite(n) ? n : 1);
       valueUpdated();
     }} />
 </div>
 
-<button
-  class="btn btn-sm {selectedBarcode.printText ? 'btn-secondary' : ''}"
-  title={$tr("params.barcode.enable_caption")}
-  onclick={() => {
-    selectedBarcode?.set("printText", !selectedBarcode.printText);
-    valueUpdated();
-  }}>
-  123
-</button>
+<div class="flex items-center gap-2" title={$tr("params.barcode.enable_caption")}>
+  <Switch
+    checked={selectedBarcode.printText}
+    ariaLabel={$tr("params.barcode.enable_caption")}
+    onChange={(v) => {
+      selectedBarcode?.set("printText", v);
+      valueUpdated();
+    }} />
+  <span class="text-label-medium text-surface-600-400">123</span>
+</div>
 
-<div class="input-group input-group-sm flex-nowrap">
-  <span class="input-group-text" title={$tr("params.barcode.font_size")}>
-    <MdIcon icon="format_size" />
-  </span>
-  <input
-    class="barcode-width form-control"
+<div class="w-24" title={$tr("params.barcode.font_size")}>
+  <TextField
     type="number"
-    min="1"
+    min={1}
+    inputmode="numeric"
+    leadingIcon="format_size"
+    ariaLabel={$tr("params.barcode.font_size")}
     value={selectedBarcode.fontSize}
-    oninput={(e) => {
-      selectedBarcode?.set("fontSize", e.currentTarget.valueAsNumber ?? 12);
+    onChange={(v) => {
+      const n = Number(v);
+      selectedBarcode?.set("fontSize", Number.isFinite(n) ? n : 12);
       valueUpdated();
     }} />
 </div>
 
-<textarea
-  class="barcode-content form-control"
+<TextField
+  multiline
+  rows={4}
   value={selectedBarcode.text}
-  oninput={(e) => {
-    selectedBarcode?.set("text", e.currentTarget.value);
+  onChange={(v) => {
+    selectedBarcode?.set("text", v);
     valueUpdated();
-  }}></textarea>
-
-
-<style>
-  .input-group {
-    width: fit-content;
-  }
-
-  textarea.barcode-content {
-    height: 100px;
-  }
-
-  input.barcode-width {
-    max-width: 64px;
-  }
-</style>
+  }} />
