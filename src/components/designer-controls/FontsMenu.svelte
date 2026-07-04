@@ -1,6 +1,10 @@
 <script lang="ts">
-  import AppModal from "$/components/basic/AppModal.svelte";
-  import MdIcon from "$/components/basic/MdIcon.svelte";
+  // PIKT: deep restyle — Bootstrap AppModal → M3 ui/Dialog + Select/TextField/Button (editor phase 5).
+  // Upstream PR candidate: no
+  import Dialog from "$/components/ui/Dialog.svelte";
+  import Button from "$/components/ui/Button.svelte";
+  import Select from "$/components/ui/Select.svelte";
+  import TextField from "$/components/ui/TextField.svelte";
   import { userFonts } from "$/stores";
   import { FileUtils } from "$/utils/file_utils";
   import { tr } from "$/utils/i18n";
@@ -50,50 +54,48 @@
   });
 </script>
 
-<button
-  class="btn btn-outline-secondary"
-  onclick={() => {
-    show = true;
-  }}>
-  <MdIcon icon="settings" />
-</button>
+<Button variant="outlined" icon="settings" ariaLabel={$tr("fonts.title")} onclick={() => (show = true)} />
 
 {#if show}
-  <AppModal title={$tr("fonts.title")} bind:show>
-    <div class="mb-1">
+  <Dialog title={$tr("fonts.title")} bind:show>
+    <div class="flex flex-col gap-2">
       {#each $userFonts as font (font.family)}
-        <div class="input-group input-group-sm mb-1">
-          <span class="input-group-text fs-5" style="font-family: {font.family}">{font.family}</span>
-          <button class="btn btn-sm btn-danger" onclick={() => removeFont(font.family)}>
-            <MdIcon icon="delete" />
-          </button>
+        <div class="flex items-center gap-2">
+          <span class="flex-1 text-headline-small" style="font-family: {font.family}">{font.family}</span>
+          <Button variant="text" color="error" icon="delete" ariaLabel="delete" onclick={() => removeFont(font.family)} />
         </div>
       {:else}
         👀
       {/each}
     </div>
 
-    <hr />
+    <hr class="my-4 border-surface-400-600" />
 
-    <div class="input-group input-group-sm">
-      <span class="input-group-text">{$tr("fonts.add")}</span>
+    <div class="flex flex-col gap-3">
+      <span class="text-label-large text-surface-600-400">{$tr("fonts.add")}</span>
 
-      <select class="form-select" bind:value={selectExt}>
-        <option value="ttf">ttf</option>
-        <option value="woff2">woff2</option>
-      </select>
+      <Select
+        value={selectExt}
+        options={[
+          { value: "ttf", label: "ttf" },
+          { value: "woff2", label: "woff2" },
+        ]}
+        onChange={(v) => (selectExt = v as "ttf" | "woff2")} />
 
-      <input type="text" class="form-control w-25" placeholder={$tr("fonts.title_override")} bind:value={overrideFamily} />
+      <TextField
+        value={overrideFamily}
+        placeholder={$tr("fonts.title_override")}
+        onChange={(v) => (overrideFamily = v)} />
 
-      <button class="btn btn-sm btn-secondary" onclick={browseFont}>{$tr("fonts.browse")}</button>
+      <Button variant="tonal" color="secondary" onclick={browseFont}>{$tr("fonts.browse")}</Button>
     </div>
 
     {#snippet footer()}
-      <div class="text-secondary">
+      <div class="text-surface-600-400">
         {usedSpace}
         {$tr("params.saved_labels.kb_used")} |
-        <a class="text-secondary" href="https://fonts.google.com">{$tr("fonts.gfonts")}</a>
+        <a class="text-surface-600-400 underline" href="https://fonts.google.com">{$tr("fonts.gfonts")}</a>
       </div>
     {/snippet}
-  </AppModal>
+  </Dialog>
 {/if}
