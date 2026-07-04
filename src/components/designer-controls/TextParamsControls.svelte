@@ -1,9 +1,16 @@
 <script lang="ts">
   import * as fabric from "fabric";
   import { tr } from "$/utils/i18n";
-  import MdIcon from "$/components/basic/MdIcon.svelte";
   import FontFamilyPicker from "$/components/designer-controls/FontFamilyPicker.svelte";
   import { TextboxExt } from "$/fabric-object/textbox-ext";
+  import Button from "$/components/ui/Button.svelte";
+  import TextField from "$/components/ui/TextField.svelte";
+  import Select from "$/components/ui/Select.svelte";
+  import SegmentedButton from "$/components/ui/SegmentedButton.svelte";
+  import Switch from "$/components/ui/Switch.svelte";
+  import BottomSheet from "$/components/ui/BottomSheet.svelte";
+
+  let colorOpen = $state(false);
 
   interface Props {
     selectedText: fabric.IText;
@@ -115,173 +122,145 @@
 <!-- Fix component not updating when selectedText changes. I didn't find a better way to do this. -->
 <input type="hidden" value={editRevision}>
 
-<button
-  title={$tr("params.text.align.left")}
-  class="btn btn-sm {selectedText.textAlign === 'left' ? 'btn-secondary' : ''}"
-  onclick={() => setXAlign("left")}><MdIcon icon="format_align_left" /></button>
-<button
-  title={$tr("params.text.align.center")}
-  class="btn btn-sm {selectedText.textAlign === 'center' ? 'btn-secondary' : ''}"
-  onclick={() => setXAlign("center")}><MdIcon icon="format_align_center" /></button>
-<button
-  title={$tr("params.text.align.right")}
-  class="btn btn-sm {selectedText.textAlign === 'right' ? 'btn-secondary' : ''}"
-  onclick={() => setXAlign("right")}><MdIcon icon="format_align_right" /></button>
-<div class="dropdown">
-  <button class="btn btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" title={$tr("params.text.vorigin")}>
-    {#if selectedText.originY === "top"}
-      <MdIcon icon="vertical_align_top" />
-    {:else if selectedText.originY === "center"}
-      <MdIcon icon="vertical_align_center" />
-    {:else if selectedText.originY === "bottom"}
-      <MdIcon icon="vertical_align_bottom" />
-    {/if}
-  </button>
-  <div class="dropdown-menu p-2">
-    <button
-      class="btn btn-sm {selectedText.originY === 'top' ? 'btn-secondary' : ''}"
-      onclick={() => setYAlign("top")}
-      title={$tr("params.text.vorigin.top")}>
-      <MdIcon icon="vertical_align_top" />
-    </button>
-    <button
-      class="btn btn-sm {selectedText.originY === 'center' ? 'btn-secondary' : ''}"
-      onclick={() => setYAlign("center")}
-      title={$tr("params.text.vorigin.center")}>
-      <MdIcon icon="vertical_align_center" />
-    </button>
-    <button
-      class="btn btn-sm {selectedText.originY === 'bottom' ? 'btn-secondary' : ''}"
-      onclick={() => setYAlign("bottom")}
-      title={$tr("params.text.vorigin.bottom")}>
-      <MdIcon icon="vertical_align_bottom" />
-    </button>
-  </div>
+<div class="tool-cell">
+  <SegmentedButton
+    value={selectedText.textAlign}
+    options={[
+      { value: "left", icon: "format_align_left", ariaLabel: $tr("params.text.align.left") },
+      { value: "center", icon: "format_align_center", ariaLabel: $tr("params.text.align.center") },
+      { value: "right", icon: "format_align_right", ariaLabel: $tr("params.text.align.right") },
+    ]}
+    onChange={(v) => setXAlign(v as fabric.TOriginX)} />
 </div>
 
-<button
-  class="btn btn-sm {selectedText.fontWeight === 'bold' ? 'btn-secondary' : ''}"
-  title={$tr("params.text.bold")}
-  onclick={toggleBold}>
-  <MdIcon icon="format_bold" />
-</button>
-
-<button
-  class="btn btn-sm {selectedText.fontStyle === 'italic' ? 'btn-secondary' : ''}"
-  title={$tr("params.text.italic")}
-  onclick={toggleItalic}>
-  <MdIcon icon="format_italic" />
-</button>
-
-<div class="dropdown">
-  <button class="btn btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" title={$tr("params.color")}>
-    <MdIcon icon="format_color_fill" />
-  </button>
-
-  <div class="dropdown-menu arrangement p-2">
-    <div class="input-group input-group-sm flex-nowrap color pb-2">
-      <span class="input-group-text">
-        <MdIcon icon="format_color_text" />
-      </span>
-      <select class="form-select" value={selectedText.fill} onchange={(e) => fillChanged(e.currentTarget.value)}>
-        <option value="white">{$tr("params.color.white")}</option>
-        <option value="black">{$tr("params.color.black")}</option>
-      </select>
-    </div>
-    <div class="input-group input-group-sm flex-nowrap color pb-2">
-      <span class="input-group-text">
-        <MdIcon icon="format_color_fill" />
-      </span>
-      <select
-        class="form-select"
-        value={selectedText.backgroundColor || "transparent"}
-        onchange={(e) => backgroundColorChanged(e.currentTarget.value)}>
-        <option value="white">{$tr("params.color.white")}</option>
-        <option value="black">{$tr("params.color.black")}</option>
-        <option value="transparent">{$tr("params.color.transparent")}</option>
-      </select>
-    </div>
-  </div>
+<div class="tool-cell">
+  <SegmentedButton
+    ariaLabel={$tr("params.text.vorigin")}
+    value={selectedText.originY}
+    options={[
+      { value: "top", icon: "vertical_align_top", ariaLabel: $tr("params.text.vorigin.top") },
+      { value: "center", icon: "vertical_align_center", ariaLabel: $tr("params.text.vorigin.center") },
+      { value: "bottom", icon: "vertical_align_bottom", ariaLabel: $tr("params.text.vorigin.bottom") },
+    ]}
+    onChange={(v) => setYAlign(v as fabric.TOriginY)} />
 </div>
+
+<div class="tool-action">
+  <Switch
+    ariaLabel={$tr("params.text.bold")}
+    checked={selectedText.fontWeight === "bold"}
+    onChange={toggleBold} />
+</div>
+
+<div class="tool-action">
+  <Switch
+    ariaLabel={$tr("params.text.italic")}
+    checked={selectedText.fontStyle === "italic"}
+    onChange={toggleItalic} />
+</div>
+
+<Button
+  variant="tonal"
+  icon="format_color_fill"
+  ariaLabel={$tr("params.color")}
+  onclick={() => (colorOpen = true)}>
+  {$tr("params.color")}
+</Button>
+
+<BottomSheet bind:open={colorOpen} title={$tr("params.color")}>
+  <div class="flex flex-col gap-4">
+    <Select
+      leadingIcon="format_color_text"
+      ariaLabel={$tr("params.color")}
+      value={typeof selectedText.fill === "string" ? selectedText.fill : "black"}
+      options={[
+        { value: "white", label: $tr("params.color.white") },
+        { value: "black", label: $tr("params.color.black") },
+      ]}
+      onChange={(v) => fillChanged(v)} />
+    <Select
+      leadingIcon="format_color_fill"
+      ariaLabel={$tr("params.color")}
+      value={selectedText.backgroundColor || "transparent"}
+      options={[
+        { value: "white", label: $tr("params.color.white") },
+        { value: "black", label: $tr("params.color.black") },
+        { value: "transparent", label: $tr("params.color.transparent") },
+      ]}
+      onChange={(v) => backgroundColorChanged(v)} />
+  </div>
+</BottomSheet>
 
 {#if selectedText instanceof fabric.Textbox}
-  <div class="dropdown">
-    <button class="btn btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" title={$tr("params.params.text.split")}>
-      <MdIcon icon="wrap_text" />
-    </button>
-
-    <div class="dropdown-menu arrangement p-2">
-      <div class="input-group input-group-sm flex-nowrap split pb-2">
-        <select class="form-select" value={selectedText.splitByGrapheme ? "grapheme" : "space"} onchange={(e) => splitChanged(e.currentTarget.value)}>
-          <option value="space">{$tr("params.params.text.split.spaces")}</option>
-          <option value="grapheme">{$tr("params.params.text.split.grapheme")}</option>
-        </select>
-      </div>
-    </div>
+  <div class="tool-cell">
+    <SegmentedButton
+      ariaLabel={$tr("params.params.text.split")}
+      value={selectedText.splitByGrapheme ? "grapheme" : "space"}
+      options={[
+        { value: "space", label: $tr("params.params.text.split.spaces") },
+        { value: "grapheme", label: $tr("params.params.text.split.grapheme") },
+      ]}
+      onChange={(v) => splitChanged(v)} />
   </div>
 {/if}
 
 {#if selectedText instanceof TextboxExt}
   <!-- fixme: Custom property not auto-rendered for some reason -->
-  <button
-    class="btn btn-sm {selectedText.fontAutoSize ? 'btn-secondary' : ''}"
-    title={$tr("params.text.autosize")}
-    data-ver={editRevision}
-    onclick={toggleFontAutoSize}>
-    <MdIcon icon="expand" class="r-90" />
-  </button>
+  <div class="tool-action" data-ver={editRevision}>
+    <Switch
+      ariaLabel={$tr("params.text.autosize")}
+      checked={selectedText.fontAutoSize}
+      onChange={toggleFontAutoSize} />
+  </div>
 {/if}
 
 
-<div class="input-group flex-nowrap input-group-sm font-size">
-  <span class="input-group-text" title={$tr("params.text.font_size")}><MdIcon icon="format_size" /></span>
-  <input
+<div class="tool-cell font-size">
+  <TextField
     type="number"
+    leadingIcon="format_size"
+    ariaLabel={$tr("params.text.font_size")}
     min={sizeMin}
     max={sizeMax}
-    step="2"
-    class="form-control"
     value={selectedText.fontSize}
-    oninput={(e) => fontSizeChange(e.currentTarget.valueAsNumber)} />
-  <button class="btn btn-secondary" title={$tr("params.text.font_size.up")} onclick={fontSizeUp}>
-    <MdIcon icon="text_increase" />
-  </button>
-  <button class="btn btn-secondary" title={$tr("params.text.font_size.down")} onclick={fontSizeDown}>
-    <MdIcon icon="text_decrease" />
-  </button>
+    onChange={(v) => fontSizeChange(parseFloat(v))} />
+  <Button
+    variant="tonal"
+    icon="text_increase"
+    ariaLabel={$tr("params.text.font_size.up")}
+    onclick={fontSizeUp} />
+  <Button
+    variant="tonal"
+    icon="text_decrease"
+    ariaLabel={$tr("params.text.font_size.down")}
+    onclick={fontSizeDown} />
 </div>
 
-<div class="input-group flex-nowrap input-group-sm">
-  <span class="input-group-text" title={$tr("params.text.line_height")}>
-    <MdIcon icon="density_medium" />
-  </span>
-  <input
+<div class="tool-cell line-height">
+  <TextField
     type="number"
-    min="0.1"
-    step="0.1"
-    max="10"
-    class="form-control"
+    leadingIcon="density_medium"
+    ariaLabel={$tr("params.text.line_height")}
+    min={0.1}
+    max={10}
     value={selectedText.lineHeight}
-    oninput={(e) => lineHeightChange(e.currentTarget.valueAsNumber)} />
+    onChange={(v) => lineHeightChange(parseFloat(v))} />
 </div>
 
 <FontFamilyPicker {editRevision} value={selectedText.fontFamily} valueUpdated={updateFontFamily} />
 
-<button class="btn btn-sm btn-secondary" onclick={editInPopup} title={$tr("params.text.edit")}>
-  <MdIcon icon="edit" />
-</button>
+<Button variant="tonal" icon="edit" ariaLabel={$tr("params.text.edit")} onclick={editInPopup}>
+  {$tr("params.text.edit")}
+</Button>
 
 <style>
-  .input-group {
-    width: 7em;
+  .tool-cell.font-size {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    width: 16em;
   }
-  .font-size {
-    width: 12em;
-  }
-  .input-group.color {
-    width: 12em;
-  }
-  .input-group.split {
-    width: 14em;
+  .tool-cell.line-height {
+    width: 8em;
   }
 </style>
