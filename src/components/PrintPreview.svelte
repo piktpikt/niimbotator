@@ -23,7 +23,12 @@
   import MdIcon from "$/components/basic/MdIcon.svelte";
   import { Toasts } from "$/utils/toasts";
   import { FileUtils } from "$/utils/file_utils";
-  import AppModal from "$/components/basic/AppModal.svelte";
+  // PIKT: M3 restyle — AppModal -> Dialog, Bootstrap controls -> M3 primitives. Upstream PR candidate: no
+  import Dialog from "$/components/ui/Dialog.svelte";
+  import Button from "$/components/ui/Button.svelte";
+  import TextField from "$/components/ui/TextField.svelte";
+  import Select from "$/components/ui/Select.svelte";
+  import Slider from "$/components/ui/Slider.svelte";
 
   interface Props {
     labelProps: LabelProps;
@@ -62,7 +67,7 @@
 
   let savedProps = $state<PreviewProps>({});
 
-  let modalRef: AppModal;
+  let modalRef: Dialog;
 
   const disconnected = derived(connectionState, ($connectionState) => $connectionState !== "connected");
 
@@ -332,55 +337,72 @@
   });
 </script>
 
-<AppModal title={$tr("preview.title")} onClose={onModalClose} bind:show bind:this={modalRef}>
-  <div class="d-flex justify-content-center">
+<Dialog title={$tr("preview.title")} onClose={onModalClose} bind:show bind:this={modalRef}>
+  <div class="flex items-center justify-center gap-2">
     {#if pagesTotal > 1}
-      <button disabled={printState !== "idle"} class="btn w-100 fs-1" onclick={pageDown}>
-        <MdIcon icon="chevron_left" />
-      </button>
+      <Button
+        variant="text"
+        color="secondary"
+        icon="chevron_left"
+        ariaLabel="-"
+        disabled={printState !== "idle"}
+        onclick={pageDown} />
     {/if}
 
     <canvas class="print-start-{labelProps.printDirection}" bind:this={previewCanvas}></canvas>
 
     {#if pagesTotal > 1}
-      <button disabled={printState !== "idle"} class="btn w-100 fs-1" onclick={pageUp}>
-        <MdIcon icon="chevron_right" />
-      </button>
+      <Button
+        variant="text"
+        color="secondary"
+        icon="chevron_right"
+        ariaLabel="+"
+        disabled={printState !== "idle"}
+        onclick={pageUp} />
     {/if}
   </div>
 
-  <div class="text-center">
-    {#if pagesTotal > 1}<div>Page {page + 1} / {pagesTotal}</div>{/if}
+  <div class="mt-3 text-center">
+    {#if pagesTotal > 1}<div class="text-body-medium text-surface-600-400">Page {page + 1} / {pagesTotal}</div>{/if}
 
     {#if printState === "sending"}
-      <div>Sending...</div>
+      <div class="text-body-medium">Sending...</div>
     {/if}
     {#if printState === "printing"}
-      <div>
+      <div class="text-body-medium">
         Printing...
-        <div class="progress" role="progressbar">
-          <div class="progress-bar" style="width: {printProgress}%">{printProgress}%</div>
+        <div class="mt-1 h-4 w-full overflow-hidden rounded-full bg-surface-300-700" role="progressbar">
+          <div
+            class="progress-bar flex h-full items-center justify-center bg-primary-500 text-label-small text-primary-contrast-500"
+            style="width: {printProgress}%">
+            {printProgress}%
+          </div>
         </div>
       </div>
     {/if}
 
     {#if error}
-      <div class="alert alert-danger" role="alert">{error}</div>
+      <div class="mt-2 rounded-m3-sm bg-error-500/15 px-3 py-2 text-body-medium text-error-500" role="alert">{error}</div>
     {/if}
   </div>
 
   {#snippet footer()}
-    <div class="input-group input-group-sm">
-      <span class="input-group-text">{$tr("preview.postprocess")}</span>
-
-      <select
-        class="form-select"
-        bind:value={postProcessType}
-        onchange={() => updateSavedProp("postProcess", postProcessType, true)}>
-        <option value="threshold">{$tr("preview.postprocess.threshold")}</option>
-        <option value="dither">{$tr("preview.postprocess.atkinson")}</option>
-        <option value="bayer">{$tr("preview.postprocess.bayer")}</option>
-      </select>
+    <div class="flex w-full items-end gap-2">
+      <div class="flex-1">
+        <Select
+          label={$tr("preview.postprocess")}
+          value={postProcessType ?? "threshold"}
+          options={[
+            { value: "threshold", label: $tr("preview.postprocess.threshold") },
+            { value: "dither", label: $tr("preview.postprocess.atkinson") },
+            { value: "bayer", label: $tr("preview.postprocess.bayer") },
+          ]}
+          ariaLabel={$tr("preview.postprocess")}
+          onChange={(v) => {
+            postProcessType = v as PostProcessType;
+            updateSavedProp("postProcess", postProcessType, true);
+          }} />
+      </div>
 
       <ParamLockButton
         propName="postProcess"
@@ -388,28 +410,32 @@
         savedValue={savedProps.postProcess}
         onClick={toggleSavedProp} />
 
-      <button
-        class="btn btn-sm {postProcessInvert ? 'btn-secondary' : 'btn-outline-secondary'}"
+      <Button
+        variant={postProcessInvert ? "tonal" : "outlined"}
+        color="secondary"
+        icon="invert_colors"
+        ariaLabel={$tr("preview.postprocess")}
         onclick={() => {
           postProcessInvert = !postProcessInvert;
           updatePreview();
-        }}>
-        <MdIcon icon="invert_colors" />
-      </button>
+        }} />
     </div>
 
-    <div class="input-group input-group-sm">
-      <span class="input-group-text">{$tr("preview.threshold")}</span>
-
-      <input
-        type="range"
-        id="threshold"
-        class="form-range"
-        min="1"
-        max="255"
-        bind:value={thresholdValue}
-        onchange={() => updateSavedProp("threshold", thresholdValue, true)} />
-      <span class="input-group-text">{thresholdValue}</span>
+    <div class="flex w-full items-center gap-2">
+      <span class="w-24 shrink-0 text-label-large">{$tr("preview.threshold")}</span>
+      <div class="flex-1">
+        <Slider
+          value={thresholdValue}
+          min={1}
+          max={255}
+          step={1}
+          ariaLabel={$tr("preview.threshold")}
+          onChange={(v) => {
+            thresholdValue = v;
+            updateSavedProp("threshold", thresholdValue, true);
+          }} />
+      </div>
+      <span class="w-8 text-center text-label-large tabular-nums">{thresholdValue}</span>
 
       <ParamLockButton
         propName="threshold"
@@ -419,35 +445,38 @@
     </div>
 
     <!-- PIKT: copies stepper (Chantier 0.5) -->
-    <div class="flex items-center gap-2">
-      <span class="w-24 shrink-0 text-sm font-medium">{$tr("preview.copies")}</span>
+    <div class="flex w-full items-center gap-2">
+      <span class="w-24 shrink-0 text-label-large">{$tr("preview.copies")}</span>
       <div class="flex items-center gap-1">
-        <button
-          type="button"
-          class="tool-action"
-          aria-label="-"
+        <Button
+          variant="tonal"
+          color="secondary"
+          icon="remove"
+          ariaLabel="-"
           onclick={() => {
             quantity = Math.max(1, quantity - 1);
             updateSavedProp("quantity", quantity);
-          }}>
-          <MdIcon icon="remove" />
-        </button>
-        <input
-          class="w-16 rounded-lg bg-surface-200-800 px-2 py-2 text-center tabular-nums"
-          type="number"
-          min="1"
-          bind:value={quantity}
-          onchange={() => updateSavedProp("quantity", quantity)} />
-        <button
-          type="button"
-          class="tool-action"
-          aria-label="+"
+          }} />
+        <div class="w-20">
+          <TextField
+            type="number"
+            min={1}
+            value={quantity}
+            ariaLabel={$tr("preview.copies")}
+            onChange={(v) => {
+              quantity = parseInt(v) || 1;
+              updateSavedProp("quantity", quantity);
+            }} />
+        </div>
+        <Button
+          variant="tonal"
+          color="secondary"
+          icon="add"
+          ariaLabel="+"
           onclick={() => {
             quantity = quantity + 1;
             updateSavedProp("quantity", quantity);
-          }}>
-          <MdIcon icon="add" />
-        </button>
+          }} />
       </div>
       <ParamLockButton
         propName="quantity"
@@ -457,125 +486,162 @@
     </div>
 
     <!-- PIKT: density slider 1–5 (Chantier 0.5) -->
-    <div class="flex items-center gap-3">
-      <span class="w-24 shrink-0 text-sm font-medium">{$tr("preview.density")}</span>
-      <input
-        type="range"
-        class="flex-1 accent-primary-500"
-        min={$printerMeta?.densityMin ?? 1}
-        max={$printerMeta?.densityMax ?? 5}
-        step="1"
-        bind:value={density}
-        onchange={() => updateSavedProp("density", density)} />
-      <span class="w-6 text-center text-sm font-semibold tabular-nums">{density}</span>
+    <div class="flex w-full items-center gap-3">
+      <span class="w-24 shrink-0 text-label-large">{$tr("preview.density")}</span>
+      <div class="flex-1">
+        <Slider
+          value={density}
+          min={$printerMeta?.densityMin ?? 1}
+          max={$printerMeta?.densityMax ?? 5}
+          step={1}
+          ariaLabel={$tr("preview.density")}
+          onChange={(v) => {
+            density = v;
+            updateSavedProp("density", density);
+          }} />
+      </div>
+      <span class="w-6 text-center text-label-large tabular-nums">{density}</span>
       <ParamLockButton propName="density" value={density} savedValue={savedProps.density} onClick={toggleSavedProp} />
     </div>
 
     {#if printTaskName === "D110M_V4"}
-      <div class="input-group flex-nowrap input-group-sm">
-        <span class="input-group-text">{$tr("preview.speed")}</span>
-        <select class="form-select" bind:value={speed} onchange={() => updateSavedProp("speed", speed, true)}>
-          <option value={0}>{$tr("preview.speed.0")}</option>
-          <option value={1}>{$tr("preview.speed.1")}</option>
-        </select>
+      <div class="flex w-full items-end gap-2">
+        <div class="flex-1">
+          <Select
+            label={$tr("preview.speed")}
+            value={speed}
+            options={[
+              { value: 0, label: $tr("preview.speed.0") },
+              { value: 1, label: $tr("preview.speed.1") },
+            ]}
+            ariaLabel={$tr("preview.speed")}
+            onChange={(v) => {
+              speed = (parseInt(v) === 1 ? 1 : 0) as 0 | 1;
+              updateSavedProp("speed", speed, true);
+            }} />
+        </div>
 
         <ParamLockButton propName="speed" value={speed} savedValue={savedProps.speed} onClick={toggleSavedProp} />
       </div>
     {/if}
 
     <!-- PIKT: label type + print task are auto-detected; tucked into Advanced (Chantier 0.5) -->
-    <details class="rounded-lg bg-surface-100-900 px-3 py-2">
-      <summary class="cursor-pointer text-sm font-medium text-surface-600-400">{$tr("preview.advanced")}</summary>
+    <details class="w-full rounded-m3-sm bg-surface-100-900 px-3 py-2">
+      <summary class="cursor-pointer text-label-large text-surface-600-400">{$tr("preview.advanced")}</summary>
       <div class="mt-3 space-y-3">
-        <div class="flex items-center gap-2">
-          <span class="w-28 shrink-0 text-sm">{$tr("preview.label_type")}</span>
-          <select
-            class="flex-1 rounded-lg bg-surface-200-800 px-2 py-2 text-sm"
-            bind:value={labelType}
-            onchange={() => updateSavedProp("labelType", labelType)}>
-            {#each Object.values(LabelType) as lt (lt)}
-              {#if typeof lt !== "string"}
-                <option value={lt}>
-                  {#if $printerMeta?.paperTypes.includes(lt)}✔{/if}
-                  {$tr(labelTypeTranslationKey(LabelType[lt]))}
-                </option>
-              {/if}
-            {/each}
-          </select>
+        <div class="flex items-end gap-2">
+          <div class="flex-1">
+            <Select
+              label={$tr("preview.label_type")}
+              value={labelType}
+              options={Object.values(LabelType)
+                .filter((lt): lt is LabelType => typeof lt !== "string")
+                .map((lt) => ({
+                  value: lt,
+                  label: `${$printerMeta?.paperTypes.includes(lt) ? "✔ " : ""}${$tr(labelTypeTranslationKey(LabelType[lt]))}`,
+                }))}
+              ariaLabel={$tr("preview.label_type")}
+              onChange={(v) => {
+                labelType = parseInt(v) as LabelType;
+                updateSavedProp("labelType", labelType);
+              }} />
+          </div>
           <ParamLockButton propName="labelType" value={labelType} savedValue={savedProps.labelType} onClick={toggleSavedProp} />
         </div>
 
-        <div class="flex items-center gap-2">
-          <span class="w-28 shrink-0 text-sm">{$tr("preview.print_task")}</span>
-          <select
-            class="flex-1 rounded-lg bg-surface-200-800 px-2 py-2 text-sm"
-            bind:value={printTaskName}
-            onchange={() => updateSavedProp("printTaskName", printTaskName)}>
-            {#each printTaskNames as name (name)}
-              <option value={name}>
-                {#if detectedPrintTaskName === name}✔{/if}
-                {name}
-              </option>
-            {/each}
-          </select>
+        <div class="flex items-end gap-2">
+          <div class="flex-1">
+            <Select
+              label={$tr("preview.print_task")}
+              value={printTaskName}
+              options={printTaskNames.map((name) => ({
+                value: name,
+                label: `${detectedPrintTaskName === name ? "✔ " : ""}${name}`,
+              }))}
+              ariaLabel={$tr("preview.print_task")}
+              onChange={(v) => {
+                printTaskName = v as PrintTaskName;
+                updateSavedProp("printTaskName", printTaskName);
+              }} />
+          </div>
           <ParamLockButton propName="printTaskName" value={printTaskName} savedValue={savedProps.printTaskName} onClick={toggleSavedProp} />
         </div>
       </div>
     </details>
 
-    <div class="input-group input-group-sm">
-      <span class="input-group-text">{$tr("preview.offset")}</span>
+    <div class="flex w-full items-center gap-2">
+      <span class="shrink-0 text-label-large">{$tr("preview.offset")}</span>
       {#if offsetWarning}
-        <span class="input-group-text text-warning" title={offsetWarning}><MdIcon icon="warning" /></span>
+        <span class="text-warning-500" title={offsetWarning}><MdIcon icon="warning" /></span>
       {/if}
-      <span class="input-group-text"><MdIcon icon="unfold_more" class="r-90" /></span>
-      <input
-        class="form-control"
-        type="number"
-        bind:value={offset.x}
-        onchange={() => updateSavedProp("offset", offset, true)} />
-      <span class="input-group-text"><MdIcon icon="unfold_more" /></span>
-      <input
-        class="form-control"
-        type="number"
-        bind:value={offset.y}
-        onchange={() => updateSavedProp("offset", offset, true)} />
-      <select
-        class="form-select"
-        bind:value={offset.offsetType}
-        onchange={() => updateSavedProp("offset", offset, true)}>
-        <option value="inner">{$tr("preview.offset.inner")}</option>
-        <option value="outer">{$tr("preview.offset.outer")}</option>
-      </select>
+      <span class="shrink-0 text-surface-600-400"><MdIcon icon="unfold_more" class="r-90" /></span>
+      <div class="w-20">
+        <TextField
+          type="number"
+          value={offset.x}
+          ariaLabel="{$tr('preview.offset')} X"
+          onChange={(v) => {
+            offset.x = parseInt(v) || 0;
+            updateSavedProp("offset", offset, true);
+          }} />
+      </div>
+      <span class="shrink-0 text-surface-600-400"><MdIcon icon="unfold_more" /></span>
+      <div class="w-20">
+        <TextField
+          type="number"
+          value={offset.y}
+          ariaLabel="{$tr('preview.offset')} Y"
+          onChange={(v) => {
+            offset.y = parseInt(v) || 0;
+            updateSavedProp("offset", offset, true);
+          }} />
+      </div>
+      <div class="flex-1">
+        <Select
+          value={offset.offsetType}
+          options={[
+            { value: "inner", label: $tr("preview.offset.inner") },
+            { value: "outer", label: $tr("preview.offset.outer") },
+          ]}
+          ariaLabel={$tr("preview.offset")}
+          onChange={(v) => {
+            offset.offsetType = v as PreviewPropsOffset["offsetType"];
+            updateSavedProp("offset", offset, true);
+          }} />
+      </div>
 
       <ParamLockButton propName="offset" value={offset} savedValue={savedProps.offset} onClick={toggleSavedProp} />
     </div>
 
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{$tr("preview.close")}</button>
+    <Button variant="text" color="secondary" onclick={() => modalRef.hide()}>{$tr("preview.close")}</Button>
 
     {#if printState !== "idle"}
-      <button type="button" class="btn btn-primary" disabled={$disconnected} onclick={endPrint}>
+      <Button variant="filled" color="primary" disabled={$disconnected} onclick={endPrint}>
         {$tr("preview.print.cancel")}
-      </button>
+      </Button>
     {/if}
 
-    <button
-      type="button"
-      class="btn btn-secondary"
-      title={$tr("preview.print.system")}
-      onclick={onPrintOnSystemPrinter}>
-      <MdIcon icon="print" />
-    </button>
+    <Button
+      variant="tonal"
+      color="secondary"
+      icon="print"
+      ariaLabel={$tr("preview.print.system")}
+      onclick={onPrintOnSystemPrinter} />
 
-    <button type="button" class="btn btn-primary" disabled={$disconnected || printState !== "idle"} onclick={onPrint}>
+    <Button
+      variant="filled"
+      color="primary"
+      icon={$disconnected ? undefined : "print"}
+      disabled={$disconnected || printState !== "idle"}
+      onclick={onPrint}>
       {#if $disconnected}
         {$tr("preview.not_connected")}
       {:else}
-        <MdIcon icon="print" /> {$tr("preview.print")}
+        {$tr("preview.print")}
       {/if}
-    </button>
+    </Button>
   {/snippet}
-</AppModal>
+</Dialog>
 
 <style>
   canvas {
@@ -591,11 +657,5 @@
   }
   .progress-bar {
     transition: none;
-  }
-  .input-group .form-range {
-    flex-grow: 1;
-    width: 1%;
-    height: unset;
-    padding: 0 1rem;
   }
 </style>
