@@ -9,6 +9,7 @@
   import EditorPage from "$/components/pages/EditorPage.svelte";
   import BatchesListPage from "$/components/pages/BatchesListPage.svelte";
   import BatchManager from "$/components/pages/BatchManager.svelte";
+  import BatchPrintPage from "$/components/pages/BatchPrintPage.svelte";
   import MosaicConfiguratorPage from "$/components/pages/MosaicConfiguratorPage.svelte";
   import LibraryPage from "$/components/pages/LibraryPage.svelte";
   import SettingsPage from "$/components/pages/SettingsPage.svelte";
@@ -18,6 +19,7 @@
     editor: "nav.editor",
     batches: "nav.batches",
     "batch-manager": "nav.batches",
+    "batch-print": "nav.batches",
     "mosaic-configurator": "nav.batches",
     library: "nav.library",
     settings: "nav.settings",
@@ -28,6 +30,8 @@
   <EditorPage />
 {:else if $currentPage === "batch-manager"}
   <BatchManager />
+{:else if $currentPage === "batch-print"}
+  <BatchPrintPage />
 {:else if $currentPage === "mosaic-configurator"}
   <MosaicConfiguratorPage />
 {:else}

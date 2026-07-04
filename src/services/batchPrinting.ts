@@ -23,6 +23,9 @@ import type { PostProcessType } from "$/types";
 
 export type PrintPhase = "printing" | "paused" | "completed" | "cancelled" | "errored";
 
+/** UI screen of the print flow: the engine phases plus the pre-run confirmation screen. */
+export type PrintScreen = PrintPhase | "confirm";
+
 /** Live snapshot of a running batch print, bound by the print screen (WF 10.1). */
 export interface PrintProgress {
   phase: PrintPhase;
@@ -31,6 +34,8 @@ export interface PrintProgress {
   unitsTotal: number;
   /** Overall completion 0–100 (units finished / total). */
   percent: number;
+  /** Number of labels finished so far. */
+  printed: number;
   pass: number;
   passesTotal: number;
   itemIndex: number;
@@ -479,6 +484,7 @@ export class BatchPrintJob {
         unitIndex: 0,
         unitsTotal: 0,
         percent: 100,
+        printed: this.#printedCount,
         pass: 0,
         passesTotal: Math.max(1, this.#batch.passages),
         itemIndex: 0,
@@ -505,6 +511,7 @@ export class BatchPrintJob {
       unitIndex: idx,
       unitsTotal: total,
       percent: Math.floor((this.#printedCount / total) * 100),
+      printed: this.#printedCount,
       pass: unit.pass,
       passesTotal: Math.max(1, this.#batch.passages),
       itemIndex: unit.itemIndex,

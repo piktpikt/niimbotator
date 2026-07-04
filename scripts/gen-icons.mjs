@@ -33,6 +33,8 @@ const CHROME = [
   "settings_ethernet", "swap_horiz", "tag", "text_decrease", "text_format", "text_increase",
   "title", "undo", "unfold_more", "usb", "vertical_align_bottom", "vertical_align_center",
   "vertical_align_top", "vertical_distribute", "view_week", "visibility", "warning", "wrap_text",
+  // PIKT batch print flow (Chantier 3)
+  "history", "check", "check_circle", "cancel", "error", "pause", "pause_circle", "play_arrow", "stop",
 ];
 
 // material-icons name -> material-symbols (hyphenated) name, for names that are missing or differ.

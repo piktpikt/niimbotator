@@ -24,10 +24,10 @@
     currentPage,
     openEditor,
     openMosaicConfigurator,
+    openBatchPrint,
   } from "$/stores/navigation";
   import type { Batch, BatchItem } from "$/db/schema";
   import { onMount } from "svelte";
-  import { connectionState } from "$/stores";
 
   let batch = $state<Batch | undefined>(undefined);
   let editingName = $state(false);
@@ -41,7 +41,7 @@
   }
   onMount(refresh);
   $effect(() => {
-    $currentBatchId;
+    void $currentBatchId; // re-run when the open batch changes
     refresh();
   });
 
@@ -130,8 +130,7 @@
   }
 
   function onPrint() {
-    // Placeholder — Chantier 2 print flow lands in a follow-up.
-    alert($tr("batches.print.coming_soon"));
+    if ($currentBatchId) openBatchPrint($currentBatchId);
   }
 
   const totalPerPass = $derived(($items ?? []).reduce((sum: number, it: BatchItem) => {
@@ -141,7 +140,6 @@
   }, 0));
   const grandTotal = $derived(totalPerPass * (batch?.passages ?? 1));
   const isEmpty = $derived(($items ?? []).length === 0);
-  const connected = $derived($connectionState === "connected");
 </script>
 
 <div class="flex h-dvh flex-col bg-surface-50-950 text-surface-950-50">
@@ -159,6 +157,20 @@
 
   <main class="flex-1 overflow-y-auto">
     <div class="mx-auto w-full max-w-2xl space-y-4 p-4 pb-40">
+      <!-- Resume banner: an interrupted print left a cursor (Chantier 3) -->
+      {#if batch?.printCursor}
+        <section class="card flex items-center gap-3 border border-warning-500/30 bg-warning-500/10 p-3">
+          <MdIcon icon="history" class="text-warning-500" />
+          <div class="min-w-0 flex-1 text-sm font-semibold">{$tr("print.resume_banner.title")}</div>
+          <button
+            type="button"
+            class="shrink-0 rounded-full bg-warning-500/20 px-4 py-2 text-sm font-semibold text-warning-500"
+            onclick={() => $currentBatchId && openBatchPrint($currentBatchId)}>
+            {$tr("print.resume_banner.resume")}
+          </button>
+        </section>
+      {/if}
+
       <!-- Header: rename + counts + passages -->
       <section class="card space-y-3 bg-surface-100-900 p-4">
         {#if editingName}
@@ -335,11 +347,8 @@
       </button>
     </div>
 
-    <!-- Primary FAB: print -->
-    {#if connected}
-      <Fab icon="print" label={$tr("batches.print.action")} onclick={onPrint} />
-    {:else}
-      <Fab icon="print" label={$tr("batches.print.action")} onclick={() => alert($tr("batches.print.disabled_no_printer"))} />
-    {/if}
+    <!-- Primary FAB: print. Opens the confirm screen even when disconnected (review + options);
+         the confirm button there is gated on connection. -->
+    <Fab icon="print" label={$tr("batches.print.action")} onclick={onPrint} />
   {/if}
 </div>

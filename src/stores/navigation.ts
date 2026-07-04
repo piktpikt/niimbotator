@@ -1,7 +1,15 @@
 // PIKT: store-based page navigation (no router dependency, per the approved stack). (Chantier 0)
 import { writable } from "svelte/store";
 
-export type Page = "home" | "editor" | "batches" | "batch-manager" | "mosaic-configurator" | "library" | "settings";
+export type Page =
+  | "home"
+  | "editor"
+  | "batches"
+  | "batch-manager"
+  | "batch-print"
+  | "mosaic-configurator"
+  | "library"
+  | "settings";
 
 /** The currently displayed top-level page. */
 export const currentPage = writable<Page>("home");
@@ -35,4 +43,10 @@ export function openEditor(itemId?: string): void {
 export function openMosaicConfigurator(itemId: string): void {
   currentMosaicItemId.set(itemId);
   currentPage.set("mosaic-configurator");
+}
+
+/** Open the batch print flow for a batch (Chantier 3). */
+export function openBatchPrint(batchId: string): void {
+  currentBatchId.set(batchId);
+  currentPage.set("batch-print");
 }
