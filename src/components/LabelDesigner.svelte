@@ -28,6 +28,9 @@
   import MdIcon from "$/components/basic/MdIcon.svelte";
   import ObjectPicker from "$/components/designer-controls/ObjectPicker.svelte";
   import PrintPreview from "$/components/PrintPreview.svelte";
+  // PIKT: deep restyle — M3 button in the selection toolbar + sheet-aware canvas hooks (editor phase 4).
+  import Button from "$/components/ui/Button.svelte";
+  import { closeAllSheets, anySheetOpen } from "$/components/ui/BottomSheet.svelte";
   import ArUcoParamsPanel from "$/components/designer-controls/ArUcoParamsControls.svelte";
   import QrCodeParamsPanel from "$/components/designer-controls/QRCodeParamsControls.svelte";
   import TextParamsControls from "$/components/designer-controls/TextParamsControls.svelte";
@@ -267,8 +270,10 @@
       return;
     }
 
+    // PIKT: deep restyle — also bail while an M3 BottomSheet is open (phase 4; keeps the legacy
+    // .dropdown-menu.show probe until the dropdown panels become sheets in phase 5).
     const openedDropdowns = document.querySelectorAll(".dropdown-menu.show");
-    if (openedDropdowns.length > 0) {
+    if (openedDropdowns.length > 0 || $anySheetOpen) {
       return;
     }
 
@@ -377,8 +382,11 @@
 
     undo.push(fabricCanvas, labelProps);
 
-    // force close dropdowns on touch devices
+    // force close dropdowns / sheets on touch devices
+    // PIKT: deep restyle — also dismiss any open M3 BottomSheet on canvas tap (phase 4; the
+    // Bootstrap Dropdown.hide() path stays until the dropdown panels become sheets in phase 5).
     fabricCanvas.on("mouse:down", (): void => {
+      closeAllSheets();
       const dropdowns = document.querySelectorAll("[data-bs-toggle='dropdown']");
       dropdowns.forEach((el) => new Dropdown(el).hide());
     });
@@ -580,15 +588,9 @@
     <div class="col d-flex justify-content-center">
       <div class="toolbar d-flex flex-wrap gap-1 justify-content-center align-items-center">
         {#if selectedCount > 0}
-          <button class="btn btn-sm btn-danger me-1" onclick={deleteSelected} title={$tr("editor.delete")}>
-            <MdIcon icon="delete" />
-          </button>
-        {/if}
-
-        {#if selectedCount > 0}
-          <button class="btn btn-sm btn-secondary me-1" onclick={cloneSelected} title={$tr("editor.clone")}>
-            <MdIcon icon="content_copy" />
-          </button>
+          <!-- PIKT: deep restyle — Bootstrap btn -> M3 ui/Button, labelled per deep-restyle (editor phase 4). -->
+          <Button variant="tonal" color="error" icon="delete" onclick={deleteSelected}>{$tr("editor.delete")}</Button>
+          <Button variant="tonal" color="secondary" icon="content_copy" onclick={cloneSelected}>{$tr("editor.clone")}</Button>
         {/if}
 
         {#if selectedObject && selectedCount === 1}
