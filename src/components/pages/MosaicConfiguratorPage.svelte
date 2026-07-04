@@ -37,8 +37,11 @@
     };
   });
 
-  const labelWidthMm = $derived(48); // placeholder — labelProps is px; a mm conversion helper lands with the size picker
-  const labelHeightMm = $derived(30);
+  // PIKT: derive mm from the item's LabelProps (px). B2 Pro is 300 DPI => dpmm ≈ 11.81. When
+  // Chantier 3.1 lands the size picker we can read a real dpmm off `$printerMeta`.
+  const dpmm = 11.81;
+  const labelWidthMm = $derived(item ? Math.max(1, Math.round(item.labelProps.size.width / dpmm)) : 50);
+  const labelHeightMm = $derived(item ? Math.max(1, Math.round(item.labelProps.size.height / dpmm)) : 30);
 
   function back() {
     if ($currentBatchId) navigate("batch-manager");
