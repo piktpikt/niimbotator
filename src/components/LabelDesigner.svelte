@@ -510,8 +510,8 @@
 <svelte:window bind:innerWidth={windowWidth} onkeydown={onKeyDown} onpaste={onPaste} />
 
 <div class="image-editor">
-  <div class="row mb-3">
-    <div class="col d-flex {windowWidth === 0 || labelProps.size.width < windowWidth ? 'justify-content-center' : ''}">
+  <div class="mb-3">
+    <div class="flex {windowWidth === 0 || labelProps.size.width < windowWidth ? 'justify-center' : ''}">
       <div class="canvas-wrapper print-start-{labelProps.printDirection}">
         <canvas bind:this={htmlCanvas}></canvas>
       </div>
@@ -580,9 +580,9 @@
     </div>
   </div>
 
-  <div class="row mb-1">
-    <div class="col d-flex justify-content-center">
-      <div class="toolbar d-flex flex-wrap gap-1 justify-content-center align-items-center">
+  <div class="mb-1">
+    <div class="flex justify-center">
+      <div class="toolbar flex flex-wrap items-center justify-center gap-1">
         {#if selectedCount > 0}
           <!-- PIKT: deep restyle — Bootstrap btn -> M3 ui/Button, labelled per deep-restyle (editor phase 4). -->
           <Button variant="tonal" color="error" icon="delete" onclick={deleteSelected}>{$tr("editor.delete")}</Button>
