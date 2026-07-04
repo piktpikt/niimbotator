@@ -23,7 +23,6 @@
   let nextId = $state<string | undefined>(undefined);
   type SaveStatus = "idle" | "saving" | "saved";
   let saveStatus = $state<SaveStatus>("idle");
-  let savedAt = $state<number | undefined>(undefined);
   let saveTimer: number | undefined;
 
   async function loadItem(id: string | undefined) {
@@ -66,7 +65,6 @@
         thumbnail: snap.thumbnail,
         status: "edited",
       });
-      savedAt = Date.now();
       saveStatus = "saved";
     }, 400);
   }

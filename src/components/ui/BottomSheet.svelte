@@ -6,7 +6,9 @@
   // DOM probe. See editor restyle phases 4-5.
   import { writable } from "svelte/store";
 
+  // eslint-disable-next-line svelte/prefer-svelte-reactivity -- module-level registry; reactivity is driven by the anySheetOpen store below
   const closers = new Set<() => void>();
+  // eslint-disable-next-line svelte/prefer-svelte-reactivity -- module-level registry; reactivity is driven by the anySheetOpen store below
   const openTokens = new Set<symbol>();
 
   /** Reactive: true while at least one BottomSheet is open. */

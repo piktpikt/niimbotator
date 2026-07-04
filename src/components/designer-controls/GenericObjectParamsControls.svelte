@@ -25,7 +25,7 @@
   let fitModeOpen = $state<boolean>(false);
 
   $effect(() => {
-    editRevision;
+    void editRevision;
     keepRatio = (selectedObject as unknown as { pikKeepRatio?: boolean }).pikKeepRatio ?? false;
   });
 

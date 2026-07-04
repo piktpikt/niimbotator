@@ -38,12 +38,6 @@
 
   let { labelProps, onChange }: Props = $props();
 
-  const tailPositions: TailPosition[] = ["right", "bottom", "left", "top"];
-  const printDirections: PrintDirection[] = ["left", "top"];
-  const labelShapes: LabelShape[] = ["rect", "rounded_rect", "circle"];
-  const labelSplits: LabelSplit[] = ["none", "vertical", "horizontal"];
-  const mirrorTypes: MirrorType[] = ["none", "flip", "copy"];
-
   let labelPresets = $state<LabelPreset[]>(DEFAULT_LABEL_PRESETS);
 
   let title = $state<string | undefined>("");
