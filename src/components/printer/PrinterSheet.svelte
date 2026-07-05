@@ -19,7 +19,7 @@
     automation,
     detectedLabel,
     refreshRfidInfo,
-    pendingLabelSizeMm,
+    pendingRollFormat,
   } from "$/stores";
   import { activePrinterMetrics } from "$/stores/printerMetrics";
   import { knownPrinters, forgetPrinter } from "$/stores/knownPrinters";
@@ -110,7 +110,8 @@
   const applyDetectedSize = () => {
     const label = $detectedLabel;
     if (!label) return;
-    pendingLabelSizeMm.set({ widthMm: label.widthMm, heightMm: label.heightMm, dpmm: $activePrinterMetrics.dpmm });
+    // Snapshot the roll now so a later heartbeat re-scan can't change what gets applied.
+    pendingRollFormat.set({ detected: label, dpmm: $activePrinterMetrics.dpmm });
     Toasts.message($tr("printer.format.applied"));
     printerSheetOpen.set(false);
   };

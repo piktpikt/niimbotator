@@ -50,16 +50,16 @@ export const rfidInfo = writable<RfidInfo | undefined>();
 export const detectedLabel = writable<DetectedLabel | undefined>(); // PIKT: size resolved from the RFID barcode
 export const ribbonRfidInfo = writable<RfidInfo | undefined>();
 
-/** A physical roll format (mm) the user asked to apply to the editor's label. */
-export interface PendingLabelSizeMm {
-  widthMm: number;
-  heightMm: number;
+/** A roll format the user asked to apply to the editor's label: a SNAPSHOT of the detected roll taken at
+ *  click time (so a later RFID heartbeat re-scan can't swap the roll under an in-flight apply) + the dpmm. */
+export interface PendingRollFormat {
+  detected: DetectedLabel;
   dpmm: number;
 }
 // PIKT (P3): one-shot bridge from the connection sheet to the editor. `labelProps` is editor-local (no
-// global store), so the sheet's "apply format" action posts the detected size here; LabelDesigner reads it
-// (it knows the current printDirection), applies it, and clears the store.
-export const pendingLabelSizeMm = writable<PendingLabelSizeMm | undefined>();
+// global store), so the sheet's "apply format" action posts the detected roll + dpmm here; LabelDesigner
+// reads it (it knows the current printDirection), applies size + guides from this snapshot, then clears it.
+export const pendingRollFormat = writable<PendingRollFormat | undefined>();
 export const printerMeta = writable<PrinterModelMeta | undefined>();
 export const heartbeatFails = writable<number>(0);
 export const csvData = writablePersisted<CsvParams>("csv_params", CsvParamsSchema, { data: CSV_DEFAULT });
