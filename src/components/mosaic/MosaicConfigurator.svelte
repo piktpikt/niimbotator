@@ -56,6 +56,13 @@
   const totalH = $derived(rows * tileHmm);
   const tileCount = $derived(cols * rows);
 
+  // The crop canvas takes the mosaic's own aspect ratio (bounded) so the WHOLE frame — every tile — is
+  // always visible, whether the mosaic is landscape (wide/short) or portrait (narrow/tall).
+  const CROP_BOX_W = 340;
+  const CROP_BOX_H = 420;
+  const canvasW = $derived(Math.round(Math.min(CROP_BOX_W, CROP_BOX_H * aspectRatio)));
+  const canvasH = $derived(Math.max(1, Math.round(canvasW / aspectRatio)));
+
   let selectionEl = $state<CropperSelectionEl | null>(null);
   let imageEl = $state<CropperImageEl | null>(null);
 
@@ -175,12 +182,12 @@
       <section class="card bg-surface-100-900 p-2">
         <h2 class="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-surface-500">{$tr("mosaic.crop")}</h2>
         <div class="overflow-hidden rounded-xl">
-          {#key imageSrc}
-            <cropper-canvas style="height: 320px" background>
+          {#key `${imageSrc}-${canvasW}x${canvasH}`}
+            <cropper-canvas class="mx-auto block" style="width: {canvasW}px; height: {canvasH}px" background>
               <cropper-image src={imageSrc} rotatable scalable translatable bind:this={imageEl}></cropper-image>
               <cropper-shade></cropper-shade>
               <cropper-handle action="move"></cropper-handle>
-              <cropper-selection bind:this={selectionEl} aspect-ratio={aspectRatio} initial-coverage="0.85" outlined>
+              <cropper-selection bind:this={selectionEl} aspect-ratio={aspectRatio} initial-coverage="0.82" outlined>
                 <cropper-grid role="grid" columns={cols} rows={rows} covered></cropper-grid>
               </cropper-selection>
             </cropper-canvas>
