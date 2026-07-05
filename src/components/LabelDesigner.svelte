@@ -221,6 +221,14 @@
   // cell-clipped FabricImages the user can then re-frame in place.
   const onCollage = async (files: File[]) => {
     try {
+      // A collage replaces the label content — clear a non-empty canvas first (with confirmation).
+      const hasObjects = (fabricCanvas?.getObjects().length ?? 0) > 0;
+      if (hasObjects && !(await confirmM3($tr("editor.collage.replace.confirm")))) {
+        return;
+      }
+      if (hasObjects) {
+        fabricCanvas!.clear();
+      }
       await composeCollage(fabricCanvas!, labelProps, files);
       undo.push(fabricCanvas!, labelProps);
     } catch (e) {

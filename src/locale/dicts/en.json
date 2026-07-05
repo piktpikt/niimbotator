@@ -138,6 +138,7 @@
     "editor.clear": "Clear canvas",
     "editor.clear.confirm": "Clear canvas contents?",
     "editor.clone": "Clone",
+    "editor.collage.replace.confirm": "Replace the label content with the collage?",
     "editor.default_text": "Text",
     "editor.delete": "Delete",
     "editor.iconpicker.add": "Add new",

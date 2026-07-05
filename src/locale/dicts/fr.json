@@ -134,6 +134,7 @@
     "editor.clear": "Effacer le canevas",
     "editor.clear.confirm": "Effacer le contenu du canevas ?",
     "editor.clone": "Dupliquer",
+    "editor.collage.replace.confirm": "Remplacer le contenu de l'étiquette par le collage ?",
     "editor.default_text": "Texte",
     "editor.delete": "Supprimer",
     "editor.iconpicker.mdi_link_title": "Voir la liste détaillée ici",
