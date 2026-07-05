@@ -30,6 +30,7 @@ import { Toasts } from "$/utils/toasts";
 import { tr } from "$/utils/i18n";
 import { LocalStoragePersistence, writablePersisted } from "$/utils/persistence";
 import { lookupLabelSize, type DetectedLabel } from "$/services/labelSizeLookup"; // PIKT: RFID barcode -> size (Chantier 2)
+import { rememberPrinter } from "$/stores/knownPrinters"; // PIKT: known printers for 1-tap reconnect (P2)
 import { APP_CONFIG_DEFAULTS, CSV_DEFAULT, OBJECT_DEFAULTS_TEXT } from "$/defaults";
 import z from "zod";
 import { FileUtils } from "$/utils/file_utils";
@@ -125,7 +126,24 @@ export const initClient = (connectionType: ConnectionType) => {
         console.log("onConnect");
         heartbeatFails.set(0);
         connectionState.set("connected");
-        connectedPrinterName.set(e.info.deviceName ?? "unknown");
+        // PIKT (P2): remember this printer for 1-tap reconnect (Capacitor BLE only — the only transport
+        // with a reconnect id; the id has no public getter, so read the lib's private field). On a
+        // reconnect-by-id niimbluelib sets deviceName = the deviceId (MAC), so prefer the model name for
+        // both the label and the stored name. printerinfofetched has already set printerInfo/printerMeta.
+        const deviceId = (newClient as unknown as { deviceId?: string }).deviceId;
+        const meta = newClient.getModelMetadata();
+        const rawName = e.info.deviceName;
+        const name = rawName && rawName !== deviceId ? rawName : (meta?.model ?? rawName ?? "unknown");
+        connectedPrinterName.set(name);
+        if (deviceId) {
+          void rememberPrinter({
+            id: deviceId,
+            name,
+            transport: "capacitor-ble",
+            modelCode: get(printerInfo)?.modelId,
+            modelName: meta?.model,
+          });
+        }
       });
 
       newClient.on("printerinfofetched", (e) => {

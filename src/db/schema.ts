@@ -147,11 +147,30 @@ export interface StoredImage {
   isFavorite?: boolean;
 }
 
+// PIKT: known/paired printers for 1-tap reconnect (Roadmap P2). A "known" printer is one we can
+// reconnect to by id — in practice Capacitor BLE (the id is the BLE MAC); Web Bluetooth/Serial can't
+// reconnect silently, so they aren't remembered.
+export type PrinterTransport = "capacitor-ble" | "bluetooth" | "serial";
+
+export interface KnownPrinter {
+  /** Reconnect id — the Capacitor BLE deviceId (MAC on Android). Primary key. */
+  id: string;
+  name: string;
+  transport: PrinterTransport;
+  /** Niimbot hardware code (PrinterInfo.modelId), for the catalog/metrics lookup. */
+  modelCode?: number;
+  /** Resolved model name (e.g. "B2_PRO"). */
+  modelName?: string;
+  lastConnectedAt: number;
+  createdAt: number;
+}
+
 export class NiimbotatorDB extends Dexie {
   batches!: Table<Batch, string>;
   items!: Table<BatchItem, string>;
   images!: Table<StoredImage, string>;
   printHistory!: Table<PrintHistoryEntry, string>;
+  knownPrinters!: Table<KnownPrinter, string>;
 
   constructor() {
     super("niimbotator");
@@ -167,6 +186,14 @@ export class NiimbotatorDB extends Dexie {
       items: "id, batchId, position, status, modifiedAt",
       images: "id, importedAt, isFavorite, *tags",
       printHistory: "id, batchId, startedAt, finishedAt, outcome",
+    });
+    // v3: known printers (P2). Additive table; existing data untouched.
+    this.version(3).stores({
+      batches: "id, name, createdAt, modifiedAt, status, *tags",
+      items: "id, batchId, position, status, modifiedAt",
+      images: "id, importedAt, isFavorite, *tags",
+      printHistory: "id, batchId, startedAt, finishedAt, outcome",
+      knownPrinters: "id, lastConnectedAt, transport",
     });
   }
 }

@@ -32,7 +32,8 @@ const CHROME = [
   "save", "schedule", "sd_storage", "segment", "sentiment_very_dissatisfied", "settings",
   "settings_ethernet", "swap_horiz", "tag", "text_decrease", "text_format", "text_increase",
   "title", "undo", "unfold_more", "usb", "vertical_align_bottom", "vertical_align_center",
-  "vertical_align_top", "vertical_distribute", "view_week", "visibility", "warning", "wrap_text",
+  "vertical_align_top", "vertical_distribute", "view_week", "visibility", "volume_up", "volume_off",
+  "warning", "wrap_text",
   // PIKT batch print flow (Chantier 3)
   "history", "check", "check_circle", "cancel", "error", "pause", "pause_circle", "play_arrow", "stop",
 ];

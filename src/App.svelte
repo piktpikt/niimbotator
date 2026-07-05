@@ -4,6 +4,7 @@
   import BatchPrintHarness from "$/components/pages/BatchPrintHarness.svelte";
   import UiGallery from "$/components/pages/UiGallery.svelte";
   import ConfirmHost from "$/components/ui/ConfirmHost.svelte";
+  import PrinterSheet from "$/components/printer/PrinterSheet.svelte";
   import { ensureDeviceCatalog } from "$/services/deviceCatalog";
   // Side-effect import: registers the active-metrics persistence + refresh-on-connect subscriptions
   // at startup, so they run regardless of which screen the user opens (Roadmap P1).
@@ -30,3 +31,4 @@
 {/if}
 
 <ConfirmHost />
+<PrinterSheet />

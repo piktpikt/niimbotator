@@ -4,7 +4,7 @@
   import MdIcon from "$/components/basic/MdIcon.svelte";
   import { tr } from "$/utils/i18n";
   import { connectionState, connectedPrinterName } from "$/stores";
-  import { navigate } from "$/stores/navigation";
+  import { openPrinterSheet } from "$/stores/printerSheet";
 
   interface Props {
     title: string;
@@ -38,7 +38,7 @@
       class="flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-medium {connected
         ? 'preset-tonal-success'
         : 'preset-tonal-surface text-surface-600-400'}"
-      onclick={() => navigate("settings")}>
+      onclick={openPrinterSheet}>
       <span class="size-2 rounded-full {connected ? 'bg-success-500' : 'bg-surface-400-600'}"></span>
       <span class="hidden max-w-28 truncate sm:inline">
         {connected ? $connectedPrinterName || $tr("printer.connected") : $tr("printer.disconnected")}
