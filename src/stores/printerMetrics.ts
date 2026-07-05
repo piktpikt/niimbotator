@@ -23,6 +23,8 @@ export interface PrinterMetrics {
   densityMin: number;
   densityMax: number;
   densityDefault: number;
+  /** Non-printable margins (mm) of the connected printer, when the catalog provides them (P3). */
+  blindZoneMm?: number[];
   source: MetricsSource;
 }
 
@@ -62,6 +64,7 @@ export function resolveMetrics({ modelId, meta, catalog, persisted }: ResolveMet
       densityMin: cloud.densityMin,
       densityMax: cloud.densityMax,
       densityDefault: cloud.densityDefault,
+      blindZoneMm: cloud.blindZoneMm,
       source: "cloud",
     };
   }

@@ -33,6 +33,8 @@ export class CustomCanvas extends fabric.Canvas {
   private backgroundPreviewImg?: HTMLImageElement;
   private backgroundPreviewRotate: number = 0;
   private drawBackgroundPreview: boolean = true;
+  // PIKT (P3): editor-only non-printable margin overlay (px per edge). Same visibility flag as the motif.
+  private printableMargin?: { top: number; right: number; bottom: number; left: number };
   private virtualZoomRatio: number = 1;
   onZoomChange?: (zoom: number) => void;
 
@@ -128,9 +130,16 @@ export class CustomCanvas extends fabric.Canvas {
     img.src = dataUrl;
   }
 
-  /** Suppress the motif for a capture (thumbnail/export) so it never leaks into saved output. */
+  /** Suppress the editor-only roll guides (motif + printable zone) for a capture (thumbnail/export). */
   setBackgroundPreviewVisible(value: boolean) {
     this.drawBackgroundPreview = value;
+  }
+
+  /** PIKT (P3): set/clear the editor-only non-printable margin overlay (px per edge). No-op when all zero. */
+  setPrintableZone(margin?: { top: number; right: number; bottom: number; left: number }) {
+    const any = margin && (margin.top > 0 || margin.right > 0 || margin.bottom > 0 || margin.left > 0);
+    this.printableMargin = any ? margin : undefined;
+    this.requestRenderAll();
   }
 
   /** Get label bounds without tail */
@@ -367,6 +376,31 @@ export class CustomCanvas extends fabric.Canvas {
       bb.width,
       bb.height,
     );
+
+    // PIKT (P3): non-printable margin overlay (die-cut safe area) — editor-only warning guide, excluded
+    // from captures via drawBackgroundPreview (getSnapshot suppresses it; print runs customBackground=false).
+    if (this.drawBackgroundPreview && this.printableMargin) {
+      const m = this.printableMargin;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(bb.startX, bb.startY, bb.width, bb.height);
+      ctx.clip();
+      ctx.fillStyle = "rgba(220, 50, 50, 0.18)";
+      if (m.top > 0) ctx.fillRect(bb.startX, bb.startY, bb.width, m.top);
+      if (m.bottom > 0) ctx.fillRect(bb.startX, bb.endY - m.bottom, bb.width, m.bottom);
+      if (m.left > 0) ctx.fillRect(bb.startX, bb.startY, m.left, bb.height);
+      if (m.right > 0) ctx.fillRect(bb.endX - m.right, bb.startY, m.right, bb.height);
+      ctx.setLineDash([6, 4]);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(220, 50, 50, 0.7)";
+      ctx.strokeRect(
+        bb.startX + m.left,
+        bb.startY + m.top,
+        bb.width - m.left - m.right,
+        bb.height - m.top - m.bottom,
+      );
+      ctx.restore();
+    }
 
     // Draw separator
 

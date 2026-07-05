@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { detectedFormatToSize } from "./labelFormat";
+import { detectedFormatToSize, printableMarginMm } from "./labelFormat";
 
 describe("detectedFormatToSize", () => {
   it("scales mm by dpmm (clean at 203 dpi / dpmm 8)", () => {
@@ -27,5 +27,42 @@ describe("detectedFormatToSize", () => {
     const r = detectedFormatToSize(0, 0, 8, "left");
     expect(r.width).toBe(8);
     expect(r.height % 8).toBe(0);
+  });
+});
+
+describe("printableMarginMm", () => {
+  const area = (xMm: number, yMm: number, widthMm: number, heightMm: number) => ({ xMm, yMm, widthMm, heightMm });
+
+  it("derives the margin from the inputAreas bounding box (label minus printable area)", () => {
+    // 40x30 label, one printable region inset 2mm left/top, 3mm right, 4mm bottom
+    const inset = printableMarginMm([area(2, 2, 35, 24)], undefined, undefined, 40, 30);
+    expect(inset).toEqual({ top: 2, right: 40 - 37, bottom: 30 - 26, left: 2 });
+  });
+
+  it("unions multiple input areas before computing the margin", () => {
+    const inset = printableMarginMm([area(2, 2, 10, 5), area(20, 10, 15, 15)], undefined, undefined, 40, 30);
+    // union bbox: left 2, top 2, right edge 35, bottom edge 25
+    expect(inset).toEqual({ top: 2, right: 5, bottom: 5, left: 2 });
+  });
+
+  it("falls back to the cloud margin tuple [top,right,bottom,left]", () => {
+    expect(printableMarginMm(undefined, [1, 2, 3, 4], undefined, 40, 30)).toEqual({ top: 1, right: 2, bottom: 3, left: 4 });
+  });
+
+  it("falls back to the device blind zone when no roll margin exists", () => {
+    expect(printableMarginMm(undefined, undefined, [0.5, 0.5, 0.5, 0.5], 40, 30)).toEqual({
+      top: 0.5, right: 0.5, bottom: 0.5, left: 0.5,
+    });
+  });
+
+  it("returns undefined when every source is absent or all-zero (e.g. B2 Pro)", () => {
+    expect(printableMarginMm(undefined, undefined, undefined, 40, 30)).toBeUndefined();
+    expect(printableMarginMm(undefined, [0, 0, 0, 0], [0, 0, 0, 0], 40, 30)).toBeUndefined();
+    expect(printableMarginMm([], undefined, undefined, 40, 30)).toBeUndefined();
+  });
+
+  it("clamps negative margins (printable area larger than the nominal label) to zero", () => {
+    const inset = printableMarginMm([area(-1, 0, 42, 30)], undefined, undefined, 40, 30);
+    expect(inset).toBeUndefined(); // all edges <= 0
   });
 });

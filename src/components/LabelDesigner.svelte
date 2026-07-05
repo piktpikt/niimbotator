@@ -16,7 +16,8 @@
     pendingLabelSizeMm,
   } from "$/stores";
   import { get } from "svelte/store";
-  import { detectedFormatToSize } from "$/services/labelFormat"; // PIKT: RFID roll format -> label px (P3)
+  import { detectedFormatToSize, printableMarginMm } from "$/services/labelFormat"; // PIKT: RFID roll format (P3)
+  import { activePrinterMetrics } from "$/stores/printerMetrics";
   import { getStaticDataUrl } from "$/services/cloudHttp";
   import { isTrustedRollAssetUrl } from "$/services/labelSizeLookup";
   import {
@@ -534,11 +535,29 @@
     fabricCanvas?.setLabelProps(labelProps);
   });
 
-  // PIKT (P3): fetch + set the editor-only motif of the roll being applied. The URL is host-guarded and
-  // loaded as a same-origin data URL (no canvas taint). Read non-reactively so this isn't a store dep.
-  const applyRollBackground = async () => {
+  // PIKT (P3): set the editor-only guides of the roll being applied — the non-printable margin overlay and
+  // the pre-printed motif. Read stores non-reactively so this isn't a store dep. The motif URL is
+  // host-guarded and loaded as a same-origin data URL (no canvas taint).
+  const applyRollGuides = async (dpmm: number) => {
     if (!fabricCanvas) return;
     const roll = get(detectedLabel);
+    const insetsMm = printableMarginMm(
+      roll?.inputAreas,
+      roll?.marginMm,
+      get(activePrinterMetrics).blindZoneMm,
+      roll?.widthMm ?? 0,
+      roll?.heightMm ?? 0,
+    );
+    fabricCanvas.setPrintableZone(
+      insetsMm
+        ? {
+            top: insetsMm.top * dpmm,
+            right: insetsMm.right * dpmm,
+            bottom: insetsMm.bottom * dpmm,
+            left: insetsMm.left * dpmm,
+          }
+        : undefined,
+    );
     if (!isTrustedRollAssetUrl(roll?.backgroundImage)) {
       fabricCanvas.setBackgroundPreview(undefined);
       return;
@@ -547,15 +566,15 @@
     fabricCanvas?.setBackgroundPreview(dataUrl, roll.rotate ?? 0);
   };
 
-  // PIKT (P3): apply a roll format the user chose in the connection sheet — size + motif of the current
-  // roll. Runs once the canvas exists (fabricCanvas is reactive), preserves the current
+  // PIKT (P3): apply a roll format the user chose in the connection sheet — size + the roll's guides (margin
+  // + motif). Runs once the canvas exists (fabricCanvas is reactive), preserves the current
   // printDirection/shape/split, then clears the signal.
   $effect(() => {
     const mm = $pendingLabelSizeMm;
     if (!mm || !fabricCanvas) return;
     const size = detectedFormatToSize(mm.widthMm, mm.heightMm, mm.dpmm, labelProps.printDirection);
     onUpdateLabelProps({ ...labelProps, size });
-    void applyRollBackground();
+    void applyRollGuides(mm.dpmm);
     pendingLabelSizeMm.set(undefined);
   });
 
