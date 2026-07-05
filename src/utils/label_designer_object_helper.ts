@@ -195,6 +195,19 @@ export class LabelDesignerObjectHelper {
     return obj;
   }
 
+  static addHeart(canvas: fabric.Canvas): fabric.Path {
+    // Heart outline (viewBox 24×24), scaled up to the default shape size. A native Fabric Path, so it
+    // serializes/loads without a classRegistry entry — like the other primitive shapes.
+    const HEART =
+      "M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z";
+    const obj = new fabric.Path(HEART, { ...OBJECT_DEFAULTS_VECTOR });
+    const scale = OBJECT_SIZE_DEFAULTS.width / (obj.width || 24);
+    obj.set({ scaleX: scale, scaleY: scale });
+    canvas.add(obj);
+    canvas.centerObjectV(obj);
+    return obj;
+  }
+
   /** Vertices for an N-point star inscribed in a 2*outer box (origin at top-left of that box). */
   private static starPoints(points: number, outer: number, inner: number): { x: number; y: number }[] {
     const result: { x: number; y: number }[] = [];
@@ -257,6 +270,8 @@ export class LabelDesignerObjectHelper {
         return this.addStar(canvas);
       case "arrow":
         return this.addArrow(canvas);
+      case "heart":
+        return this.addHeart(canvas);
       case "image":
         this.addImageWithFilePicker(canvas);
         return;

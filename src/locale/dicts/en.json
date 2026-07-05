@@ -205,6 +205,7 @@
     "editor.shapes.rectangle": "Rectangle",
     "editor.shapes.rounded_rect": "Rounded rectangle",
     "editor.shapes.star": "Star",
+    "editor.shapes.heart": "Heart",
     "editor.shapes.title": "Shapes",
     "editor.shapes.triangle": "Triangle",
     "editor.tools": "Tools",

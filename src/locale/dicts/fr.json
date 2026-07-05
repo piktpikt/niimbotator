@@ -193,6 +193,7 @@
     "editor.shapes.rectangle": "Rectangle",
     "editor.shapes.rounded_rect": "Rectangle arrondi",
     "editor.shapes.star": "Étoile",
+    "editor.shapes.heart": "Cœur",
     "editor.shapes.title": "Formes",
     "editor.shapes.triangle": "Triangle",
     "editor.tools": "Outils",

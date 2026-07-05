@@ -9,7 +9,7 @@ export type LabelUnit = "mm" | "px";
 // PIKT: added vector shape variants (rounded_rect, ellipse, triangle, star, arrow) for the "Formes"
 // picker — all native Fabric primitives (no serialization registration needed). Upstream PR candidate: yes
 // prettier-ignore
-export type OjectType = "text" | "rectangle" | "rounded_rect" | "line" | "circle" | "ellipse" | "triangle" | "star" | "arrow" | "image" | "qrcode" | "barcode" | "aruco" | "pdf";
+export type OjectType = "text" | "rectangle" | "rounded_rect" | "line" | "circle" | "ellipse" | "triangle" | "star" | "arrow" | "heart" | "image" | "qrcode" | "barcode" | "aruco" | "pdf";
 export type PostProcessType = "threshold" | "dither" | "bayer";
 export type MoveDirection = "up" | "down" | "left" | "right";
 export type LabelShape = "rect" | "rounded_rect" | "circle";
