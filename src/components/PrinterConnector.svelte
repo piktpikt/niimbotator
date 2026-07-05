@@ -21,7 +21,6 @@
   import { onMount } from "svelte";
   import { LocalStoragePersistence } from "$/utils/persistence";
   import type { IconName } from "$/styles/icon_data"; // PIKT: chrome icon union (Iconify), Chantier 0
-  import FirmwareUpdater from "$/components/basic/FirmwareUpdater.svelte";
   import Button from "$/components/ui/Button.svelte"; // PIKT: M3 primitive (de-Bootstrap), Chantier 0
   import Dialog from "$/components/ui/Dialog.svelte"; // PIKT: M3 primitive (de-Bootstrap), Chantier 0
 
@@ -202,8 +201,6 @@
           </ul>
         {/if}
       {/if}
-
-      <FirmwareUpdater />
 
       <Button variant="outlined" color="secondary" full onclick={() => (testsOpen = !testsOpen)}>
         Tests <MdIcon icon="expand_more" />
