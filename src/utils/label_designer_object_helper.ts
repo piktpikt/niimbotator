@@ -136,6 +136,77 @@ export class LabelDesignerObjectHelper {
     return obj;
   }
 
+  static addRoundedRect(canvas: fabric.Canvas): fabric.Rect {
+    const obj = new fabric.Rect({
+      ...OBJECT_SIZE_DEFAULTS,
+      ...OBJECT_DEFAULTS_VECTOR,
+      rx: 12,
+      ry: 12,
+    });
+    canvas.add(obj);
+    canvas.centerObjectV(obj);
+    return obj;
+  }
+
+  static addEllipse(canvas: fabric.Canvas): fabric.Ellipse {
+    const obj = new fabric.Ellipse({
+      ...OBJECT_DEFAULTS_VECTOR,
+      rx: OBJECT_SIZE_DEFAULTS.width / 2,
+      ry: OBJECT_SIZE_DEFAULTS.height / 3,
+    });
+    canvas.add(obj);
+    canvas.centerObjectV(obj);
+    return obj;
+  }
+
+  static addTriangle(canvas: fabric.Canvas): fabric.Triangle {
+    const obj = new fabric.Triangle({
+      ...OBJECT_SIZE_DEFAULTS,
+      ...OBJECT_DEFAULTS_VECTOR,
+    });
+    canvas.add(obj);
+    canvas.centerObjectV(obj);
+    return obj;
+  }
+
+  static addStar(canvas: fabric.Canvas): fabric.Polygon {
+    const r = OBJECT_SIZE_DEFAULTS.width / 2;
+    const obj = new fabric.Polygon(this.starPoints(5, r, r / 2), { ...OBJECT_DEFAULTS_VECTOR });
+    canvas.add(obj);
+    canvas.centerObjectV(obj);
+    return obj;
+  }
+
+  static addArrow(canvas: fabric.Canvas): fabric.Polygon {
+    const w = OBJECT_SIZE_DEFAULTS.width;
+    const h = OBJECT_SIZE_DEFAULTS.height;
+    const points = [
+      { x: 0, y: h * 0.3 },
+      { x: w * 0.55, y: h * 0.3 },
+      { x: w * 0.55, y: h * 0.05 },
+      { x: w, y: h / 2 },
+      { x: w * 0.55, y: h * 0.95 },
+      { x: w * 0.55, y: h * 0.7 },
+      { x: 0, y: h * 0.7 },
+    ];
+    const obj = new fabric.Polygon(points, { ...OBJECT_DEFAULTS_VECTOR });
+    canvas.add(obj);
+    canvas.centerObjectV(obj);
+    return obj;
+  }
+
+  /** Vertices for an N-point star inscribed in a 2*outer box (origin at top-left of that box). */
+  private static starPoints(points: number, outer: number, inner: number): { x: number; y: number }[] {
+    const result: { x: number; y: number }[] = [];
+    const step = Math.PI / points;
+    for (let i = 0; i < points * 2; i++) {
+      const radius = i % 2 === 0 ? outer : inner;
+      const angle = i * step - Math.PI / 2;
+      result.push({ x: outer + radius * Math.cos(angle), y: outer + radius * Math.sin(angle) });
+    }
+    return result;
+  }
+
   static addQrCode(canvas: fabric.Canvas): QRCode {
     const qr = new QRCode({
       text: "NiimBlue",
@@ -174,8 +245,18 @@ export class LabelDesignerObjectHelper {
         return this.addHLine(canvas);
       case "circle":
         return this.addCircle(canvas);
+      case "ellipse":
+        return this.addEllipse(canvas);
       case "rectangle":
         return this.addRect(canvas);
+      case "rounded_rect":
+        return this.addRoundedRect(canvas);
+      case "triangle":
+        return this.addTriangle(canvas);
+      case "star":
+        return this.addStar(canvas);
+      case "arrow":
+        return this.addArrow(canvas);
       case "image":
         this.addImageWithFilePicker(canvas);
         return;

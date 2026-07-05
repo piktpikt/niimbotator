@@ -6,7 +6,10 @@ export type ConnectionState = "connecting" | "connected" | "disconnected";
 export type ConnectionType = "bluetooth" | "serial" | "capacitor-ble";
 
 export type LabelUnit = "mm" | "px";
-export type OjectType = "text" | "rectangle" | "line" | "circle" | "image" | "qrcode" | "barcode" | "aruco" | "pdf";
+// PIKT: added vector shape variants (rounded_rect, ellipse, triangle, star, arrow) for the "Formes"
+// picker — all native Fabric primitives (no serialization registration needed). Upstream PR candidate: yes
+// prettier-ignore
+export type OjectType = "text" | "rectangle" | "rounded_rect" | "line" | "circle" | "ellipse" | "triangle" | "star" | "arrow" | "image" | "qrcode" | "barcode" | "aruco" | "pdf";
 export type PostProcessType = "threshold" | "dither" | "bayer";
 export type MoveDirection = "up" | "down" | "left" | "right";
 export type LabelShape = "rect" | "rounded_rect" | "circle";

@@ -27,6 +27,7 @@
   import LabelPropsEditor from "$/components/designer-controls/LabelPropsEditor.svelte";
   import MdIcon from "$/components/basic/MdIcon.svelte";
   import ObjectPicker from "$/components/designer-controls/ObjectPicker.svelte";
+  import ShapePicker from "$/components/designer-controls/ShapePicker.svelte";
   import PrintPreview from "$/components/PrintPreview.svelte";
   // PIKT: deep restyle — sheet-aware canvas hooks (editor phase 4).
   import { closeAllSheets, anySheetOpen } from "$/components/ui/BottomSheet.svelte";
@@ -538,9 +539,7 @@
         <button class="tool-cell" onclick={() => onObjectPicked("image")}>
           <span class="tile-chip tile-teal"><MdIcon icon="image" /></span><span>{$tr("editor.objectpicker.image")}</span>
         </button>
-        <button class="tool-cell" onclick={() => onObjectPicked("rectangle")}>
-          <span class="tile-chip tile-violet"><MdIcon icon="crop_square" /></span><span>{$tr("editor.objectpicker.rectangle")}</span>
-        </button>
+        <ShapePicker onSubmit={onObjectPicked} />
         <button class="tool-cell" onclick={() => onObjectPicked("qrcode")}>
           <span class="tile-chip tile-coral"><MdIcon icon="qr_code_2" /></span><span>{$tr("editor.objectpicker.qrcode")}</span>
         </button>
