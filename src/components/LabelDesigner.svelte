@@ -6,7 +6,8 @@
   import { Barcode } from "$/fabric-object/barcode";
   import { QRCode } from "$/fabric-object/qrcode";
   import { iconCodepoints, type MaterialIcon } from "$/styles/mdi_icons";
-  import { appConfig, automation, connectionState, csvData, loadedFonts } from "$/stores";
+  import { appConfig, automation, connectionState, csvData, loadedFonts, pendingLabelSizeMm } from "$/stores";
+  import { detectedFormatToSize } from "$/services/labelFormat"; // PIKT: RFID roll format -> label px (P3)
   import {
     type ExportedLabelTemplate,
     type FabricJson,
@@ -515,6 +516,16 @@
 
   $effect(() => {
     fabricCanvas?.setLabelProps(labelProps);
+  });
+
+  // PIKT (P3): apply a roll format the user chose in the connection sheet. Runs once the canvas exists
+  // (fabricCanvas is reactive), preserves the current printDirection/shape/split, then clears the signal.
+  $effect(() => {
+    const mm = $pendingLabelSizeMm;
+    if (!mm || !fabricCanvas) return;
+    const size = detectedFormatToSize(mm.widthMm, mm.heightMm, mm.dpmm, labelProps.printDirection);
+    onUpdateLabelProps({ ...labelProps, size });
+    pendingLabelSizeMm.set(undefined);
   });
 
   $effect(() => {

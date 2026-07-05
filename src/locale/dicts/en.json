@@ -121,6 +121,8 @@
     "printer.sheet.title": "Printer",
     "printer.connecting": "Connecting…",
     "printer.refreshed": "Printer info refreshed",
+    "printer.format.apply": "Apply format",
+    "printer.format.applied": "Format applied to the label",
     "printer.status.label": "Label",
     "printer.status.resolution": "Resolution",
     "printer.status.density": "Density",

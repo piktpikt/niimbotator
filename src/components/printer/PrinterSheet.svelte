@@ -19,6 +19,7 @@
     automation,
     detectedLabel,
     refreshRfidInfo,
+    pendingLabelSizeMm,
   } from "$/stores";
   import { activePrinterMetrics } from "$/stores/printerMetrics";
   import { knownPrinters, forgetPrinter } from "$/stores/knownPrinters";
@@ -100,6 +101,16 @@
     } catch (e) {
       Toasts.error(e);
     }
+  };
+
+  // PIKT (P3): apply the RFID-detected roll size to the editor's label (mm -> px at the printer's dpmm).
+  // Posts to a one-shot store the editor consumes; opt-in because resizing the canvas rewrites the layout.
+  const applyDetectedSize = () => {
+    const label = $detectedLabel;
+    if (!label) return;
+    pendingLabelSizeMm.set({ widthMm: label.widthMm, heightMm: label.heightMm, dpmm: $activePrinterMetrics.dpmm });
+    Toasts.message($tr("printer.format.applied"));
+    printerSheetOpen.set(false);
   };
 
   const toggleSound = async () => {
@@ -192,6 +203,11 @@
     </section>
 
     <div class="mt-4 flex flex-wrap gap-2">
+      {#if $detectedLabel}
+        <Button variant="tonal" color="primary" icon="aspect_ratio" onclick={applyDetectedSize}>
+          {$tr("printer.format.apply")}
+        </Button>
+      {/if}
       <Button variant="tonal" color="secondary" icon="refresh" onclick={refresh}>{$tr("printer.action.refresh")}</Button>
       <Button variant="tonal" color="secondary" icon={soundEnabled ? "volume_up" : "volume_off"} onclick={toggleSound}>
         {soundEnabled ? $tr("printer.action.sound_on") : $tr("printer.action.sound_off")}

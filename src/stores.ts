@@ -49,6 +49,17 @@ export const printerInfo = writable<PrinterInfo>();
 export const rfidInfo = writable<RfidInfo | undefined>();
 export const detectedLabel = writable<DetectedLabel | undefined>(); // PIKT: size resolved from the RFID barcode
 export const ribbonRfidInfo = writable<RfidInfo | undefined>();
+
+/** A physical roll format (mm) the user asked to apply to the editor's label. */
+export interface PendingLabelSizeMm {
+  widthMm: number;
+  heightMm: number;
+  dpmm: number;
+}
+// PIKT (P3): one-shot bridge from the connection sheet to the editor. `labelProps` is editor-local (no
+// global store), so the sheet's "apply format" action posts the detected size here; LabelDesigner reads it
+// (it knows the current printDirection), applies it, and clears the store.
+export const pendingLabelSizeMm = writable<PendingLabelSizeMm | undefined>();
 export const printerMeta = writable<PrinterModelMeta | undefined>();
 export const heartbeatFails = writable<number>(0);
 export const csvData = writablePersisted<CsvParams>("csv_params", CsvParamsSchema, { data: CSV_DEFAULT });
