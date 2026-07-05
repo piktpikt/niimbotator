@@ -7,6 +7,7 @@
   import MdIcon from "$/components/basic/MdIcon.svelte";
   import { currentMosaicItemId, currentBatchId, navigate } from "$/stores/navigation";
   import { getItem, getImage, updateBatchItem, addImage } from "$/stores/batchStore";
+  import { activePrinterMetrics } from "$/stores/printerMetrics";
   import type { BatchItem, MosaicConfig } from "$/db/schema";
 
   let item = $state<BatchItem | undefined>(undefined);
@@ -34,9 +35,9 @@
     };
   });
 
-  // PIKT: derive mm from the item's LabelProps (px). B2 Pro is 300 DPI => dpmm ≈ 11.81. When
-  // Chantier 3.1 lands the size picker we can read a real dpmm off `$printerMeta`.
-  const dpmm = 11.81;
+  // PIKT: the label's real dpmm (Roadmap P1) — the resolution it was authored at, else the connected
+  // printer's, else a safe default. Replaces the old hardcoded 11.81 so px<->mm is correct per printer.
+  const dpmm = $derived(item?.labelProps.size.dpmm ?? $activePrinterMetrics.dpmm);
   const labelWidthMm = $derived(item ? Math.max(1, Math.round(item.labelProps.size.width / dpmm)) : 50);
   const labelHeightMm = $derived(item ? Math.max(1, Math.round(item.labelProps.size.height / dpmm)) : 30);
 
@@ -81,6 +82,7 @@
     initial={item.mosaicConfig}
     labelWidthMm={labelWidthMm}
     labelHeightMm={labelHeightMm}
+    renderDpmm={dpmm}
     imageSrc={imageUrl}
     onSave={save}
     onCancel={back} />

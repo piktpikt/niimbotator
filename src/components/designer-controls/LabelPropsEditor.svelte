@@ -111,6 +111,7 @@
       size: {
         width: Math.floor(newWidth),
         height: Math.floor(newHeight),
+        dpmm, // PIKT: persist the label's resolution so mm<->px is unambiguous per printer (Roadmap P1)
       },
       shape,
       split,
@@ -196,6 +197,7 @@
 
   const fillWithCurrentParams = () => {
     prevUnit = "px";
+    dpmm = labelProps.size.dpmm ?? dpmm; // PIKT: restore the label's authored resolution (Roadmap P1)
     width = labelProps.size.width;
     height = labelProps.size.height;
     printDirection = labelProps.printDirection;

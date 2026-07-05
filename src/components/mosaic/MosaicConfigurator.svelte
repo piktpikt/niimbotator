@@ -14,15 +14,14 @@
     initial?: MosaicConfig;
     labelWidthMm: number;
     labelHeightMm: number;
+    /** Print resolution (dots/mm) of the target label — bakes the crop at the real DPI (Roadmap P1). */
+    renderDpmm: number;
     imageSrc: string;
     onSave: (config: MosaicConfig, croppedBlob?: Blob) => void;
     onCancel: () => void;
   }
 
-  let { initial, labelWidthMm, labelHeightMm, imageSrc, onSave, onCancel }: Props = $props();
-
-  // Render resolution for the baked crop (B2 Pro ≈ 300 DPI ⇒ 11.81 px/mm).
-  const RENDER_DPMM = 11.81;
+  let { initial, labelWidthMm, labelHeightMm, renderDpmm, imageSrc, onSave, onCancel }: Props = $props();
 
   type Orientation = "landscape" | "portrait";
   type CropperImageEl = HTMLElement & {
@@ -92,8 +91,8 @@
   };
 
   async function save() {
-    const width = Math.max(1, Math.round(totalW * RENDER_DPMM));
-    const height = Math.max(1, Math.round(totalH * RENDER_DPMM));
+    const width = Math.max(1, Math.round(totalW * renderDpmm));
+    const height = Math.max(1, Math.round(totalH * renderDpmm));
     const config: MosaicConfig = { rows, cols, cropRect: { x: 0, y: 0, width, height }, numbering, marginMm };
     try {
       const canvas = await selectionEl?.$toCanvas?.({ width, height });
