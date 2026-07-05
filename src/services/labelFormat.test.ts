@@ -28,6 +28,14 @@ describe("detectedFormatToSize", () => {
     expect(r.width).toBe(8);
     expect(r.height % 8).toBe(0);
   });
+
+  it("never collapses the head axis to 0 for a tiny/degenerate size at a sub-8 dpmm (203 dpi ≈ 7.99)", () => {
+    // Regression: 7.99 - (7.99 % 8) == 0 before the re-clamp. Head axis must stay a positive multiple of 8.
+    const left = detectedFormatToSize(40, 0, 7.99, "left");
+    expect(left.height).toBe(8);
+    const top = detectedFormatToSize(0, 30, 7.99, "top");
+    expect(top.width).toBe(8);
+  });
 });
 
 describe("printableMarginMm", () => {

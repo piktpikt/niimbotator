@@ -82,11 +82,12 @@ export function detectedFormatToSize(
 ): LabelPixelSize {
   let width = Math.max(widthMm * dpmm, dpmm);
   let height = Math.max(heightMm * dpmm, dpmm);
-  // The print-head axis must be a multiple of 8 dots.
+  // The print-head axis must be a POSITIVE multiple of 8 dots. Re-clamp to 8 after trimming so a tiny or
+  // degenerate size (e.g. 0mm, or <1mm at a 203-dpi dpmm≈7.99) can't collapse the head axis to 0.
   if (printDirection === "left") {
-    height -= height % 8;
+    height = Math.max(8, height - (height % 8));
   } else {
-    width -= width % 8;
+    width = Math.max(8, width - (width % 8));
   }
   return { width: Math.floor(width), height: Math.floor(height), dpmm };
 }
