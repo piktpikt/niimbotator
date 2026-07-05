@@ -137,6 +137,12 @@ export async function setItemMode(id: string, mode: ItemMode, mosaicConfig?: Mos
   await updateBatchItem(id, { mode, mosaicConfig });
 }
 
+/** Set (or clear, with undefined) an item's per-item print settings override (density/contrast/dithering).
+ *  When undefined, the item falls back to the batch's global print settings. */
+export async function setItemPrintSettings(id: string, printSettings: PrintSettings | undefined): Promise<void> {
+  await updateBatchItem(id, { printSettings });
+}
+
 /** Change the batch passages (1–10). */
 export async function setBatchPassages(id: string, passages: number): Promise<void> {
   const p = Math.max(1, Math.min(10, Math.round(passages)));

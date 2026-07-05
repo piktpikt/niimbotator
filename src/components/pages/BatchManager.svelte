@@ -6,6 +6,7 @@
   import MdIcon from "$/components/basic/MdIcon.svelte";
   import Fab from "$/components/navigation/Fab.svelte";
   import TopAppBar from "$/components/navigation/TopAppBar.svelte";
+  import BatchItemSettingsSheet from "$/components/batch/BatchItemSettingsSheet.svelte";
   import {
     batchItems,
     getBatch,
@@ -33,6 +34,13 @@
   let batch = $state<Batch | undefined>(undefined);
   let editingName = $state(false);
   let nameInput = $state("");
+  let settingsItem = $state<BatchItem | undefined>(undefined);
+  let settingsOpen = $state(false);
+
+  function onSettings(item: BatchItem) {
+    settingsItem = item;
+    settingsOpen = true;
+  }
 
   const items = $derived($currentBatchId ? batchItems($currentBatchId) : undefined);
 
@@ -270,6 +278,11 @@
                       {$tr("batches.item.mode.single_x").replace("{n}", String(item.copies))}
                     </span>
                   {/if}
+                  {#if item.printSettings}
+                    <span class="inline-flex items-center gap-1 rounded-full bg-secondary-500/15 px-2 py-0.5 text-secondary-600-400">
+                      <MdIcon icon="density_medium" /> {$tr("batches.item.settings.custom")}
+                    </span>
+                  {/if}
                   <span>· {mosaicImpressions} {$tr("batches.impressions_short")}</span>
                 </div>
 
@@ -300,6 +313,14 @@
                       {$tr("batches.mode.mosaic")}
                     </button>
                   </div>
+
+                  <button
+                    type="button"
+                    class="grid size-10 place-items-center rounded-full bg-surface-200-800 text-surface-600-400 transition-colors hover:bg-surface-300-700"
+                    onclick={() => onSettings(item)}
+                    aria-label={$tr("batches.item.settings.title")}>
+                    <MdIcon icon="density_medium" />
+                  </button>
                 </div>
 
                 {#if item.mode === "mosaic"}
@@ -327,6 +348,8 @@
       {/if}
     </div>
   </main>
+
+  <BatchItemSettingsSheet bind:open={settingsOpen} item={settingsItem} />
 
   <!-- Hidden file input for the mosaic source-image single-flow -->
   <input
