@@ -36,6 +36,8 @@ const CHROME = [
   "warning", "wrap_text",
   // PIKT batch print flow (Chantier 3)
   "history", "check", "check_circle", "cancel", "error", "pause", "pause_circle", "play_arrow", "stop",
+  // PIKT manual RFID barcode entry (P3)
+  "search",
 ];
 
 // material-icons name -> material-symbols (hyphenated) name, for names that are missing or differ.

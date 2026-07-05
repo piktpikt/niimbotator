@@ -32,7 +32,9 @@
   import type { IconName } from "$/styles/icon_data";
   import BottomSheet from "$/components/ui/BottomSheet.svelte";
   import Button from "$/components/ui/Button.svelte";
+  import TextField from "$/components/ui/TextField.svelte";
   import MdIcon from "$/components/basic/MdIcon.svelte";
+  import { lookupLabelSize } from "$/services/labelSizeLookup"; // PIKT: manual RFID barcode entry (P3)
 
   let connectionType = $state<ConnectionType>("bluetooth");
   let featureSupport = $state<AvailableTransports>({ webBluetooth: false, webSerial: false, capacitorBle: false });
@@ -111,6 +113,28 @@
     pendingLabelSizeMm.set({ widthMm: label.widthMm, heightMm: label.heightMm, dpmm: $activePrinterMetrics.dpmm });
     Toasts.message($tr("printer.format.applied"));
     printerSheetOpen.set(false);
+  };
+
+  // PIKT (P3): manual fallback when RFID can't auto-detect the roll — look the barcode up in the cloud/cache
+  // and surface it as the detected label (so "Appliquer le format" then applies it).
+  let manualBarcode = $state("");
+  let looking = $state(false);
+  const manualLookup = async () => {
+    const code = manualBarcode.trim();
+    if (!code || looking) return;
+    looking = true;
+    try {
+      const label = await lookupLabelSize(code);
+      if (label) {
+        detectedLabel.set(label);
+        manualBarcode = "";
+        Toasts.message($tr("printer.format.lookup_ok"));
+      } else {
+        Toasts.message($tr("printer.format.lookup_none"));
+      }
+    } finally {
+      looking = false;
+    }
   };
 
   const toggleSound = async () => {
@@ -214,6 +238,19 @@
       </Button>
       <Button variant="filled" color="error" icon="power_off" onclick={disconnect}>
         {$tr("printer.action.disconnect")}
+      </Button>
+    </div>
+
+    <!-- Manual fallback when RFID can't auto-detect the roll -->
+    <div class="mt-4 flex items-end gap-2">
+      <div class="flex-1">
+        <TextField
+          label={$tr("printer.format.manual_label")}
+          value={manualBarcode}
+          onChange={(v) => (manualBarcode = v)} />
+      </div>
+      <Button variant="tonal" color="secondary" icon="search" onclick={manualLookup} disabled={!manualBarcode || looking}>
+        {$tr("printer.format.lookup")}
       </Button>
     </div>
   {:else}
