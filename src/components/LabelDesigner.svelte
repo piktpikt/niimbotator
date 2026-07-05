@@ -510,8 +510,15 @@
 <svelte:window bind:innerWidth={windowWidth} onkeydown={onKeyDown} onpaste={onPaste} />
 
 <div class="image-editor">
+  <!-- PIKT: deep restyle — canvas "hero" platform: the label floats (elevation) on a lit dot-grid
+       surface (editor shell). Only the stage container is styled; the canvas-wrapper box-model +
+       red print-start marker are untouched. -->
   <div class="mb-3">
-    <div class="flex {windowWidth === 0 || labelProps.size.width < windowWidth ? 'justify-center' : ''}">
+    <div
+      class="dot-grid flex overflow-x-auto rounded-m3-lg border border-surface-200-800 bg-surface-100-900 p-6 {windowWidth ===
+        0 || labelProps.size.width < windowWidth
+        ? 'justify-center'
+        : ''}">
       <div class="canvas-wrapper print-start-{labelProps.printDirection}">
         <canvas bind:this={htmlCanvas}></canvas>
       </div>
@@ -523,19 +530,19 @@
     <!-- Add element -->
     <div class="flex flex-wrap items-stretch justify-center gap-1 rounded-2xl bg-surface-100-900 p-2">
       <button class="tool-cell" onclick={() => onObjectPicked("text")}>
-        <MdIcon icon="title" /><span>{$tr("editor.objectpicker.text")}</span>
+        <span class="tile-chip tile-indigo"><MdIcon icon="title" /></span><span>{$tr("editor.objectpicker.text")}</span>
       </button>
       <button class="tool-cell" onclick={() => onObjectPicked("image")}>
-        <MdIcon icon="image" /><span>{$tr("editor.objectpicker.image")}</span>
+        <span class="tile-chip tile-teal"><MdIcon icon="image" /></span><span>{$tr("editor.objectpicker.image")}</span>
       </button>
       <button class="tool-cell" onclick={() => onObjectPicked("rectangle")}>
-        <MdIcon icon="crop_square" /><span>{$tr("editor.objectpicker.rectangle")}</span>
+        <span class="tile-chip tile-violet"><MdIcon icon="crop_square" /></span><span>{$tr("editor.objectpicker.rectangle")}</span>
       </button>
       <button class="tool-cell" onclick={() => onObjectPicked("qrcode")}>
-        <MdIcon icon="qr_code_2" /><span>{$tr("editor.objectpicker.qrcode")}</span>
+        <span class="tile-chip tile-coral"><MdIcon icon="qr_code_2" /></span><span>{$tr("editor.objectpicker.qrcode")}</span>
       </button>
       <button class="tool-cell" onclick={() => onObjectPicked("barcode")}>
-        <MdIcon icon="view_week" /><span>{$tr("editor.objectpicker.barcode")}</span>
+        <span class="tile-chip tile-amber"><MdIcon icon="view_week" /></span><span>{$tr("editor.objectpicker.barcode")}</span>
       </button>
       <IconPicker onSubmit={onIconPicked} onSubmitSvg={onSvgIconPicked} />
       <ObjectPicker onSubmit={onObjectPicked} {labelProps} {zplImageReady} {pdfImageReady} />
@@ -632,9 +639,16 @@
 </div>
 
 <style>
+  .dot-grid {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1.6px);
+    background-size: 16px 16px;
+  }
   .canvas-wrapper {
     border: 1px solid rgba(0, 0, 0, 0.4);
     background-color: rgba(60, 55, 63, 0.5);
+    box-shadow:
+      0 20px 40px -16px rgba(0, 0, 0, 0.55),
+      0 0 0 1px rgba(255, 255, 255, 0.04);
   }
   .canvas-wrapper.print-start-left {
     border-left: 2px solid #ff4646;

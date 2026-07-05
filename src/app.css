@@ -22,6 +22,30 @@
   .tool-primary {
     @apply inline-flex h-11 cursor-pointer items-center gap-1.5 rounded-xl bg-primary-500 px-4 text-sm font-semibold text-primary-contrast-500 shadow-sm transition active:scale-95 disabled:opacity-40 disabled:active:scale-100;
   }
+  /* PIKT: coloured icon chips for the add-element tiles (M3 Expressive tool palette, editor shell). */
+  .tile-chip {
+    @apply grid size-9 shrink-0 place-items-center rounded-lg;
+  }
+  .tile-indigo {
+    color: #8aa0ff;
+    background: rgba(138, 160, 255, 0.16);
+  }
+  .tile-teal {
+    color: #5fd0c4;
+    background: rgba(95, 208, 196, 0.16);
+  }
+  .tile-violet {
+    color: #b79bff;
+    background: rgba(183, 155, 255, 0.16);
+  }
+  .tile-coral {
+    color: #ff9482;
+    background: rgba(255, 148, 130, 0.16);
+  }
+  .tile-amber {
+    color: #f2c15a;
+    background: rgba(242, 193, 90, 0.16);
+  }
 }
 
 /* PIKT: Bootstrap fully removed in phase 5 — all editor dropdowns are M3 BottomSheets now. */
