@@ -90,11 +90,13 @@ export async function postApiFormJson(
   const allHeaders = { "Content-Type": FORM_CONTENT_TYPE, ...headers };
   try {
     if (isNative()) {
-      // CapacitorHttp form-encodes the `data` object when the content-type is form-urlencoded.
+      // Pass an already form-encoded STRING (not the object): CapacitorHttp writes a string body verbatim
+      // on every platform, whereas an object's encoding is content-type-dependent and version-sensitive.
+      // This guarantees the /api/* endpoint receives `oneCode=…`, not JSON.
       const res = await CapacitorHttp.post({
         url,
         headers: allHeaders,
-        data: form,
+        data: encodeForm(form),
         readTimeout: timeoutMs,
         connectTimeout: timeoutMs,
       });

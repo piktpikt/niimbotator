@@ -94,18 +94,18 @@ describe("postApiFormJson", () => {
     });
   });
 
-  it("native: routes through CapacitorHttp.post with the form object as data", async () => {
+  it("native: routes through CapacitorHttp.post with a form-ENCODED STRING body", async () => {
     h.native = true;
     h.post.mockResolvedValue({ status: 200, data: { data: { width: 40 } } });
 
-    const res = await postApiFormJson("https://print/api/x", { oneCode: "X" }, { "niimbot-user-agent": "ua" });
+    const res = await postApiFormJson("https://print/api/x", { oneCode: "AB 12" }, { "niimbot-user-agent": "ua" });
 
     expect(res).toEqual({ ok: true, status: 200, json: { data: { width: 40 } } });
     expect(fetchMock).not.toHaveBeenCalled();
     expect(h.post).toHaveBeenCalledWith(
       expect.objectContaining({
         url: "https://print/api/x",
-        data: { oneCode: "X" },
+        data: "oneCode=AB%2012", // encoded string, not a JS object
         headers: expect.objectContaining({ "niimbot-user-agent": "ua" }),
       }),
     );
