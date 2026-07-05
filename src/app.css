@@ -50,6 +50,10 @@
     color: #ff9dc7;
     background: rgba(255, 157, 199, 0.16);
   }
+  .tile-sky {
+    color: #6db4f5;
+    background: rgba(109, 180, 245, 0.16);
+  }
   .tile-neutral {
     @apply bg-surface-300-700/50 text-surface-600-400;
   }

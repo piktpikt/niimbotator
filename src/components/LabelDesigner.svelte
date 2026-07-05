@@ -28,6 +28,7 @@
   import MdIcon from "$/components/basic/MdIcon.svelte";
   import ObjectPicker from "$/components/designer-controls/ObjectPicker.svelte";
   import ShapePicker from "$/components/designer-controls/ShapePicker.svelte";
+  import MosaicPicker from "$/components/designer-controls/MosaicPicker.svelte";
   import PrintPreview from "$/components/PrintPreview.svelte";
   // PIKT: deep restyle — sheet-aware canvas hooks (editor phase 4).
   import { closeAllSheets, anySheetOpen } from "$/components/ui/BottomSheet.svelte";
@@ -547,6 +548,7 @@
           <span class="tile-chip tile-amber"><MdIcon icon="view_week" /></span><span>{$tr("editor.objectpicker.barcode")}</span>
         </button>
         <IconPicker onSubmit={onIconPicked} onSubmitSvg={onSvgIconPicked} />
+        <MosaicPicker />
         <ObjectPicker onSubmit={onObjectPicked} {labelProps} {zplImageReady} {pdfImageReady} />
       </div>
     {:else}
