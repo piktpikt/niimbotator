@@ -7,12 +7,25 @@
   import { Toasts } from "$/utils/toasts";
   import { startMosaicDecoupe } from "$/services/mosaicEntry";
 
+  interface Props {
+    /** Collage: compose the picked images onto the current label (handled by the editor). */
+    onCollage: (files: File[]) => void;
+  }
+
+  let { onCollage }: Props = $props();
+
   let open = $state(false);
   let fileInput = $state<HTMLInputElement | null>(null);
+  let collageInput = $state<HTMLInputElement | null>(null);
 
   const chooseDecoupe = (): void => {
     open = false;
     fileInput?.click();
+  };
+
+  const chooseCollage = (): void => {
+    open = false;
+    collageInput?.click();
   };
 
   const onFilePicked = async (e: Event): Promise<void> => {
@@ -26,9 +39,17 @@
       Toasts.error(err);
     }
   };
+
+  const onCollagePicked = (e: Event): void => {
+    const el = e.target as HTMLInputElement;
+    const files = Array.from(el.files ?? []);
+    el.value = ""; // allow reselecting the same files next time
+    if (files.length) onCollage(files);
+  };
 </script>
 
 <input bind:this={fileInput} type="file" accept="image/*" class="hidden" onchange={onFilePicked} />
+<input bind:this={collageInput} type="file" accept="image/*" multiple class="hidden" onchange={onCollagePicked} />
 
 <button class="tool-cell" onclick={() => (open = true)}>
   <span class="tile-chip tile-sky">
@@ -62,18 +83,17 @@
     </span>
   </button>
 
-  <button class="flex w-full cursor-not-allowed items-center gap-3 rounded-xl p-3 text-left opacity-50" disabled>
-    <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-surface-300-700/50 text-surface-600-400">
+  <button
+    class="flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors hover:bg-surface-200-800"
+    onclick={chooseCollage}>
+    <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-primary-500/15 text-primary-500">
       <svg viewBox="0 0 24 24" class="size-6" fill="none" stroke="currentColor" stroke-width="1.8">
         <rect x="3" y="7" width="12" height="12" rx="2" />
         <rect x="9" y="3" width="12" height="12" rx="2" />
       </svg>
     </span>
     <span class="min-w-0 flex-1">
-      <span class="flex items-center gap-2 font-medium">
-        {$tr("editor.mosaic.collage")}
-        <span class="rounded-full bg-surface-300-700 px-2 py-0.5 text-xs text-surface-600-400">{$tr("editor.mosaic.soon")}</span>
-      </span>
+      <span class="block font-medium">{$tr("editor.mosaic.collage")}</span>
       <span class="block text-sm text-surface-600-400">{$tr("editor.mosaic.collage.sub")}</span>
     </span>
   </button>

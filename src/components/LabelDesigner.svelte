@@ -42,6 +42,7 @@
   import { CustomCanvas } from "$/fabric-object/custom_canvas";
   import VectorParamsControls from "$/components/designer-controls/VectorParamsControls.svelte";
   import { CanvasUtils } from "$/utils/canvas_utils";
+  import { composeCollage } from "$/services/collage";
 
   let htmlCanvas: HTMLCanvasElement;
 
@@ -213,6 +214,17 @@
     if (obj !== undefined) {
       fabricCanvas!.setActiveObject(obj);
       undo.push(fabricCanvas!, labelProps);
+    }
+  };
+
+  // PIKT: Collage (mosaic chantier, phase 3) — compose N picked photos onto the current label as
+  // cell-clipped FabricImages the user can then re-frame in place.
+  const onCollage = async (files: File[]) => {
+    try {
+      await composeCollage(fabricCanvas!, labelProps, files);
+      undo.push(fabricCanvas!, labelProps);
+    } catch (e) {
+      Toasts.error(e);
     }
   };
 
@@ -548,7 +560,7 @@
           <span class="tile-chip tile-amber"><MdIcon icon="view_week" /></span><span>{$tr("editor.objectpicker.barcode")}</span>
         </button>
         <IconPicker onSubmit={onIconPicked} onSubmitSvg={onSvgIconPicked} />
-        <MosaicPicker />
+        <MosaicPicker {onCollage} />
         <ObjectPicker onSubmit={onObjectPicked} {labelProps} {zplImageReady} {pdfImageReady} />
       </div>
     {:else}
