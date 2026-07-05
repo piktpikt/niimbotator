@@ -27,6 +27,7 @@
     openBatchPrint,
   } from "$/stores/navigation";
   import type { Batch, BatchItem } from "$/db/schema";
+  import { confirmM3 } from "$/utils/confirm";
   import { onMount } from "svelte";
 
   let batch = $state<Batch | undefined>(undefined);
@@ -66,7 +67,7 @@
   }
 
   async function onDelete(item: BatchItem) {
-    if (confirm($tr("batches.item.delete.confirm").replace("{name}", item.name))) {
+    if (await confirmM3($tr("batches.item.delete.confirm").replace("{name}", item.name), { danger: true })) {
       await deleteBatchItem(item.id);
     }
   }
@@ -119,7 +120,7 @@
 
   async function onDeleteBatch() {
     if (!batch) return;
-    if (confirm($tr("batches.delete.confirm").replace("{name}", batch.name))) {
+    if (await confirmM3($tr("batches.delete.confirm").replace("{name}", batch.name), { danger: true })) {
       await deleteBatch(batch.id);
       currentPage.set("batches");
     }

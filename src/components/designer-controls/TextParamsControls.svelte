@@ -9,6 +9,7 @@
   import SegmentedButton from "$/components/ui/SegmentedButton.svelte";
   import Switch from "$/components/ui/Switch.svelte";
   import BottomSheet from "$/components/ui/BottomSheet.svelte";
+  import { promptM3 } from "$/utils/confirm";
 
   let colorOpen = $state(false);
 
@@ -107,8 +108,8 @@
     valueUpdated();
   };
 
-  const editInPopup = () => {
-    const text = prompt($tr("params.text.edit.title"), selectedText.text);
+  const editInPopup = async () => {
+    const text = await promptM3($tr("params.text.edit.title"), selectedText.text);
     if (text !== null) {
       selectedText.set({ text });
       selectedText.isEditing = false;

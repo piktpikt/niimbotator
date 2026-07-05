@@ -5,12 +5,13 @@
   import Fab from "$/components/navigation/Fab.svelte";
   import { batches, itemCounts, createBatch, deleteBatch } from "$/stores/batchStore";
   import { openBatch } from "$/stores/navigation";
+  import { confirmM3 } from "$/utils/confirm";
 
   const fmtDate = (ts: number) =>
     new Date(ts).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
 
   async function onDelete(id: string, name: string) {
-    if (confirm($tr("batches.delete.confirm").replace("{name}", name))) {
+    if (await confirmM3($tr("batches.delete.confirm").replace("{name}", name), { danger: true })) {
       await deleteBatch(id);
     }
   }

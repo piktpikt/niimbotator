@@ -19,6 +19,7 @@
   import MdIcon from "$/components/basic/MdIcon.svelte";
   import { Toasts } from "$/utils/toasts";
   import { FileUtils } from "$/utils/file_utils";
+  import { confirmM3 } from "$/utils/confirm";
   import { z } from "zod";
   import DpiSelector from "$/components/designer-controls/DpiSelector.svelte";
   // PIKT: deep restyle — Bootstrap dropdown/form → M3 ui/* primitives + BottomSheet (editor phase 5).
@@ -211,7 +212,7 @@
     const contents = await FileUtils.pickAndReadSingleTextFile("json");
     const rawData = JSON.parse(contents);
 
-    if (!confirm($tr("params.label.warning.import"))) {
+    if (!(await confirmM3($tr("params.label.warning.import")))) {
       return;
     }
 

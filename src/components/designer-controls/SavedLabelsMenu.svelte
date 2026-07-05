@@ -1,6 +1,6 @@
 <script lang="ts">
   // PIKT: deep restyle — Bootstrap dropdown → M3 ui/BottomSheet + Button/TextField (editor phase 5).
-  // Dropped `import Dropdown`; `new Dropdown().hide()` → sheetOpen = false. confirm() kept (debt).
+  // Dropped `import Dropdown`; `new Dropdown().hide()` → sheetOpen = false. confirm() → M3 confirmM3().
   // Upstream PR candidate: no
   import { tr } from "$/utils/i18n";
   import { onMount } from "svelte";
@@ -15,6 +15,7 @@
   import BottomSheet from "$/components/ui/BottomSheet.svelte";
   import Button from "$/components/ui/Button.svelte";
   import TextField from "$/components/ui/TextField.svelte";
+  import { confirmM3 } from "$/utils/confirm";
 
   interface Props {
     onRequestLabelTemplate: () => ExportedLabelTemplate;
@@ -73,12 +74,12 @@
     calcUsedSpace();
   };
 
-  const onSaveReplaceClicked = () => {
+  const onSaveReplaceClicked = async () => {
     if (selectedIndex === -1) {
       return;
     }
 
-    if (!confirm($tr("editor.warning.save"))) {
+    if (!(await confirmM3($tr("editor.warning.save")))) {
       return;
     }
 
@@ -113,7 +114,7 @@
     saveLabels(result);
   };
 
-  const onLoadClicked = () => {
+  const onLoadClicked = async () => {
     if (selectedIndex === -1) {
       return;
     }
@@ -126,7 +127,7 @@
       message += "\n" + $tr("editor.warning.load.csv");
     }
 
-    if (!confirm(message)) {
+    if (!(await confirmM3(message))) {
       return;
     }
 
@@ -148,7 +149,7 @@
         message += "\n" + $tr("editor.warning.load.csv");
       }
 
-      if (!confirm(message)) {
+      if (!(await confirmM3(message))) {
         return;
       }
 
@@ -189,7 +190,7 @@
       const label = onRequestLabelTemplate();
       const url = await FileUtils.makeLabelUrl(label);
 
-      if (url.length > 2000 && !confirm($tr("params.saved_labels.save.url.warn"))) {
+      if (url.length > 2000 && !(await confirmM3($tr("params.saved_labels.save.url.warn")))) {
         return;
       }
 
