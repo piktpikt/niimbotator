@@ -2,14 +2,59 @@
 // Online: Niimbot cloud API; offline: local cache; otherwise: undefined (manual fallback).
 // Endpoint + header discovered from the official app traffic (no auth needed, just the UA header).
 // The cross-origin POST goes through the shared transport so it works from the native WebView (P3).
+import { z } from "zod";
 import { postApiFormJson } from "$/services/cloudHttp";
+
+/** A printable/editable zone of the roll, in millimeters (from the cloud `inputAreas`). */
+export interface RollInputArea {
+  xMm: number;
+  yMm: number;
+  widthMm: number;
+  heightMm: number;
+  /** Niimbot area type tag (e.g. "text"), when provided. */
+  type?: string | number;
+  areaNumber?: number;
+}
 
 export interface DetectedLabel {
   widthMm: number;
   heightMm: number;
   /** Niimbot paperType id (1 = gap, etc.) — maps to the printer's consumablesType. */
   paperType: number;
+  // --- P3: the exact format beyond size (editor-only; roll-specific; never persisted in LabelProps) ---
+  /** Pre-printed roll motif — a PNG URL on the Niimbot OSS. Rendered as an editor preview, never printed. */
+  backgroundImage?: string;
+  /** Printable/editable zones (mm) the cloud reports for this roll. */
+  inputAreas?: RollInputArea[];
+  /** Non-printable margin (mm), 4-tuple as returned by the cloud, when present. */
+  marginMm?: number[];
+  /** Design rotation in degrees (background/orientation hint), when present. */
+  rotate?: number;
 }
+
+// Runtime validation of the (untrusted, partly undocumented) cloud response. Only width/height are
+// required; every richer field degrades to undefined via `.catch()` so a malformed extra never discards
+// a valid size. The exact populated shape is only verifiable on-device with a real roll — parse defensively.
+const CloudInputAreaSchema = z.object({
+  x: z.number(),
+  y: z.number(),
+  w: z.number(),
+  h: z.number(),
+  type: z.union([z.string(), z.number()]).optional(),
+  areaNumber: z.number().optional(),
+});
+
+const CloudDataSchema = z.object({
+  width: z.number(),
+  height: z.number(),
+  paperType: z.number().catch(1),
+  backgroundImage: z.string().optional().catch(undefined),
+  rotate: z.number().optional().catch(undefined),
+  margin: z.array(z.number()).length(4).optional().catch(undefined),
+  inputAreas: z.array(CloudInputAreaSchema).optional().catch(undefined),
+});
+
+const CloudResponseSchema = z.object({ data: CloudDataSchema.optional() });
 
 const CACHE_KEY = "niimbotator_label_cache";
 const API_URL = "https://print.niimbot.com/api/template/getCloudTemplateByScanCode";
@@ -40,10 +85,25 @@ async function fetchFromCloud(barcode: string): Promise<DetectedLabel | undefine
     TIMEOUT_MS,
   );
   if (!res.ok) return undefined;
-  const json = res.json as { code?: number; data?: { width?: number; height?: number; paperType?: number } };
-  const d = json?.data;
-  if (!d || typeof d.width !== "number" || typeof d.height !== "number") return undefined;
-  return { widthMm: d.width, heightMm: d.height, paperType: d.paperType ?? 1 };
+  const parsed = CloudResponseSchema.safeParse(res.json);
+  if (!parsed.success || !parsed.data.data) return undefined;
+  const d = parsed.data.data;
+  return {
+    widthMm: d.width,
+    heightMm: d.height,
+    paperType: d.paperType,
+    backgroundImage: d.backgroundImage,
+    rotate: d.rotate,
+    marginMm: d.margin,
+    inputAreas: d.inputAreas?.map((a) => ({
+      xMm: a.x,
+      yMm: a.y,
+      widthMm: a.w,
+      heightMm: a.h,
+      type: a.type,
+      areaNumber: a.areaNumber,
+    })),
+  };
 }
 
 /**
