@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as fabric from "fabric";
+  import { confirmM3 } from "$/utils/confirm";
   import { onDestroy, onMount, tick } from "svelte";
   import { ArUcoMarker } from "$/fabric-object/aruco";
   import { Barcode } from "$/fabric-object/barcode";
@@ -286,8 +287,8 @@
     }
   };
 
-  const clearCanvas = () => {
-    if (!confirm($tr("editor.clear.confirm"))) {
+  const clearCanvas = async () => {
+    if (!(await confirmM3($tr("editor.clear.confirm"), { danger: true }))) {
       return;
     }
     undo.push(fabricCanvas!, labelProps);
@@ -304,7 +305,7 @@
     try {
       const urlTemplate = await FileUtils.readLabelFromUrl();
 
-      if (urlTemplate !== null && confirm($tr("params.saved_labels.load.url.warn"))) {
+      if (urlTemplate !== null && (await confirmM3($tr("params.saved_labels.load.url.warn")))) {
         onLoadRequested(urlTemplate);
         Toasts.message($tr("params.saved_labels.load.url.loaded"));
         return true;

@@ -2,6 +2,7 @@
   import MainPage from "$/components/MainPage.svelte";
   import BatchPrintHarness from "$/components/pages/BatchPrintHarness.svelte";
   import UiGallery from "$/components/pages/UiGallery.svelte";
+  import ConfirmHost from "$/components/ui/ConfirmHost.svelte";
 
   // DEV-only proof harnesses, reachable at #bpv-harness / #ui-gallery.
   const hash = typeof location !== "undefined" ? location.hash : "";
@@ -16,3 +17,5 @@
 {:else}
   <MainPage />
 {/if}
+
+<ConfirmHost />
