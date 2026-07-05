@@ -1,0 +1,1605 @@
+[
+ {
+  "codes": [
+   256
+  ],
+  "name": "JCB3S",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 2,
+  "maxLabelWidthMm": 72,
+  "rfidType": 0,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   256
+  ],
+  "name": "A8",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 72,
+  "rfidType": 0,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   5,
+   1,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   256,
+   260,
+   262
+  ],
+  "name": "B3S",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 72,
+  "rfidType": 0,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   261,
+   259,
+   258,
+   257
+  ],
+  "name": "S6",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 72,
+  "rfidType": 0,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   272
+  ],
+  "name": "B3S_P",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 72,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0.5,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   273
+  ],
+  "name": "A8_P",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 72,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   274
+  ],
+  "name": "S6_P",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 75,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   512
+  ],
+  "name": "Hi-NB-D11",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 3,
+  "densityDefault": 2,
+  "maxLabelWidthMm": 15,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   512
+  ],
+  "name": "D11",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 3,
+  "densityDefault": 2,
+  "maxLabelWidthMm": 12,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   1,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   513
+  ],
+  "name": "Fust",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 12,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   1.5,
+   1.5,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   514
+  ],
+  "name": "D11S",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 3,
+  "densityDefault": 2,
+  "maxLabelWidthMm": 12,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   1.5,
+   1.5,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   528
+  ],
+  "name": "D11_H",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 12,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   1,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   531
+  ],
+  "name": "D11_Pro",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 12,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   1,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   768
+  ],
+  "name": "B21",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 48,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   769
+  ],
+  "name": "B21-L2B",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 48,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0.5,
+   0.5,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   771,
+   775
+  ],
+  "name": "B21-C2B",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 48,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   776
+  ],
+  "name": "B21S-C2B",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 48,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0.5,
+   0.5,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   777
+  ],
+  "name": "B21S",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 48,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   785
+  ],
+  "name": "B21_Pro",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 50,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0.5,
+   1,
+   0.5,
+   0.5
+  ]
+ },
+ {
+  "codes": [
+   1024
+  ],
+  "name": "P1",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 59,
+  "rfidType": 2,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   1.5,
+   1.5,
+   1.5,
+   1.5
+  ]
+ },
+ {
+  "codes": [
+   1025
+  ],
+  "name": "P1S",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 56,
+  "rfidType": 2,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   1.5,
+   1.5,
+   1.5,
+   1.5
+  ]
+ },
+ {
+  "codes": [
+   1026
+  ],
+  "name": "P18",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 56,
+  "rfidType": 2,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   1.5,
+   1.5,
+   1.5,
+   1.5
+  ]
+ },
+ {
+  "codes": [
+   1792
+  ],
+  "name": "B16",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 3,
+  "densityDefault": 2,
+  "maxLabelWidthMm": 12,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   1.5,
+   1.5,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   2049
+  ],
+  "name": "B32",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 15,
+  "densityDefault": 10,
+  "maxLabelWidthMm": 72,
+  "rfidType": 2,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   2050
+  ],
+  "name": "B32R",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 15,
+  "densityDefault": 10,
+  "maxLabelWidthMm": 72,
+  "rfidType": 2,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   2051
+  ],
+  "name": "Z401",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 15,
+  "densityDefault": 10,
+  "maxLabelWidthMm": 72,
+  "rfidType": 2,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   2053
+  ],
+  "name": "T8S",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 15,
+  "densityDefault": 10,
+  "maxLabelWidthMm": 72,
+  "rfidType": 0,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   2054
+  ],
+  "name": "A63",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 15,
+  "densityDefault": 10,
+  "maxLabelWidthMm": 72,
+  "rfidType": 2,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   2304,
+   2305
+  ],
+  "name": "D110",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 3,
+  "densityDefault": 2,
+  "maxLabelWidthMm": 12,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0.5,
+   0.5,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   2305
+  ],
+  "name": "Hi-D110",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 3,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 15,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   2320
+  ],
+  "name": "D110_M",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 12,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   1,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   2560
+  ],
+  "name": "D101",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 3,
+  "densityDefault": 2,
+  "maxLabelWidthMm": 24,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   2561
+  ],
+  "name": "Betty",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 3,
+  "densityDefault": 2,
+  "maxLabelWidthMm": 24,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   1,
+   1
+  ]
+ },
+ {
+  "codes": [
+   2816
+  ],
+  "name": "B203",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 50,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   2817
+  ],
+  "name": "A20",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 50,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   2818
+  ],
+  "name": "A203",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 50,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0.5,
+   1.5,
+   0.5,
+   0.5
+  ]
+ },
+ {
+  "codes": [
+   3584
+  ],
+  "name": "B18",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 3,
+  "densityDefault": 2,
+  "maxLabelWidthMm": 12,
+  "rfidType": 3,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   3585
+  ],
+  "name": "B18S",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 3,
+  "densityDefault": 2,
+  "maxLabelWidthMm": 12,
+  "rfidType": 3,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0.5,
+   1.5,
+   0.5,
+   0.5
+  ]
+ },
+ {
+  "codes": [
+   3586
+  ],
+  "name": "N1",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 3,
+  "densityDefault": 2,
+  "maxLabelWidthMm": 12,
+  "rfidType": 3,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   3840
+  ],
+  "name": "H1",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 3,
+  "densityDefault": 2,
+  "maxLabelWidthMm": 12,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   4096
+  ],
+  "name": "B1",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 48,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   4097
+  ],
+  "name": "B1 Pro",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 48,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   4098
+  ],
+  "name": "B1 SE",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 48,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   4352
+  ],
+  "name": "H1S",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 3,
+  "densityDefault": 2,
+  "maxLabelWidthMm": 12,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   4608
+  ],
+  "name": "M2_H",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 48,
+  "rfidType": 3,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   4609
+  ],
+  "name": "TP2M_H",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 50,
+  "rfidType": 3,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   4610
+  ],
+  "name": "EP2M_H",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 48,
+  "rfidType": 3,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   4864
+  ],
+  "name": "K3",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 80,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   4865
+  ],
+  "name": "K3_W",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 80,
+  "rfidType": 1,
+  "supportsWifi": true,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   4866
+  ],
+  "name": "MP3K",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 80,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   4867
+  ],
+  "name": "MP3K_W",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 80,
+  "rfidType": 1,
+  "supportsWifi": true,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   4868
+  ],
+  "name": "K3_ITD",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 80,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   5120
+  ],
+  "name": "C1",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 15,
+  "rfidType": 2,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   5121
+  ],
+  "name": "EP1C",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 15,
+  "rfidType": 2,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   5376
+  ],
+  "name": "ET10",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 3,
+  "densityMax": 3,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 200,
+  "rfidType": 0,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   5632
+  ],
+  "name": "B31",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 75,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   6144
+  ],
+  "name": "K2",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 56,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   6400
+  ],
+  "name": "M3",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 72,
+  "rfidType": 3,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   6402
+  ],
+  "name": "EP3M",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 72,
+  "rfidType": 3,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   6656
+  ],
+  "name": "B4",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 104,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   6657
+  ],
+  "name": "B4 Pro",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 104,
+  "rfidType": 1,
+  "supportsWifi": true,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   6912
+  ],
+  "name": "B2 Pro",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 48,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   6913
+  ],
+  "name": "B2",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 48,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   7168
+  ],
+  "name": "K4",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 15,
+  "densityDefault": 7,
+  "maxLabelWidthMm": 104,
+  "rfidType": 1,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   7424
+  ],
+  "name": "A1 Pro",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 25,
+  "rfidType": 0,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   51457
+  ],
+  "name": "B11",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 6,
+  "densityMax": 15,
+  "densityDefault": 10,
+  "maxLabelWidthMm": 48,
+  "rfidType": 0,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   51458
+  ],
+  "name": "S1",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 6,
+  "densityMax": 15,
+  "densityDefault": 10,
+  "maxLabelWidthMm": 48,
+  "rfidType": 0,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   51460
+  ],
+  "name": "S3",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 6,
+  "densityMax": 15,
+  "densityDefault": 10,
+  "maxLabelWidthMm": 48,
+  "rfidType": 0,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   51461
+  ],
+  "name": "JC-M90",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 6,
+  "densityMax": 15,
+  "densityDefault": 10,
+  "maxLabelWidthMm": 48,
+  "rfidType": 0,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   51713
+  ],
+  "name": "B50",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 6,
+  "densityMax": 15,
+  "densityDefault": 10,
+  "maxLabelWidthMm": 50,
+  "rfidType": 0,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   51714
+  ],
+  "name": "B50W",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 6,
+  "densityMax": 15,
+  "densityDefault": 10,
+  "maxLabelWidthMm": 48,
+  "rfidType": 0,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   51715
+  ],
+  "name": "T6",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 6,
+  "densityMax": 15,
+  "densityDefault": 10,
+  "maxLabelWidthMm": 48,
+  "rfidType": 0,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   51717
+  ],
+  "name": "T7",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 6,
+  "densityMax": 15,
+  "densityDefault": 10,
+  "maxLabelWidthMm": 48,
+  "rfidType": 0,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   51718
+  ],
+  "name": "T8",
+  "dpi": 300,
+  "dpmm": 11.811023622047244,
+  "densityMin": 6,
+  "densityMax": 15,
+  "densityDefault": 10,
+  "maxLabelWidthMm": 48,
+  "rfidType": 0,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   52993
+  ],
+  "name": "B3",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 5,
+  "densityDefault": 3,
+  "maxLabelWidthMm": 75,
+  "rfidType": 0,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ {
+  "codes": [
+   53250
+  ],
+  "name": "T2S",
+  "dpi": 203,
+  "dpmm": 7.9921259842519685,
+  "densityMin": 1,
+  "densityMax": 20,
+  "densityDefault": 15,
+  "maxLabelWidthMm": 104,
+  "rfidType": 0,
+  "supportsWifi": false,
+  "thumbUrl": null,
+  "blindZoneMm": [
+   0,
+   0,
+   0,
+   0
+  ]
+ }
+]

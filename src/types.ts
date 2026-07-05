@@ -35,6 +35,9 @@ export const LabelPropsSchema = z.object({
   size: z.object({
     width: z.number().positive(),
     height: z.number().positive(),
+    // PIKT: persist the resolution the px dimensions were authored at, so mm<->px stays unambiguous
+    // across printers of different DPI (Roadmap P1). Optional for back-compat with older labels.
+    dpmm: z.number().positive().optional(),
   }),
   shape: z.enum(["rect", "rounded_rect", "circle"]).default("rect").optional(),
   split: z.enum(["none", "vertical", "horizontal"]).default("none").optional(),

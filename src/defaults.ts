@@ -36,12 +36,17 @@ export const DEFAULT_LABEL_PRESETS: LabelPreset[] = [
   { width: 50, height: 30, unit: "mm", dpmm: 11.81, printDirection: "top", shape: "rect", title: "50x30mm 300dpi" },
 ];
 
+/** Fallback dots-per-mm when neither the label nor a connected printer specifies one — 203 dpi,
+ *  matching NiimBlue's historical editor default. Real values come from the printer (Roadmap P1). */
+export const DEFAULT_DPMM = 8;
+
 /** Default canvas dimensions */
 export const DEFAULT_LABEL_PROPS: LabelProps = {
   printDirection: "left",
   size: {
     width: 240,
     height: 96,
+    dpmm: DEFAULT_DPMM,
   },
 };
 
