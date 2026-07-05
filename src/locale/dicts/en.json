@@ -156,6 +156,7 @@
     "editor.preview": "Preview",
     "editor.print": "Print",
     "editor.redo": "Redo",
+    "editor.tools": "Tools",
     "editor.undo": "Undo",
     "editor.grid": "Grid",
     "editor.warning.load": "Canvas will be replaced with saved data",

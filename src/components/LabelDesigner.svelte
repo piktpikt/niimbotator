@@ -28,8 +28,7 @@
   import MdIcon from "$/components/basic/MdIcon.svelte";
   import ObjectPicker from "$/components/designer-controls/ObjectPicker.svelte";
   import PrintPreview from "$/components/PrintPreview.svelte";
-  // PIKT: deep restyle — M3 button in the selection toolbar + sheet-aware canvas hooks (editor phase 4).
-  import Button from "$/components/ui/Button.svelte";
+  // PIKT: deep restyle — sheet-aware canvas hooks (editor phase 4).
   import { closeAllSheets, anySheetOpen } from "$/components/ui/BottomSheet.svelte";
   import ArUcoParamsPanel from "$/components/designer-controls/ArUcoParamsControls.svelte";
   import QrCodeParamsPanel from "$/components/designer-controls/QRCodeParamsControls.svelte";
@@ -526,30 +525,87 @@
     </div>
   </div>
 
-  <!-- PIKT: redesigned editor toolbar — clear labeled buttons, Niimbot-inspired (Chantier 0.5) -->
+  <!-- PIKT: deep restyle — contextual dock (editor shell). Nothing selected → coloured add-tile palette;
+       an object selected → only that object's controls (+ discreet Dupliquer/Supprimer and a "back to
+       tools" affordance). Global editor actions persist below either state. Upstream PR candidate: no -->
   <div class="mx-auto mb-2 w-full max-w-3xl space-y-2">
-    <!-- Add element -->
-    <div class="flex flex-wrap items-stretch justify-center gap-1 rounded-2xl bg-surface-100-900 p-2">
-      <button class="tool-cell" onclick={() => onObjectPicked("text")}>
-        <span class="tile-chip tile-indigo"><MdIcon icon="title" /></span><span>{$tr("editor.objectpicker.text")}</span>
-      </button>
-      <button class="tool-cell" onclick={() => onObjectPicked("image")}>
-        <span class="tile-chip tile-teal"><MdIcon icon="image" /></span><span>{$tr("editor.objectpicker.image")}</span>
-      </button>
-      <button class="tool-cell" onclick={() => onObjectPicked("rectangle")}>
-        <span class="tile-chip tile-violet"><MdIcon icon="crop_square" /></span><span>{$tr("editor.objectpicker.rectangle")}</span>
-      </button>
-      <button class="tool-cell" onclick={() => onObjectPicked("qrcode")}>
-        <span class="tile-chip tile-coral"><MdIcon icon="qr_code_2" /></span><span>{$tr("editor.objectpicker.qrcode")}</span>
-      </button>
-      <button class="tool-cell" onclick={() => onObjectPicked("barcode")}>
-        <span class="tile-chip tile-amber"><MdIcon icon="view_week" /></span><span>{$tr("editor.objectpicker.barcode")}</span>
-      </button>
-      <IconPicker onSubmit={onIconPicked} onSubmitSvg={onSvgIconPicked} />
-      <ObjectPicker onSubmit={onObjectPicked} {labelProps} {zplImageReady} {pdfImageReady} />
-    </div>
+    {#if selectedCount === 0}
+      <!-- Add element palette -->
+      <div class="flex flex-wrap items-stretch justify-center gap-1 rounded-2xl bg-surface-100-900 p-2">
+        <button class="tool-cell" onclick={() => onObjectPicked("text")}>
+          <span class="tile-chip tile-indigo"><MdIcon icon="title" /></span><span>{$tr("editor.objectpicker.text")}</span>
+        </button>
+        <button class="tool-cell" onclick={() => onObjectPicked("image")}>
+          <span class="tile-chip tile-teal"><MdIcon icon="image" /></span><span>{$tr("editor.objectpicker.image")}</span>
+        </button>
+        <button class="tool-cell" onclick={() => onObjectPicked("rectangle")}>
+          <span class="tile-chip tile-violet"><MdIcon icon="crop_square" /></span><span>{$tr("editor.objectpicker.rectangle")}</span>
+        </button>
+        <button class="tool-cell" onclick={() => onObjectPicked("qrcode")}>
+          <span class="tile-chip tile-coral"><MdIcon icon="qr_code_2" /></span><span>{$tr("editor.objectpicker.qrcode")}</span>
+        </button>
+        <button class="tool-cell" onclick={() => onObjectPicked("barcode")}>
+          <span class="tile-chip tile-amber"><MdIcon icon="view_week" /></span><span>{$tr("editor.objectpicker.barcode")}</span>
+        </button>
+        <IconPicker onSubmit={onIconPicked} onSubmitSvg={onSvgIconPicked} />
+        <ObjectPicker onSubmit={onObjectPicked} {labelProps} {zplImageReady} {pdfImageReady} />
+      </div>
+    {:else}
+      <!-- Selected-object controls -->
+      <div class="space-y-2 rounded-2xl bg-surface-100-900 p-2">
+        <div class="flex items-center justify-between gap-2">
+          <button class="tool-action" onclick={discardSelection}>
+            <MdIcon icon="chevron_left" /><span>{$tr("editor.tools")}</span>
+          </button>
+          <div class="flex items-center gap-1">
+            <button
+              class="grid size-12 place-items-center rounded-full text-surface-700-300 transition-colors hover:bg-surface-200-800"
+              aria-label={$tr("editor.clone")}
+              onclick={cloneSelected}>
+              <MdIcon icon="content_copy" />
+            </button>
+            <button
+              class="grid size-12 place-items-center rounded-full text-error-500 transition-colors hover:bg-error-500/10"
+              aria-label={$tr("editor.delete")}
+              onclick={deleteSelected}>
+              <MdIcon icon="delete" />
+            </button>
+          </div>
+        </div>
 
-    <!-- Actions -->
+        <div class="flex flex-wrap items-center gap-1">
+          {#if selectedObject && selectedCount === 1}
+            <GenericObjectParamsControls {selectedObject} {editRevision} valueUpdated={controlValueUpdated} />
+          {/if}
+
+          {#if selectedObject}
+            <VectorParamsControls {selectedObject} {editRevision} valueUpdated={controlValueUpdated} />
+          {/if}
+
+          {#if selectedObject instanceof fabric.IText}
+            <TextParamsControls selectedText={selectedObject} {editRevision} valueUpdated={controlValueUpdated} />
+          {/if}
+
+          {#if selectedObject instanceof QRCode}
+            <QrCodeParamsPanel selectedQRCode={selectedObject} {editRevision} valueUpdated={controlValueUpdated} />
+          {/if}
+
+          {#if selectedObject instanceof ArUcoMarker}
+            <ArUcoParamsPanel selectedArUco={selectedObject} {editRevision} valueUpdated={controlValueUpdated} />
+          {/if}
+
+          {#if selectedObject instanceof Barcode}
+            <BarcodeParamsPanel selectedBarcode={selectedObject} {editRevision} valueUpdated={controlValueUpdated} />
+          {/if}
+
+          {#if selectedObject instanceof fabric.IText || selectedObject instanceof QRCode || (selectedObject instanceof Barcode && selectedObject.encoding === "CODE128B")}
+            <VariableInsertControl {selectedObject} valueUpdated={controlValueUpdated} />
+          {/if}
+        </div>
+      </div>
+    {/if}
+
+    <!-- Global editor actions (persistent) -->
     <div class="flex flex-wrap items-center justify-center gap-1">
       <LabelPropsEditor {labelProps} onChange={onUpdateLabelProps} />
       <SavedLabelsMenu
@@ -585,46 +641,6 @@
         title={$tr("editor.print")}>
         <MdIcon icon="print" /><span>{$tr("editor.print")}</span>
       </button>
-    </div>
-  </div>
-
-  <div class="mb-1">
-    <div class="flex justify-center">
-      <div class="toolbar flex flex-wrap items-center justify-center gap-1">
-        {#if selectedCount > 0}
-          <!-- PIKT: deep restyle — Bootstrap btn -> M3 ui/Button, labelled per deep-restyle (editor phase 4). -->
-          <Button variant="tonal" color="error" icon="delete" onclick={deleteSelected}>{$tr("editor.delete")}</Button>
-          <Button variant="tonal" color="secondary" icon="content_copy" onclick={cloneSelected}>{$tr("editor.clone")}</Button>
-        {/if}
-
-        {#if selectedObject && selectedCount === 1}
-          <GenericObjectParamsControls {selectedObject} {editRevision} valueUpdated={controlValueUpdated} />
-        {/if}
-
-        {#if selectedObject}
-          <VectorParamsControls {selectedObject} {editRevision} valueUpdated={controlValueUpdated} />
-        {/if}
-
-        {#if selectedObject instanceof fabric.IText}
-          <TextParamsControls selectedText={selectedObject} {editRevision} valueUpdated={controlValueUpdated} />
-        {/if}
-
-        {#if selectedObject instanceof QRCode}
-          <QrCodeParamsPanel selectedQRCode={selectedObject} {editRevision} valueUpdated={controlValueUpdated} />
-        {/if}
-
-        {#if selectedObject instanceof ArUcoMarker}
-          <ArUcoParamsPanel selectedArUco={selectedObject} {editRevision} valueUpdated={controlValueUpdated} />
-        {/if}
-
-        {#if selectedObject instanceof Barcode}
-          <BarcodeParamsPanel selectedBarcode={selectedObject} {editRevision} valueUpdated={controlValueUpdated} />
-        {/if}
-
-        {#if selectedObject instanceof fabric.IText || selectedObject instanceof QRCode || (selectedObject instanceof Barcode && selectedObject.encoding === "CODE128B")}
-          <VariableInsertControl {selectedObject} valueUpdated={controlValueUpdated} />
-        {/if}
-      </div>
     </div>
   </div>
 

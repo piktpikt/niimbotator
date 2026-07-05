@@ -144,6 +144,7 @@
     "editor.preview": "Aperçu",
     "editor.print": "Imprimer",
     "editor.redo": "Rétablir",
+    "editor.tools": "Outils",
     "editor.undo": "Annuler",
     "editor.warning.load": "Le canevas sera remplacé par les données enregistrées",
     "editor.warning.save": "Les données enregistrées seront écrasées. Enregistrer ?",

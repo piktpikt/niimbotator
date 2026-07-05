@@ -9,3 +9,7 @@ CLAUDE.md
 /docs
 /files
 /files.zip
+
+# Local-only: Playwright / preview proof screenshots (not versioned)
+/.playwright-mcp/
+/*.jpeg
