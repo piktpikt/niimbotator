@@ -13,6 +13,7 @@
 // never committed (licensing guardrail). Upstream PR candidate: no
 import { get, writable } from "svelte/store";
 import bundledCatalog from "$/data/deviceCatalog.json";
+import { getStaticJson } from "$/services/cloudHttp";
 
 const CATALOG_URL = "https://oss-print.niimbot.com/public_resources/static_resources/devices.json";
 const CACHE_KEY = "niimbotator_device_catalog";
@@ -163,22 +164,14 @@ function localCatalog(): DeviceEntry[] {
 export const deviceCatalog = writable<DeviceEntry[]>(localCatalog());
 
 async function fetchCatalog(): Promise<DeviceEntry[] | undefined> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  try {
-    // Plain GET, NO custom header: the `niimbot-user-agent` header (needed only for the /api/*
-    // endpoints) would make this a non-simple request and trigger a CORS preflight the static OSS
-    // resource doesn't answer — breaking the live refresh in the browser/WebView (verified). The OSS
-    // file needs no header and is CORS-readable as a simple GET.
-    const res = await fetch(CATALOG_URL, { signal: controller.signal });
-    if (!res.ok) return undefined;
-    const entries = parseCatalog(await res.json());
-    return entries.length ? entries : undefined;
-  } catch {
-    return undefined; // offline, aborted, or parse error
-  } finally {
-    clearTimeout(timer);
-  }
+  // Header-less GET via the shared transport: the `niimbot-user-agent` header (needed only for the
+  // /api/* endpoints) would make this a non-simple request and trigger a CORS preflight the static OSS
+  // resource doesn't answer — breaking the live refresh in the browser/WebView (verified). The OSS file
+  // needs no header and is CORS-readable as a simple GET.
+  const res = await getStaticJson(CATALOG_URL, TIMEOUT_MS);
+  if (!res.ok) return undefined;
+  const entries = parseCatalog(res.json);
+  return entries.length ? entries : undefined;
 }
 
 /** Coalesces overlapping fetches (the startup warm + a concurrent connect) into one live request. */

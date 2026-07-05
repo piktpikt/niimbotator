@@ -1,7 +1,8 @@
 // PIKT: Resolve a label's physical size (mm) from its RFID barcode (Chantier 2).
 // Online: Niimbot cloud API; offline: local cache; otherwise: undefined (manual fallback).
 // Endpoint + header discovered from the official app traffic (no auth needed, just the UA header).
-// This is the ONLY network call in the app — see the offline-relaxation decision in memory.
+// The cross-origin POST goes through the shared transport so it works from the native WebView (P3).
+import { postApiFormJson } from "$/services/cloudHttp";
 
 export interface DetectedLabel {
   widthMm: number;
@@ -31,29 +32,18 @@ function writeCache(map: Record<string, DetectedLabel>): void {
 }
 
 async function fetchFromCloud(barcode: string): Promise<DetectedLabel | undefined> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "niimbot-user-agent": "niimbotator",
-        languageCode: "en",
-      },
-      body: `oneCode=${encodeURIComponent(barcode)}`,
-      signal: controller.signal,
-    });
-    if (!res.ok) return undefined;
-    const json = (await res.json()) as { code?: number; data?: { width?: number; height?: number; paperType?: number } };
-    const d = json?.data;
-    if (!d || typeof d.width !== "number" || typeof d.height !== "number") return undefined;
-    return { widthMm: d.width, heightMm: d.height, paperType: d.paperType ?? 1 };
-  } catch {
-    return undefined; // offline, aborted, or parse error
-  } finally {
-    clearTimeout(timer);
-  }
+  // Native routes through CapacitorHttp (no WebView CORS); web uses fetch. See `services/cloudHttp`.
+  const res = await postApiFormJson(
+    API_URL,
+    { oneCode: barcode },
+    { "niimbot-user-agent": "niimbotator", languageCode: "en" },
+    TIMEOUT_MS,
+  );
+  if (!res.ok) return undefined;
+  const json = res.json as { code?: number; data?: { width?: number; height?: number; paperType?: number } };
+  const d = json?.data;
+  if (!d || typeof d.width !== "number" || typeof d.height !== "number") return undefined;
+  return { widthMm: d.width, heightMm: d.height, paperType: d.paperType ?? 1 };
 }
 
 /**
