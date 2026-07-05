@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const h = vi.hoisted(() => ({ post: vi.fn() }));
 vi.mock("$/services/cloudHttp", () => ({ postApiFormJson: h.post }));
 
-import { lookupLabelSize } from "./labelSizeLookup";
+import { isTrustedRollAssetUrl, lookupLabelSize } from "./labelSizeLookup";
 
 function memoryLocalStorage(): Storage {
   const map = new Map<string, string>();
@@ -137,5 +137,19 @@ describe("lookupLabelSize", () => {
     vi.stubGlobal("navigator", { onLine: false });
     expect(await lookupLabelSize("OFF")).toBeUndefined();
     expect(h.post).not.toHaveBeenCalled();
+  });
+});
+
+describe("isTrustedRollAssetUrl", () => {
+  it("accepts the Niimbot OSS host over https", () => {
+    expect(isTrustedRollAssetUrl("https://oss-print.niimbot.com/public_resources/labels/x.png")).toBe(true);
+  });
+
+  it("rejects look-alike hosts, other origins, http, and non-strings", () => {
+    expect(isTrustedRollAssetUrl("https://oss-print.niimbot.com.evil.com/x.png")).toBe(false);
+    expect(isTrustedRollAssetUrl("http://oss-print.niimbot.com/x.png")).toBe(false);
+    expect(isTrustedRollAssetUrl("https://evil.com/x.png")).toBe(false);
+    expect(isTrustedRollAssetUrl(undefined)).toBe(false);
+    expect(isTrustedRollAssetUrl("")).toBe(false);
   });
 });

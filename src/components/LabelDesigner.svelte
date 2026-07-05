@@ -6,8 +6,19 @@
   import { Barcode } from "$/fabric-object/barcode";
   import { QRCode } from "$/fabric-object/qrcode";
   import { iconCodepoints, type MaterialIcon } from "$/styles/mdi_icons";
-  import { appConfig, automation, connectionState, csvData, loadedFonts, pendingLabelSizeMm } from "$/stores";
+  import {
+    appConfig,
+    automation,
+    connectionState,
+    csvData,
+    detectedLabel,
+    loadedFonts,
+    pendingLabelSizeMm,
+  } from "$/stores";
+  import { get } from "svelte/store";
   import { detectedFormatToSize } from "$/services/labelFormat"; // PIKT: RFID roll format -> label px (P3)
+  import { getStaticDataUrl } from "$/services/cloudHttp";
+  import { isTrustedRollAssetUrl } from "$/services/labelSizeLookup";
   import {
     type ExportedLabelTemplate,
     type FabricJson,
@@ -73,7 +84,10 @@
     const canvasState = fabricCanvas.toObject() as unknown as FabricJson;
     const w = labelProps.size.width;
     const h = labelProps.size.height;
+    // PIKT (P3): exclude the editor-only roll motif from the saved thumbnail.
+    fabricCanvas.setBackgroundPreviewVisible(false);
     const thumbnail = fabricCanvas.toDataURL({ format: "png", multiplier: 64 / Math.max(w, h, 1), quality: 0.85 });
+    fabricCanvas.setBackgroundPreviewVisible(true);
     return { labelProps, canvasState, thumbnail };
   }
 
@@ -388,6 +402,8 @@
       zoomText = Math.round(z * 100) + "%";
     };
     fabricCanvas.setGridEnabled(!!$appConfig.gridEnabled);
+    // PIKT (dev-only): expose the editor canvas for browser-driven proofs (P3+). Stripped from prod.
+    if (import.meta.env.DEV) (window as unknown as { __editorCanvas?: unknown }).__editorCanvas = fabricCanvas;
 
     if (initialItem && initialItem.canvasState && Object.keys(initialItem.canvasState as object).length > 0) {
       // PIKT: batch-item mode — load the persisted state instead of the default label.
@@ -518,13 +534,28 @@
     fabricCanvas?.setLabelProps(labelProps);
   });
 
-  // PIKT (P3): apply a roll format the user chose in the connection sheet. Runs once the canvas exists
-  // (fabricCanvas is reactive), preserves the current printDirection/shape/split, then clears the signal.
+  // PIKT (P3): fetch + set the editor-only motif of the roll being applied. The URL is host-guarded and
+  // loaded as a same-origin data URL (no canvas taint). Read non-reactively so this isn't a store dep.
+  const applyRollBackground = async () => {
+    if (!fabricCanvas) return;
+    const roll = get(detectedLabel);
+    if (!isTrustedRollAssetUrl(roll?.backgroundImage)) {
+      fabricCanvas.setBackgroundPreview(undefined);
+      return;
+    }
+    const dataUrl = await getStaticDataUrl(roll.backgroundImage);
+    fabricCanvas?.setBackgroundPreview(dataUrl, roll.rotate ?? 0);
+  };
+
+  // PIKT (P3): apply a roll format the user chose in the connection sheet — size + motif of the current
+  // roll. Runs once the canvas exists (fabricCanvas is reactive), preserves the current
+  // printDirection/shape/split, then clears the signal.
   $effect(() => {
     const mm = $pendingLabelSizeMm;
     if (!mm || !fabricCanvas) return;
     const size = detectedFormatToSize(mm.widthMm, mm.heightMm, mm.dpmm, labelProps.printDirection);
     onUpdateLabelProps({ ...labelProps, size });
+    void applyRollBackground();
     pendingLabelSizeMm.set(undefined);
   });
 

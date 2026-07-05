@@ -56,6 +56,15 @@ const CloudDataSchema = z.object({
 
 const CloudResponseSchema = z.object({ data: CloudDataSchema.optional() });
 
+const ROLL_ASSET_HOST = "https://oss-print.niimbot.com/";
+
+/** Security guard: only load a roll's background image from Niimbot's static OSS host, over https, so a
+ *  cloud response can't point the editor preview at an arbitrary URL. The trailing slash blocks
+ *  look-alike hosts (e.g. oss-print.niimbot.com.evil.com). */
+export function isTrustedRollAssetUrl(url: string | undefined): url is string {
+  return typeof url === "string" && url.startsWith(ROLL_ASSET_HOST);
+}
+
 const CACHE_KEY = "niimbotator_label_cache";
 const API_URL = "https://print.niimbot.com/api/template/getCloudTemplateByScanCode";
 const TIMEOUT_MS = 6000;

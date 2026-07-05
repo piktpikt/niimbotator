@@ -28,6 +28,11 @@ export class CustomCanvas extends fabric.Canvas {
   private customBackground: boolean = true;
   private highlightMirror: boolean = true;
   private gridEnabled: boolean = false;
+  // PIKT (P3): editor-only preview of the connected roll's pre-printed motif. Kept out of every capture
+  // (thumbnail via drawBackgroundPreview, print via customBackground=false), so it is never printed.
+  private backgroundPreviewImg?: HTMLImageElement;
+  private backgroundPreviewRotate: number = 0;
+  private drawBackgroundPreview: boolean = true;
   private virtualZoomRatio: number = 1;
   onZoomChange?: (zoom: number) => void;
 
@@ -102,6 +107,32 @@ export class CustomCanvas extends fabric.Canvas {
     this.requestRenderAll();
   }
 
+  /** PIKT (P3): set/clear the editor-only roll background motif. `dataUrl` must be a same-origin data URL
+   *  (so the canvas is not tainted — see services/cloudHttp). `rotate` is the cloud's design rotation (deg). */
+  setBackgroundPreview(dataUrl?: string, rotate: number = 0) {
+    this.backgroundPreviewRotate = rotate;
+    if (!dataUrl) {
+      this.backgroundPreviewImg = undefined;
+      this.requestRenderAll();
+      return;
+    }
+    const img = new Image();
+    img.onload = () => {
+      this.backgroundPreviewImg = img;
+      this.requestRenderAll();
+    };
+    img.onerror = () => {
+      this.backgroundPreviewImg = undefined;
+      this.requestRenderAll();
+    };
+    img.src = dataUrl;
+  }
+
+  /** Suppress the motif for a capture (thumbnail/export) so it never leaks into saved output. */
+  setBackgroundPreviewVisible(value: boolean) {
+    this.drawBackgroundPreview = value;
+  }
+
   /** Get label bounds without tail */
   getLabelBounds(): LabelBounds {
     let endX = this.width ?? 1;
@@ -171,6 +202,38 @@ export class CustomCanvas extends fabric.Canvas {
     return { axis: "none", points, segments };
   }
 
+  /** PIKT (P3): draw the roll motif clipped to the label path the caller describes — semi-transparent so
+   *  the user's (black) content stays legible. No-op unless a motif is loaded and previews are visible.
+   *  `boxWidth/boxHeight` are pre-rotation; they swap at 90/270 so the image still fills the label. */
+  private drawBackgroundMotif(
+    ctx: CanvasRenderingContext2D,
+    clipPath: () => void,
+    centerX: number,
+    centerY: number,
+    boxWidth: number,
+    boxHeight: number,
+  ) {
+    if (
+      !this.drawBackgroundPreview ||
+      !this.backgroundPreviewImg?.complete ||
+      this.backgroundPreviewImg.naturalWidth <= 0
+    ) {
+      return;
+    }
+    ctx.save();
+    ctx.beginPath();
+    clipPath();
+    ctx.clip();
+    ctx.globalAlpha = 0.5;
+    const rot = ((this.backgroundPreviewRotate % 360) + 360) % 360;
+    ctx.translate(centerX, centerY);
+    ctx.rotate((rot * Math.PI) / 180);
+    const dw = rot === 90 || rot === 270 ? boxHeight : boxWidth;
+    const dh = rot === 90 || rot === 270 ? boxWidth : boxHeight;
+    ctx.drawImage(this.backgroundPreviewImg, -dw / 2, -dh / 2, dw, dh);
+    ctx.restore();
+  }
+
   override _renderBackground(ctx: CanvasRenderingContext2D) {
     if (this.width === undefined || this.height === undefined) {
       return;
@@ -188,9 +251,13 @@ export class CustomCanvas extends fabric.Canvas {
 
     // Disable further actions for circle labels, just render
     if (this.labelProps.shape === "circle") {
+      const w = this.width;
+      const h = this.height;
+      const r = h / 2;
       ctx.beginPath();
-      ctx.arc(this.width / 2, this.height / 2, this.height / 2, 0, 2 * Math.PI);
+      ctx.arc(w / 2, h / 2, r, 0, 2 * Math.PI);
       ctx.fill();
+      this.drawBackgroundMotif(ctx, () => ctx.arc(w / 2, h / 2, r, 0, 2 * Math.PI), w / 2, h / 2, 2 * r, 2 * r);
       ctx.restore();
       return;
     }
@@ -283,6 +350,23 @@ export class CustomCanvas extends fabric.Canvas {
     }
 
     ctx.fill();
+
+    // PIKT (P3): draw the roll's pre-printed motif, clipped to the label area (editor-only guide, excluded
+    // from thumbnails/print — see the field comments).
+    this.drawBackgroundMotif(
+      ctx,
+      () => {
+        if (this.labelProps.shape === "rounded_rect") {
+          ctx.roundRect(bb.startX, bb.startY, bb.width, bb.height, roundRadius);
+        } else {
+          ctx.rect(bb.startX, bb.startY, bb.width, bb.height);
+        }
+      },
+      bb.startX + bb.width / 2,
+      bb.startY + bb.height / 2,
+      bb.width,
+      bb.height,
+    );
 
     // Draw separator
 
