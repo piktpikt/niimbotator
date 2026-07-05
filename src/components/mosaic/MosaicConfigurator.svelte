@@ -1,8 +1,9 @@
 <script lang="ts">
-  // PIKT: Mosaic configurator (Chantier 4). Presets/custom grid + orientation + Cropper.js v2 with
-  // the crop aspect ratio ALWAYS locked to (cols·labelWidth)/(rows·labelHeight) — the mosaic-crop-ratio
-  // invariant. See docs/ARCHITECTURE.md §6.7. This component is bootstrapped: the picker + preview
-  // computes result dimensions; Cropper.js integration lives here so it isn't reintroduced piecemeal.
+  // PIKT: Mosaic configurator (Chantier 4 + mosaic chantier). Presets/custom grid + Portrait/Paysage
+  // orientation + Cropper.js v2. Crop model = FIXED mosaic frame (aspect locked to the
+  // (cols·tileW)/(rows·tileH) invariant) with a MOVABLE/ZOOMABLE/ROTATABLE image behind it (photo-crop
+  // UX). Save bakes the framed region via selection.$toCanvas() so pan/zoom/rotation are captured, and
+  // hands the rendered blob up — the print pipeline then just splits that already-framed image.
   import "cropperjs";
   import { tr } from "$/utils/i18n";
   import MdIcon from "$/components/basic/MdIcon.svelte";
@@ -14,11 +15,24 @@
     labelWidthMm: number;
     labelHeightMm: number;
     imageSrc: string;
-    onSave: (config: MosaicConfig) => void;
+    onSave: (config: MosaicConfig, croppedBlob?: Blob) => void;
     onCancel: () => void;
   }
 
   let { initial, labelWidthMm, labelHeightMm, imageSrc, onSave, onCancel }: Props = $props();
+
+  // Render resolution for the baked crop (B2 Pro ≈ 300 DPI ⇒ 11.81 px/mm).
+  const RENDER_DPMM = 11.81;
+
+  type Orientation = "landscape" | "portrait";
+  type CropperImageEl = HTMLElement & {
+    $zoom: (scale: number, x?: number, y?: number) => void;
+    $rotate: (angle: number | string) => void;
+  };
+  type CropperSelectionEl = HTMLElement & {
+    $reset?: () => void;
+    $toCanvas?: (o?: { width?: number; height?: number }) => Promise<HTMLCanvasElement>;
+  };
 
   const presets = [
     { cols: 2, rows: 2, label: "2×2" },
@@ -29,33 +43,62 @@
 
   let cols = $state(initial?.cols ?? 3);
   let rows = $state(initial?.rows ?? 3);
+  let orientation = $state<Orientation>("landscape");
   let numbering = $state(initial?.numbering ?? false);
   let marginMm = $state(initial?.marginMm ?? 0);
 
-  const aspectRatio = $derived(mosaicAspectRatio(labelWidthMm, labelHeightMm, cols, rows));
-  const totalW = $derived(cols * labelWidthMm);
-  const totalH = $derived(rows * labelHeightMm);
+  // A single tile is the label rotated per orientation.
+  const tileWmm = $derived(orientation === "landscape" ? labelWidthMm : labelHeightMm);
+  const tileHmm = $derived(orientation === "landscape" ? labelHeightMm : labelWidthMm);
+
+  const aspectRatio = $derived(mosaicAspectRatio(tileWmm, tileHmm, cols, rows));
+  const totalW = $derived(cols * tileWmm);
+  const totalH = $derived(rows * tileHmm);
   const tileCount = $derived(cols * rows);
 
-  let selectionEl = $state<HTMLElement | null>(null);
-  let imageEl = $state<HTMLElement | null>(null);
+  let selectionEl = $state<CropperSelectionEl | null>(null);
+  let imageEl = $state<CropperImageEl | null>(null);
 
-  // Keep the Cropper.js selection's aspect ratio in sync with the grid.
+  // Keep the fixed frame's aspect ratio in sync with grid + orientation, and re-centre it on change.
   $effect(() => {
-    if (selectionEl) selectionEl.setAttribute("aspect-ratio", String(aspectRatio));
+    const ar = aspectRatio;
+    if (selectionEl) {
+      selectionEl.setAttribute("aspect-ratio", String(ar));
+      selectionEl.$reset?.();
+    }
   });
 
-  function save() {
-    // Read cropperjs selection bounds. cropperjs v2 exposes a getter on <cropper-selection>.
-    const sel = selectionEl as unknown as { $getSelection?: () => { x: number; y: number; width: number; height: number } } | null;
-    const bounds = sel?.$getSelection?.() ?? { x: 0, y: 0, width: 0, height: 0 };
-    onSave({
-      rows,
-      cols,
-      cropRect: { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height },
-      numbering,
-      marginMm,
-    });
+  const zoomImage = (ratio: number): void => {
+    try {
+      imageEl?.$zoom(ratio);
+    } catch {
+      /* image not ready yet */
+    }
+  };
+
+  const rotateImage = (): void => {
+    try {
+      imageEl?.$rotate("90deg");
+    } catch {
+      /* image not ready yet */
+    }
+  };
+
+  async function save() {
+    const width = Math.max(1, Math.round(totalW * RENDER_DPMM));
+    const height = Math.max(1, Math.round(totalH * RENDER_DPMM));
+    const config: MosaicConfig = { rows, cols, cropRect: { x: 0, y: 0, width, height }, numbering, marginMm };
+    try {
+      const canvas = await selectionEl?.$toCanvas?.({ width, height });
+      if (canvas) {
+        const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob((b) => resolve(b), "image/png"));
+        onSave(config, blob ?? undefined);
+        return;
+      }
+    } catch {
+      /* fall through to config-only save */
+    }
+    onSave(config);
   }
 </script>
 
@@ -97,43 +140,67 @@
         </div>
       </section>
 
+      <!-- Orientation -->
+      <section class="card space-y-2 bg-surface-100-900 p-4">
+        <h2 class="text-xs font-semibold uppercase tracking-wide text-surface-500">{$tr("mosaic.orientation")}</h2>
+        <div class="flex gap-1">
+          <button
+            class="tool-action {orientation === 'landscape' ? 'tool-action-active' : ''}"
+            onclick={() => (orientation = "landscape")}>
+            <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="6" width="18" height="12" rx="2" />
+            </svg>
+            <span>{$tr("mosaic.landscape")}</span>
+          </button>
+          <button
+            class="tool-action {orientation === 'portrait' ? 'tool-action-active' : ''}"
+            onclick={() => (orientation = "portrait")}>
+            <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="6" y="3" width="12" height="18" rx="2" />
+            </svg>
+            <span>{$tr("mosaic.portrait")}</span>
+          </button>
+        </div>
+      </section>
+
       <!-- Live result -->
       <section class="card bg-surface-100-900 p-4 text-sm">
         <h2 class="mb-2 text-xs font-semibold uppercase tracking-wide text-surface-500">{$tr("mosaic.result")}</h2>
         <div>{$tr("mosaic.dimensions")}: {totalW} × {totalH} mm</div>
         <div>{$tr("mosaic.tile_count")}: {tileCount} ({cols}×{rows})</div>
-        <div>{$tr("mosaic.tile_size")}: {labelWidthMm} × {labelHeightMm} mm</div>
+        <div>{$tr("mosaic.tile_size")}: {tileWmm} × {tileHmm} mm</div>
       </section>
 
-      <!-- Cropper.js -->
+      <!-- Cropper.js: fixed frame, movable/zoomable/rotatable image -->
       <section class="card bg-surface-100-900 p-2">
         <h2 class="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-surface-500">{$tr("mosaic.crop")}</h2>
         <div class="overflow-hidden rounded-xl">
-          {#key `${imageSrc}-${cols}-${rows}`}
+          {#key imageSrc}
             <cropper-canvas style="height: 320px" background>
               <cropper-image src={imageSrc} rotatable scalable translatable bind:this={imageEl}></cropper-image>
-              <cropper-shade hidden></cropper-shade>
-              <cropper-handle action="select" plain></cropper-handle>
-              <cropper-selection
-                bind:this={selectionEl}
-                aspect-ratio={aspectRatio}
-                initial-coverage="0.9"
-                movable
-                resizable>
+              <cropper-shade></cropper-shade>
+              <cropper-handle action="move"></cropper-handle>
+              <cropper-selection bind:this={selectionEl} aspect-ratio={aspectRatio} initial-coverage="0.85" outlined>
                 <cropper-grid role="grid" columns={cols} rows={rows} covered></cropper-grid>
-                <cropper-handle action="move" theme-color="rgba(255, 255, 255, 0.35)"></cropper-handle>
-                <cropper-handle action="n-resize"></cropper-handle>
-                <cropper-handle action="e-resize"></cropper-handle>
-                <cropper-handle action="s-resize"></cropper-handle>
-                <cropper-handle action="w-resize"></cropper-handle>
-                <cropper-handle action="ne-resize"></cropper-handle>
-                <cropper-handle action="nw-resize"></cropper-handle>
-                <cropper-handle action="se-resize"></cropper-handle>
-                <cropper-handle action="sw-resize"></cropper-handle>
               </cropper-selection>
             </cropper-canvas>
           {/key}
         </div>
+        <div class="mt-2 flex items-center justify-center gap-2">
+          <button class="tool-action" aria-label={$tr("mosaic.zoom_out")} onclick={() => zoomImage(-0.15)}>
+            <MdIcon icon="remove" />
+          </button>
+          <button class="tool-action" aria-label={$tr("mosaic.zoom_in")} onclick={() => zoomImage(0.15)}>
+            <MdIcon icon="add" />
+          </button>
+          <button class="tool-action" aria-label={$tr("mosaic.rotate")} onclick={rotateImage}>
+            <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12a9 9 0 1 1-3-6.7" />
+              <polyline points="21 3 21 8 16 8" />
+            </svg>
+          </button>
+        </div>
+        <p class="mt-1 px-2 text-center text-xs text-surface-500">{$tr("mosaic.crop_hint")}</p>
       </section>
 
       <!-- Options -->

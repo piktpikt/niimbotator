@@ -6,7 +6,7 @@
   import { tr } from "$/utils/i18n";
   import MdIcon from "$/components/basic/MdIcon.svelte";
   import { currentMosaicItemId, currentBatchId, navigate } from "$/stores/navigation";
-  import { getItem, getImage, updateBatchItem } from "$/stores/batchStore";
+  import { getItem, getImage, updateBatchItem, addImage } from "$/stores/batchStore";
   import type { BatchItem, MosaicConfig } from "$/db/schema";
 
   let item = $state<BatchItem | undefined>(undefined);
@@ -46,9 +46,15 @@
     currentMosaicItemId.set(undefined);
   }
 
-  async function save(config: MosaicConfig) {
+  // PIKT: the configurator bakes the framed region (pan/zoom/rotation) into a rendered blob; store it as
+  // the item's source image so the print pipeline just splits the already-framed image.
+  async function save(config: MosaicConfig, croppedBlob?: Blob) {
     if (!item) return;
-    await updateBatchItem(item.id, { mode: "mosaic", mosaicConfig: config });
+    let sourceImageId = item.sourceImageId;
+    if (croppedBlob) {
+      sourceImageId = await addImage(croppedBlob, "mosaic-crop.png");
+    }
+    await updateBatchItem(item.id, { mode: "mosaic", mosaicConfig: config, sourceImageId });
     back();
   }
 </script>
