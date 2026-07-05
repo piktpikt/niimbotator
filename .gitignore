@@ -13,3 +13,7 @@ CLAUDE.md
 # Local-only: Playwright / preview proof screenshots (not versioned)
 /.playwright-mcp/
 /*.jpeg
+
+# Local-only: official Niimbot app installers + Android APK (reference material for reverse-engineering
+# the cloud API — large PROPRIETARY binaries, NEVER commit to this public repo)
+/Niimbot official download material/
