@@ -17,8 +17,12 @@ const app = mount(App, {
 // import from inside the app's module graph returns the same instances the components use (a Playwright
 // eval `import()` would get a separate copy and can't drive reactivity). Stripped from production builds.
 if (import.meta.env.DEV) {
-  void Promise.all([import("$/stores"), import("$/stores/printerMetrics")]).then(([stores, metrics]) => {
-    (window as unknown as { __nb?: unknown }).__nb = { ...stores, ...metrics };
+  void Promise.all([
+    import("$/stores"),
+    import("$/stores/printerMetrics"),
+    import("$/utils/label_designer_object_helper"),
+  ]).then(([stores, metrics, helper]) => {
+    (window as unknown as { __nb?: unknown }).__nb = { ...stores, ...metrics, ...helper };
   });
 }
 

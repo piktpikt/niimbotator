@@ -60,6 +60,62 @@ export class LabelDesignerObjectHelper {
     return fabricImg;
   }
 
+  /**
+   * PIKT: Fill a vector shape with an image ("photo-dans-forme"). The picked image is scaled to COVER the
+   * shape and clipped to a clone of the shape's outline (relative, non-absolute clipPath — the same pattern
+   * the collage uses; an absolutePositioned clip is mis-scaled in this Fabric build). The original shape is
+   * replaced by the clipped image. Works for any closed shape incl. the heart (a Fabric Path).
+   */
+  static async fillShapeWithImage(
+    canvas: fabric.Canvas,
+    shape: fabric.FabricObject,
+    sourceUrl?: string,
+  ): Promise<fabric.FabricImage | undefined> {
+    let url = sourceUrl;
+    if (!url) {
+      const files = await FileUtils.pickFileAsync("image/*", false);
+      if (!files[0]) return;
+      url = await FileUtils.blobToDataUrl(files[0]);
+    }
+    const img = await fabric.FabricImage.fromURL(url);
+
+    const bbox = shape.getBoundingRect();
+    const iw = img.width ?? 1;
+    const ih = img.height ?? 1;
+    const scale = Math.max(bbox.width / iw, bbox.height / ih);
+
+    // Clip = a copy of the shape, centred on the image, its scale divided by the image scale so its on-screen
+    // size matches the shape outline (see collage.fitImageToCell).
+    const clip = await shape.clone();
+    clip.set({
+      originX: "center",
+      originY: "center",
+      left: 0,
+      top: 0,
+      angle: 0,
+      strokeWidth: 0,
+      scaleX: (shape.scaleX ?? 1) / scale,
+      scaleY: (shape.scaleY ?? 1) / scale,
+    });
+
+    img.set({
+      originX: "center",
+      originY: "center",
+      left: bbox.left + bbox.width / 2,
+      top: bbox.top + bbox.height / 2,
+      scaleX: scale,
+      scaleY: scale,
+      snapAngle: OBJECT_DEFAULTS.snapAngle,
+      clipPath: clip,
+    });
+
+    canvas.remove(shape);
+    canvas.add(img);
+    canvas.setActiveObject(img);
+    canvas.requestRenderAll();
+    return img;
+  }
+
   static async addObjectFromClipboard(
     fabricCanvas: fabric.Canvas,
     data: DataTransfer,

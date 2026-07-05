@@ -315,6 +315,7 @@
     "params.vector.round_radius": "Round radius",
     "params.vector.stroke_width": "Stroke width",
     "params.vector.fill": "Fill",
+    "params.vector.fill_image": "Fill with image",
     "params.color": "Color",
     "params.color.transparent": "Transparent",
     "params.color.white": "White",

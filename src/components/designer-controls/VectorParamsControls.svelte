@@ -4,6 +4,8 @@
   import { tr } from "$/utils/i18n";
   import TextField from "$/components/ui/TextField.svelte";
   import ThermalFill from "$/components/ui/ThermalFill.svelte";
+  import Button from "$/components/ui/Button.svelte";
+  import { LabelDesignerObjectHelper } from "$/utils/label_designer_object_helper";
   import * as fabric from "fabric";
 
   interface Props {
@@ -30,6 +32,14 @@
 
   const fillChanged = (value: string) => {
     selectedObject.set({ fill: value });
+    valueUpdated();
+  };
+
+  // PIKT: fill this shape with an image (photo-dans-forme) — clips the image to the shape outline.
+  const onFillWithImage = async () => {
+    const canvas = selectedObject.canvas;
+    if (!canvas) return;
+    await LabelDesignerObjectHelper.fillShapeWithImage(canvas, selectedObject);
     valueUpdated();
   };
 </script>
@@ -72,4 +82,10 @@
       ]}
       onChange={(v) => fillChanged(v)} />
   </div>
+{/if}
+
+{#if !(selectedObject instanceof fabric.Line) && !(selectedObject instanceof fabric.Polyline)}
+  <Button variant="tonal" icon="add_photo_alternate" full onclick={onFillWithImage}>
+    {$tr("params.vector.fill_image")}
+  </Button>
 {/if}

@@ -266,6 +266,7 @@
     "params.text.font_size": "Taille de la police",
     "params.text.line_height": "Hauteur de ligne",
     "params.vector.fill": "Remplissage",
+    "params.vector.fill_image": "Remplir avec une image",
     "params.color.transparent": "Transparent",
     "params.color.white": "Blanc",
     "params.color.black": "Noir",
