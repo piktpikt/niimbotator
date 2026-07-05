@@ -70,7 +70,7 @@
 </script>
 
 <button class="tool-cell" onclick={() => (open = true)}>
-  <MdIcon icon="emoji_emotions" /><span>{$tr("editor.toolbar.sticker")}</span>
+  <span class="tile-chip tile-pink"><MdIcon icon="emoji_emotions" /></span><span>{$tr("editor.toolbar.sticker")}</span>
 </button>
 
 <BottomSheet bind:open title={$tr("editor.iconpicker.title")}>

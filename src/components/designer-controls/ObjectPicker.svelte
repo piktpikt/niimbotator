@@ -22,7 +22,7 @@
 </script>
 
 <button class="tool-cell" onclick={() => (open = true)}>
-  <MdIcon icon="add" /><span>{$tr("editor.toolbar.more")}</span>
+  <span class="tile-chip tile-neutral"><MdIcon icon="add" /></span><span>{$tr("editor.toolbar.more")}</span>
 </button>
 
 <BottomSheet bind:open title={$tr("editor.objectpicker.title")}>

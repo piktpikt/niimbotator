@@ -46,6 +46,13 @@
     color: #f2c15a;
     background: rgba(242, 193, 90, 0.16);
   }
+  .tile-pink {
+    color: #ff9dc7;
+    background: rgba(255, 157, 199, 0.16);
+  }
+  .tile-neutral {
+    @apply bg-surface-300-700/50 text-surface-600-400;
+  }
 }
 
 /* PIKT: Bootstrap fully removed in phase 5 — all editor dropdowns are M3 BottomSheets now. */
