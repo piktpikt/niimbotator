@@ -1,5 +1,6 @@
 // PIKT: store-based page navigation (no router dependency, per the approved stack). (Chantier 0)
 import { writable } from "svelte/store";
+import type { ExportedLabelTemplate } from "$/types";
 
 export type Page =
   | "home"
@@ -49,4 +50,14 @@ export function openMosaicConfigurator(itemId: string): void {
 export function openBatchPrint(batchId: string): void {
   currentBatchId.set(batchId);
   currentPage.set("batch-print");
+}
+
+/** A saved label the Library asked to open in the standalone editor (consumed once by LabelDesigner). */
+export const pendingSavedLabel = writable<ExportedLabelTemplate | undefined>(undefined);
+
+/** Open a saved label from the Library in the standalone (non-batch) editor. */
+export function openSavedLabel(label: ExportedLabelTemplate): void {
+  pendingSavedLabel.set(label);
+  currentItemId.set(undefined);
+  currentPage.set("editor");
 }

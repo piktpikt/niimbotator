@@ -8,6 +8,7 @@
   import { iconCodepoints, type MaterialIcon } from "$/styles/mdi_icons";
   import { appConfig, automation, connectionState, csvData, loadedFonts, pendingRollFormat } from "$/stores";
   import { get } from "svelte/store";
+  import { pendingSavedLabel } from "$/stores/navigation"; // PIKT: open a saved label from the Library
   import { detectedFormatToSize, printableMarginMm } from "$/services/labelFormat"; // PIKT: RFID roll format (P3)
   import { activePrinterMetrics } from "$/stores/printerMetrics";
   import { getStaticDataUrl } from "$/services/cloudHttp";
@@ -398,7 +399,12 @@
     // PIKT (dev-only): expose the editor canvas for browser-driven proofs (P3+). Stripped from prod.
     if (import.meta.env.DEV) (window as unknown as { __editorCanvas?: unknown }).__editorCanvas = fabricCanvas;
 
-    if (initialItem && initialItem.canvasState && Object.keys(initialItem.canvasState as object).length > 0) {
+    const savedToOpen = get(pendingSavedLabel);
+    if (savedToOpen) {
+      // PIKT: opened from the Library — load the saved label, then clear the one-shot signal.
+      pendingSavedLabel.set(undefined);
+      await loadLabelData(savedToOpen);
+    } else if (initialItem && initialItem.canvasState && Object.keys(initialItem.canvasState as object).length > 0) {
       // PIKT: batch-item mode — load the persisted state instead of the default label.
       await loadLabelData({ label: initialItem.labelProps, canvas: initialItem.canvasState });
     } else if (initialItem) {
