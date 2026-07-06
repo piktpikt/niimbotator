@@ -96,7 +96,7 @@
     </div>
 
     {#if loading}
-      <p class="py-8 text-center text-body-medium text-surface-500">…</p>
+      <p class="py-8 text-center text-body-medium text-surface-500">{$tr("stickers.loading")}</p>
     {:else if showBrowse}
       {#if favoriteAssets.length > 0}
         <h6 class="text-label-large text-surface-500">{$tr("stickers.favorites")}</h6>

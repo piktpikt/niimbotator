@@ -271,9 +271,13 @@
   let stickerPickerOpen = $state(false);
   async function onStickerPicked(asset: StickerAsset): Promise<void> {
     if (!fabricCanvas) return;
-    const svg = await fetch(asset.spriteUrl).then((r) => r.text());
-    await LabelDesignerObjectHelper.addSvg(fabricCanvas, svg);
-    undo.push(fabricCanvas, labelProps);
+    try {
+      const svg = await fetch(asset.spriteUrl).then((r) => r.text());
+      await LabelDesignerObjectHelper.addSvg(fabricCanvas, svg);
+      undo.push(fabricCanvas, labelProps);
+    } catch (e) {
+      Toasts.error(e);
+    }
   }
 
   const openPreview = () => {
