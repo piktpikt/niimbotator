@@ -13,6 +13,9 @@
   import { activePrinterMetrics } from "$/stores/printerMetrics";
   import { getStaticDataUrl } from "$/services/cloudHttp";
   import { isTrustedRollAssetUrl, type DetectedLabel } from "$/services/labelSizeLookup";
+  // PIKT (Niimbotator): OpenMoji decorative sticker gallery (P5 phase 1).
+  // Upstream PR candidate: no
+  import type { StickerAsset } from "$/services/stickers/types";
   import {
     type ExportedLabelTemplate,
     type FabricJson,
@@ -36,6 +39,9 @@
   import ShapePicker from "$/components/designer-controls/ShapePicker.svelte";
   import MosaicPicker from "$/components/designer-controls/MosaicPicker.svelte";
   import CodePicker from "$/components/designer-controls/CodePicker.svelte";
+  // PIKT (Niimbotator): OpenMoji decorative sticker gallery (P5 phase 1).
+  // Upstream PR candidate: no
+  import StickerPicker from "$/components/designer-controls/StickerPicker.svelte";
   import PrintPreview from "$/components/PrintPreview.svelte";
   // PIKT: deep restyle — sheet-aware canvas hooks (editor phase 4).
   import { closeAllSheets, anySheetOpen } from "$/components/ui/BottomSheet.svelte";
@@ -259,6 +265,16 @@
     LabelDesignerObjectHelper.addSvg(fabricCanvas!, i);
     undo.push(fabricCanvas!, labelProps);
   };
+
+  // PIKT (Niimbotator): add a decorative sticker (OpenMoji black svg) to the canvas.
+  // Upstream PR candidate: no
+  let stickerPickerOpen = $state(false);
+  async function onStickerPicked(asset: StickerAsset): Promise<void> {
+    if (!fabricCanvas) return;
+    const svg = await fetch(asset.spriteUrl).then((r) => r.text());
+    await LabelDesignerObjectHelper.addSvg(fabricCanvas, svg);
+    undo.push(fabricCanvas, labelProps);
+  }
 
   const openPreview = () => {
     printNow = false;
@@ -622,6 +638,11 @@
         <ShapePicker onSubmit={onObjectPicked} />
         <CodePicker onSubmit={onObjectPicked} />
         <IconPicker onSubmit={onIconPicked} onSubmitSvg={onSvgIconPicked} />
+        <!-- PIKT (Niimbotator): OpenMoji decorative sticker gallery trigger (P5 phase 1).
+             Upstream PR candidate: no -->
+        <button class="tool-cell" onclick={() => (stickerPickerOpen = true)}>
+          <span class="tile-chip tile-amber"><MdIcon icon="emoji_emotions" /></span><span>{$tr("stickers.title")}</span>
+        </button>
         <MosaicPicker {onCollage} />
         <ObjectPicker onSubmit={onObjectPicked} {labelProps} {zplImageReady} {pdfImageReady} />
       </div>
@@ -728,6 +749,9 @@
       {csvEnabled}
       csvData={$csvData.data} />
   {/if}
+
+  <!-- PIKT (Niimbotator): OpenMoji decorative sticker gallery (P5 phase 1). Upstream PR candidate: no -->
+  <StickerPicker bind:open={stickerPickerOpen} onPick={onStickerPicked} />
 </div>
 
 <style>
