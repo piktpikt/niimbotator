@@ -35,6 +35,13 @@ export default defineConfig({
           }
 
           if (id.includes("node_modules")) {
+            // PIKT: keep the large sticker datasets (OpenMoji + emojibase, ~4 MB of JSON) OUT of the eager
+            // lib.1.other bucket so Rollup async-splits them per loadCatalog()'s dynamic import — the sticker
+            // data is then parsed only when the picker first opens, not at app startup. Upstream PR candidate: no
+            if (id.includes("openmoji") || id.includes("emojibase-data")) {
+              return null;
+            }
+
             if (id.includes("fabric")) {
               return "lib.2.fabric";
             } else if (
