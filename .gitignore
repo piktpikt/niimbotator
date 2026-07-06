@@ -17,3 +17,4 @@ CLAUDE.md
 # Local-only: official Niimbot app installers + Android APK (reference material for reverse-engineering
 # the cloud API — large PROPRIETARY binaries, NEVER commit to this public repo)
 /Niimbot official download material/
+.superpowers/
