@@ -344,5 +344,12 @@
     "stickers.theme.travel": "Voyage",
     "stickers.theme.smileys": "Smileys",
     "stickers.theme.objects": "Objets",
-    "stickers.theme.symbols": "Symboles"
+    "stickers.theme.symbols": "Symboles",
+    "generator.title": "Générer",
+    "generator.category.birthday": "Anniversaire",
+    "generator.category.price": "Prix",
+    "generator.category.jam": "Confiture",
+    "generator.category.idname": "Nom & identité",
+    "generator.category.pets": "Animaux",
+    "generator.category.foodstorage": "Conservation alimentaire"
 }

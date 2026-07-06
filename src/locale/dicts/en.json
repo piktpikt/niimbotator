@@ -387,5 +387,12 @@
     "stickers.theme.travel": "Travel",
     "stickers.theme.smileys": "Smileys",
     "stickers.theme.objects": "Objects",
-    "stickers.theme.symbols": "Symbols"
+    "stickers.theme.symbols": "Symbols",
+    "generator.title": "Generate",
+    "generator.category.birthday": "Birthday",
+    "generator.category.price": "Price",
+    "generator.category.jam": "Jam",
+    "generator.category.idname": "ID / Name",
+    "generator.category.pets": "Pets",
+    "generator.category.foodstorage": "Food Storage"
 }
