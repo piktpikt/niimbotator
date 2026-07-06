@@ -13,6 +13,11 @@ const app = mount(App, {
   target: document.getElementById("app")!,
 });
 
+// PIKT (Niimbotator): Android share-target — turn images shared into the app (Google Photos → "Share" →
+// Niimbotator) into a batch of labels. Guarded to native inside; a no-op on web/dev. Loaded lazily so its
+// Capacitor plugin imports never touch the web bundle's critical path.
+void import("$/services/shareIntent").then(({ initShareIntent }) => initShareIntent());
+
 // PIKT (dev-only): expose the app's REAL store singletons on window for browser-driven proofs. A dynamic
 // import from inside the app's module graph returns the same instances the components use (a Playwright
 // eval `import()` would get a separate copy and can't drive reactivity). Stripped from production builds.

@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">NiimBlues</string>
-    <string name="title_activity_main">NiimBlues</string>
+    <!-- PIKT (Niimbotator): display label for the launcher icon and the "Share to…" target. Display only —
+         the appId / package (ru.mmote.niimblues) is unchanged; renaming that is a separate build chantier. -->
+    <string name="app_name">Niimbotator</string>
+    <string name="title_activity_main">Niimbotator</string>
     <string name="package_name">ru.mmote.niimblues</string>
     <string name="custom_url_scheme">ru.mmote.niimblues</string>
 </resources>

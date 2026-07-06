@@ -20,6 +20,22 @@
             </intent-filter>
         </activity>
 
+        <!-- PIKT (Niimbotator): Android share-target — receive image(s) shared into the app (Google Photos →
+             "Share" → Niimbotator). Provided by @mindlib-capacitor/send-intent; the activity name must not be
+             changed. SEND handles a single photo, SEND_MULTIPLE handles a multi-photo selection. -->
+        <activity
+            android:name="de.mindlib.sendIntent.SendIntentActivity"
+            android:label="@string/app_name"
+            android:exported="true"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

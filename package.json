@@ -26,6 +26,7 @@
 		"@fontsource-variable/noto-sans": "^5.2.10",
 		"@formatjs/intl-localematcher": "^0.6.2",
 		"@iconify/svelte": "^5.2.1",
+		"@mindlib-capacitor/send-intent": "^8.0.6",
 		"@mmote/niimbluelib": "0.0.1-alpha.39",
 		"@skeletonlabs/skeleton": "^4.15.2",
 		"@skeletonlabs/skeleton-svelte": "^4.15.2",
