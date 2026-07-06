@@ -14,6 +14,7 @@
 		"test": "vitest run",
 		"test-watch": "vitest",
 		"gen-mdi-list": "node gen-mdi-list.mjs > src/styles/mdi_icons.ts",
+		"gen-stickers": "node scripts/copy-openmoji-svgs.mjs",
 		"lint": "eslint .",
 		"format-all": "prettier --write \"src/**/*.{ts,svelte}\" \"!src/styles/mdi_icons.ts\""
 	},

@@ -18,3 +18,6 @@ CLAUDE.md
 # the cloud API — large PROPRIETARY binaries, NEVER commit to this public repo)
 /Niimbot official download material/
 .superpowers/
+
+# Generated assets (OpenMoji stickers copied from node_modules)
+/public/stickers/openmoji
