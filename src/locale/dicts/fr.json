@@ -328,5 +328,20 @@
     "params.generic.arrange.top": "Mettre en avant",
     "params.generic.arrange.bottom": "Mettre en arrière plan",
     "params.label.warning.div8": "La largeur de l'étiquette en pixels doit être divisible par 8",
-    "params.saved_labels.save.withcsv": "Les données dynamiques (CSV) sont activées, elles seront donc incluses dans l'étiquette sauvegardée"
+    "params.saved_labels.save.withcsv": "Les données dynamiques (CSV) sont activées, elles seront donc incluses dans l'étiquette sauvegardée",
+    "stickers.title": "Stickers",
+    "stickers.search": "Rechercher un sticker",
+    "stickers.recents": "Récents",
+    "stickers.favorites": "Favoris",
+    "stickers.empty": "Aucun sticker trouvé",
+    "stickers.theme.cute": "Mignon",
+    "stickers.theme.animals": "Animaux",
+    "stickers.theme.food": "Nourriture",
+    "stickers.theme.nature-seasons": "Nature/Saisons",
+    "stickers.theme.party": "Fête",
+    "stickers.theme.love": "Amour",
+    "stickers.theme.travel": "Voyage",
+    "stickers.theme.smileys": "Smileys",
+    "stickers.theme.objects": "Objets",
+    "stickers.theme.symbols": "Symboles"
 }

@@ -371,5 +371,20 @@
     "fonts.add": "Add",
     "fonts.browse": "Browse...",
     "fonts.gfonts": "Get fonts",
-    "fonts.title_override": "Override name"
+    "fonts.title_override": "Override name",
+    "stickers.title": "Stickers",
+    "stickers.search": "Search a sticker",
+    "stickers.recents": "Recent",
+    "stickers.favorites": "Favorites",
+    "stickers.empty": "No sticker found",
+    "stickers.theme.cute": "Cute",
+    "stickers.theme.animals": "Animals",
+    "stickers.theme.food": "Food",
+    "stickers.theme.nature-seasons": "Nature/Seasons",
+    "stickers.theme.party": "Party",
+    "stickers.theme.love": "Love",
+    "stickers.theme.travel": "Travel",
+    "stickers.theme.smileys": "Smileys",
+    "stickers.theme.objects": "Objects",
+    "stickers.theme.symbols": "Symbols"
 }
