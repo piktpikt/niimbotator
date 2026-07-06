@@ -8,6 +8,7 @@ const h = vi.hoisted(() => ({
   readFile: vi.fn(),
   create: vi.fn(),
   openBatch: vi.fn(),
+  toastError: vi.fn(),
 }));
 
 vi.mock("@capacitor/core", () => ({
@@ -25,6 +26,9 @@ vi.mock("$/services/imageImport", () => ({
 vi.mock("$/stores/navigation", () => ({
   openBatch: h.openBatch,
 }));
+vi.mock("$/utils/toasts", () => ({
+  Toasts: { error: h.toastError },
+}));
 
 import { handleSharedImages } from "./shareIntent";
 
@@ -38,6 +42,7 @@ beforeEach(() => {
   h.readFile.mockReset().mockResolvedValue({ data: "AAAA" }); // base64 payload (native returns a string)
   h.create.mockReset().mockResolvedValue({ batchId: "batch-1", itemIds: ["i1"] });
   h.openBatch.mockReset();
+  h.toastError.mockReset();
   fetchMock.mockReset().mockResolvedValue({ blob: async () => ({ size: 4 }) as Blob });
   lsStore.clear();
   vi.stubGlobal("fetch", fetchMock);
@@ -76,9 +81,8 @@ describe("handleSharedImages", () => {
     expect(h.readFile).toHaveBeenCalledTimes(1);
     expect(h.readFile).toHaveBeenCalledWith({ path: "file:///f/IMG_1.jpg" });
     expect(h.create).toHaveBeenCalledTimes(1);
-    const [blobs, target] = h.create.mock.calls[0];
-    expect(blobs).toHaveLength(1);
-    expect(target).toBeUndefined(); // new, auto-named batch
+    expect(h.create.mock.calls[0]).toHaveLength(1); // called with a single arg -> new, auto-named batch (no target)
+    expect(h.create.mock.calls[0][0]).toHaveLength(1); // exactly one blob
     expect(h.openBatch).toHaveBeenCalledWith("batch-1");
   });
 
@@ -107,6 +111,19 @@ describe("handleSharedImages", () => {
 
     expect(await handleSharedImages()).toBe(1);
     expect(await handleSharedImages()).toBe(0); // same intent again → skipped
+    expect(h.create).toHaveBeenCalledTimes(1);
+  });
+
+  it("surfaces an error and leaves the share un-consumed when import fails, so a retry re-runs", async () => {
+    h.check.mockResolvedValue({ url: "file:///f/IMG_1.jpg", type: "image/jpeg" });
+    h.readFile.mockRejectedValueOnce(new Error("disk error")); // first read fails
+
+    expect(await handleSharedImages()).toBe(0);
+    expect(h.toastError).toHaveBeenCalledTimes(1); // failure is shown, not swallowed
+    expect(h.create).not.toHaveBeenCalled();
+
+    // Not marked consumed → a later attempt (e.g. after a WebView reload) retries instead of silently skipping.
+    expect(await handleSharedImages()).toBe(1);
     expect(h.create).toHaveBeenCalledTimes(1);
   });
 
