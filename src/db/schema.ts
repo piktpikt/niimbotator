@@ -165,12 +165,26 @@ export interface KnownPrinter {
   createdAt: number;
 }
 
+// PIKT: sticker gallery (P5) — favorites + recents for the sticker picker.
+// Upstream PR candidate: no
+export interface StickerFavorite {
+  id: string; // StickerAsset.id, e.g. "openmoji:1F436"
+  addedAt: number;
+}
+export interface StickerRecent {
+  id: string; // StickerAsset.id
+  usedAt: number;
+}
+
 export class NiimbotatorDB extends Dexie {
   batches!: Table<Batch, string>;
   items!: Table<BatchItem, string>;
   images!: Table<StoredImage, string>;
   printHistory!: Table<PrintHistoryEntry, string>;
   knownPrinters!: Table<KnownPrinter, string>;
+  // PIKT: P5 sticker gallery. Upstream PR candidate: no
+  stickerFavorites!: Table<StickerFavorite, string>;
+  stickerRecents!: Table<StickerRecent, string>;
 
   constructor() {
     super("niimbotator");
@@ -194,6 +208,16 @@ export class NiimbotatorDB extends Dexie {
       images: "id, importedAt, isFavorite, *tags",
       printHistory: "id, batchId, startedAt, finishedAt, outcome",
       knownPrinters: "id, lastConnectedAt, transport",
+    });
+    // PIKT: P5 sticker gallery — additive tables (favorites + recents). Upstream PR candidate: no
+    this.version(4).stores({
+      batches: "id, name, createdAt, modifiedAt, status, *tags",
+      items: "id, batchId, position, status, modifiedAt",
+      images: "id, importedAt, isFavorite, *tags",
+      printHistory: "id, batchId, startedAt, finishedAt, outcome",
+      knownPrinters: "id, lastConnectedAt, transport",
+      stickerFavorites: "id, addedAt",
+      stickerRecents: "id, usedAt",
     });
   }
 }
