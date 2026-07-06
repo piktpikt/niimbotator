@@ -4,6 +4,7 @@
   import { tr } from "$/utils/i18n";
   import MdIcon from "$/components/basic/MdIcon.svelte";
   import Fab from "$/components/navigation/Fab.svelte";
+  import ImportImagesSheet from "$/components/ImportImagesSheet.svelte";
   import { navigate, openBatch, openEditor } from "$/stores/navigation";
   import { batches, itemCounts, createBatch } from "$/stores/batchStore";
   import { liveQuery, type Observable } from "dexie";
@@ -17,6 +18,8 @@
     const id = await createBatch();
     openBatch(id);
   }
+
+  let importSheet = $state<{ pick: () => void } | undefined>(undefined);
 </script>
 
 <div class="mx-auto w-full max-w-2xl space-y-6 p-4 pb-28">
@@ -72,7 +75,7 @@
       <button
         type="button"
         class="card flex flex-col items-start gap-3 bg-surface-100-900 p-4 text-left transition active:scale-[0.98]"
-        onclick={() => navigate("editor")}>
+        onclick={() => importSheet?.pick()}>
         <span class="grid size-10 place-items-center rounded-full bg-tertiary-500/15 text-tertiary-500">
           <MdIcon icon="add_photo_alternate" />
         </span>
@@ -126,3 +129,5 @@
 </div>
 
 <Fab icon="bolt" label={$tr("home.express")} onclick={() => navigate("editor")} />
+
+<ImportImagesSheet bind:this={importSheet} />

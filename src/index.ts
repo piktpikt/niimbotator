@@ -21,8 +21,9 @@ if (import.meta.env.DEV) {
     import("$/stores"),
     import("$/stores/printerMetrics"),
     import("$/utils/label_designer_object_helper"),
-  ]).then(([stores, metrics, helper]) => {
-    (window as unknown as { __nb?: unknown }).__nb = { ...stores, ...metrics, ...helper };
+    import("$/services/imageImport"),
+  ]).then(([stores, metrics, helper, imageImport]) => {
+    (window as unknown as { __nb?: unknown }).__nb = { ...stores, ...metrics, ...helper, ...imageImport };
   });
 }
 
