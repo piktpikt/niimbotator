@@ -6,12 +6,14 @@ const ANIMAL_SUBGROUPS = new Set([
   "cat-face", "monkey-face",
 ]);
 const NATURE_SUBGROUPS = new Set(["plant-flower", "plant-other", "sky-weather"]);
-const LOVE_SUBGROUPS = new Set(["heart", "emotion"]); // hearts + love emotion
+const LOVE_SUBGROUPS = new Set(["heart"]); // hearts only ("emotion" subgroup is anger/collision/etc., not love)
 const PARTY_SUBGROUPS = new Set(["event"]);
 
 // Curated cross-cutting allowlists (uppercase hexcodes, matching openmoji).
+// PIKT: hexcodes verified against node_modules/openmoji/data/openmoji.json — no -FE0F
+// presentation selector on snowflake/snowman (openmoji stores the base codepoint only).
 const SEASONS_ALLOWLIST = new Set([
-  "1F383", "1F384", "2744-FE0F", "2603-FE0F", "26C4", "1F338", "1F342", "1F383", "1F386",
+  "1F383", "1F384", "2744", "2603", "26C4", "1F338", "1F342", "1F386",
 ]); // 🎃 🎄 ❄️ ☃️ ⛄ 🌸 🍂 🎆
 const CUTE_ALLOWLIST = new Set([
   "1F431", "1F638", "1F639", "1F63B", "1F408", // cats (excluding 1F63A per test)
